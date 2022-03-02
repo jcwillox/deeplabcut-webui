@@ -1,0 +1,16 @@
+{
+  "editor.formatOnSave": true,
+  "eslint.alwaysShowStatus": true,
+  "editor.renderWhitespace": "trailing",
+  "editor.codeActionsOnSave": {
+    "source.fixAll": true,
+    "source.organizeImports": true
+  },
+  "[javascript][javascriptreact][typescript][typescriptreact][json][jsonc][yaml]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[python]": {
+    "editor.defaultFormatter": "ms-python.python"
+  },
+  "python.formatting.provider": "black"
+}

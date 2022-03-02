@@ -1,0 +1,12 @@
+name: dlc-webui
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.8
+  - pip
+  - jupyter
+  - nb_conda
+  - ffmpeg
+  - pip:
+      - -r requirements.txt

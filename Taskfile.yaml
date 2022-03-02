@@ -1,0 +1,48 @@
+# https://taskfile.dev
+
+version: "3"
+
+vars:
+  CONDA_ENV: dlc-webui
+
+tasks:
+  backend:
+    desc: "Run the backend"
+    dir: ./backend
+    deps: [is-conda-env]
+    interactive: true
+    cmds:
+      - uvicorn main:app --reload
+
+  setup-conda:
+    desc: "Setup/update the conda environment"
+    deps: [has-conda]
+    vars:
+      envs:
+        sh: conda env list
+    cmds:
+      - |
+        {{- if (contains .CONDA_ENV .envs) -}}
+          conda env update -f ./backend/conda.yaml --prune
+        {{- else -}}
+          conda env create -f ./backend/conda.yaml
+        {{- end -}}
+
+  dlc-gui:
+    desc: "Open the DeepLabCut GUI"
+    deps: [is-conda-env]
+    cmds:
+      - ipython -c "from deeplabcut import launch_dlc; launch_dlc()"
+    ignore_error: true
+
+  ### utility tasks ###
+  has-conda:
+    preconditions:
+      - sh: command -v conda
+        msg: conda not installed
+
+  is-conda-env:
+    deps: [has-conda]
+    preconditions:
+      - sh: '[[ "$CONDA_DEFAULT_ENV" == "{{.CONDA_ENV}}" ]]'
+        msg: no conda environment found, try running "conda activate {{.CONDA_ENV}}"
