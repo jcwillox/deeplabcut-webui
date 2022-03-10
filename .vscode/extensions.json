@@ -5,6 +5,8 @@
     "ms-python.python",
     "ms-python.vscode-pylance",
     "mhutchie.git-graph",
-    "redhat.vscode-yaml"
+    "redhat.vscode-yaml",
+    "johnsoncodehk.volar",
+    "johnsoncodehk.vscode-typescript-vue-plugin"
   ]
 }
