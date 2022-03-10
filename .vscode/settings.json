@@ -6,7 +6,7 @@
     "source.fixAll": true,
     "source.organizeImports": true
   },
-  "[javascript][javascriptreact][typescript][typescriptreact][json][jsonc][yaml]": {
+  "[javascript][javascriptreact][typescript][typescriptreact][json][jsonc][yaml][html]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
   "[python]": {

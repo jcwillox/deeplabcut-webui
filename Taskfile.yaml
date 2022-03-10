@@ -5,12 +5,9 @@ version: "3"
 vars:
   CONDA_ENV: dlc-webui
 
-output: prefixed
-
 tasks:
   backend:
     desc: "Run the backend"
-    prefix: backend
     ignore_error: true
     deps: [is-conda-env]
     cmds:
@@ -18,7 +15,6 @@ tasks:
 
   frontend:
     desc: "Run the frontend"
-    prefix: frontend
     ignore_error: true
     dir: ./frontend
     cmds:
