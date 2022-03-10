@@ -5,13 +5,28 @@ version: "3"
 vars:
   CONDA_ENV: dlc-webui
 
+output: prefixed
+
 tasks:
   backend:
     desc: "Run the backend"
+    prefix: backend
+    ignore_error: true
     deps: [is-conda-env]
-    interactive: true
     cmds:
       - uvicorn backend.main:app --reload
+
+  frontend:
+    desc: "Run the frontend"
+    prefix: frontend
+    ignore_error: true
+    dir: ./frontend
+    cmds:
+      - npm run dev -s -- --clearScreen false
+
+  fullstack:
+    desc: "Run the frontend and backend concurrently"
+    deps: [backend, frontend]
 
   setup-conda:
     desc: "Setup/update the conda environment"
