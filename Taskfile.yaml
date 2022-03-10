@@ -8,11 +8,10 @@ vars:
 tasks:
   backend:
     desc: "Run the backend"
-    dir: ./backend
     deps: [is-conda-env]
     interactive: true
     cmds:
-      - uvicorn main:app --reload
+      - uvicorn backend.main:app --reload
 
   setup-conda:
     desc: "Setup/update the conda environment"

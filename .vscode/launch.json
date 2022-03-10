@@ -6,8 +6,8 @@
       "type": "python",
       "request": "launch",
       "module": "uvicorn",
-      "cwd": "${workspaceFolder}/backend",
-      "args": ["main:app", "--reload"],
+      "cwd": "${workspaceFolder}",
+      "args": ["backend.main:app", "--reload"],
       "jinja": true
     }
   ]
