@@ -1,0 +1,80 @@
+name: "Frontend"
+
+defaults:
+  run:
+    working-directory: ./frontend
+
+on:
+  push:
+    tags-ignore:
+      - "**"
+    paths:
+      - frontend/**
+      - .github/workflows/frontend.yml
+  pull_request:
+    paths:
+      - frontend/**
+      - .github/workflows/frontend.yml
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Checkout the repository"
+        uses: actions/checkout@v2
+
+      - name: "Extract engines"
+        id: engines
+        run: |
+          cp ./package.json ..
+          echo ::set-output name=node::$(jq --raw-output .engines.node ./package.json)
+
+      - name: "Setup pnpm"
+        uses: pnpm/action-setup@v2
+
+      - name: "Setup node"
+        uses: actions/setup-node@v2
+        with:
+          node-version: ${{ steps.engines.outputs.node }}
+          cache: ${{ !env.ACT && 'pnpm' || '' }}
+
+      - name: "Install dependencies"
+        run: pnpm install
+
+      - name: "Run Lint"
+        run: pnpm run lint
+
+      - name: "Check format"
+        run: pnpm run format:check
+
+  build:
+    name: Build & Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Checkout the repository"
+        uses: actions/checkout@v2
+
+      - name: "Extract engines"
+        id: engines
+        run: |
+          cp ./package.json ..
+          echo ::set-output name=node::$(jq --raw-output .engines.node ./package.json)
+
+      - name: "Setup pnpm"
+        uses: pnpm/action-setup@v2
+
+      - name: "Setup node"
+        uses: actions/setup-node@v2
+        with:
+          node-version: ${{ steps.engines.outputs.node }}
+          cache: ${{ !env.ACT && 'pnpm' || '' }}
+
+      - name: "Install dependencies"
+        run: pnpm install
+
+      - name: "Run Build"
+        run: pnpm run build
+
+      - name: "Run Tests"
+        run: pnpm test

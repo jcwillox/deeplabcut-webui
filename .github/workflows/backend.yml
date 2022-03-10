@@ -1,0 +1,26 @@
+name: "Backend"
+
+on:
+  push:
+    tags-ignore:
+      - "**"
+    paths:
+      - backend/**
+      - .github/workflows/backend.yml
+  pull_request:
+    paths:
+      - backend/**
+      - .github/workflows/backend.yml
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Checkout the repository"
+        uses: actions/checkout@v2
+
+      - name: "Check format"
+        uses: psf/black@stable
+        with:
+          src: "./backend"
