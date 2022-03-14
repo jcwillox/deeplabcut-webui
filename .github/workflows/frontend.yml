@@ -79,3 +79,41 @@ jobs:
 
       - name: "Run Tests"
         run: pnpm test
+
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    needs: [lint, build]
+    if: github.ref == 'refs/heads/main'
+    concurrency: ci-${{ github.ref }}
+    steps:
+      - name: "Checkout the repository"
+        uses: actions/checkout@v2
+
+      - name: "Extract engines"
+        id: engines
+        run: |
+          cp ./package.json ..
+          cp ./pnpm-lock.yaml ..
+          echo ::set-output name=node::$(jq --raw-output .engines.node ./package.json)
+
+      - name: "Setup pnpm"
+        uses: pnpm/action-setup@v2
+
+      - name: "Setup node"
+        uses: actions/setup-node@v2
+        with:
+          node-version: ${{ steps.engines.outputs.node }}
+          cache: ${{ !env.ACT && 'pnpm' || '' }}
+
+      - name: "Install dependencies"
+        run: pnpm install
+
+      - name: "Run Build"
+        run: pnpm run build
+
+      - name: "Deploy 🚀"
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          branch: gh-pages
+          folder: frontend/dist
