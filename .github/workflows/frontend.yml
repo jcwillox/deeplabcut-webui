@@ -15,6 +15,7 @@ on:
     paths:
       - frontend/**
       - .github/workflows/frontend.yml
+  workflow_dispatch:
 
 jobs:
   lint:
