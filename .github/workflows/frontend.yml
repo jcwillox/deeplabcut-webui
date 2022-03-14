@@ -86,6 +86,8 @@ jobs:
     needs: [lint, build]
     if: github.ref == 'refs/heads/main'
     concurrency: ci-${{ github.ref }}
+    env:
+      VITE_BASE: "/${{ github.event.repository.name }}/"
     steps:
       - name: "Checkout the repository"
         uses: actions/checkout@v2
