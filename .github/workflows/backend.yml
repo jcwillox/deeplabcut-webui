@@ -2,8 +2,6 @@ name: "Backend"
 
 on:
   push:
-    tags-ignore:
-      - "**"
     paths:
       - backend/**
       - .github/workflows/backend.yml

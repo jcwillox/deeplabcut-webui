@@ -6,8 +6,6 @@ defaults:
 
 on:
   push:
-    tags-ignore:
-      - "**"
     paths:
       - frontend/**
       - .github/workflows/frontend.yml
@@ -29,6 +27,7 @@ jobs:
         id: engines
         run: |
           cp ./package.json ..
+          cp ./pnpm-lock.yaml ..
           echo ::set-output name=node::$(jq --raw-output .engines.node ./package.json)
 
       - name: "Setup pnpm"
@@ -60,6 +59,7 @@ jobs:
         id: engines
         run: |
           cp ./package.json ..
+          cp ./pnpm-lock.yaml ..
           echo ::set-output name=node::$(jq --raw-output .engines.node ./package.json)
 
       - name: "Setup pnpm"
