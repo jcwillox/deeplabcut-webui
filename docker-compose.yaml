@@ -7,3 +7,11 @@ services:
     ports:
       - "8000:8000"
     restart: unless-stopped
+
+  frontend:
+    container_name: dlc-webui-frontend
+    build:
+      context: ./frontend
+    ports:
+      - "3000:80"
+    restart: unless-stopped
