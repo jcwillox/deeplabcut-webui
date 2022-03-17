@@ -2,7 +2,14 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Python: FastAPI",
+      "name": "Node: Frontend",
+      "type": "node-terminal"
+      "request": "launch",
+      "command": "npm run dev",
+      "cwd": "${workspaceFolder}/frontend",
+    },
+    {
+      "name": "Python: Backend",
       "type": "python",
       "request": "launch",
       "module": "uvicorn",

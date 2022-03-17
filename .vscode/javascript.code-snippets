@@ -1,0 +1,100 @@
+{
+  "Vue TS component": {
+    "scope": "vue",
+    "prefix": "vtsc",
+    "body": [
+      "<script setup lang=\"ts\">",
+      "$0",
+      "</script>",
+      "",
+      "<template>",
+      "  <div>",
+      "    $1",
+      "  </div>",
+      "</template>",
+      "",
+      "<style ${2:scoped}>",
+      "$3",
+      "</style>",
+      ""
+    ],
+    "description": "Creates a Vue Typescript SFC"
+  },
+  "Vue TS component with Props": {
+    "scope": "vue",
+    "prefix": "vtscp",
+    "body": [
+      "<script setup lang=\"ts\">",
+      "defineProps<{",
+      "  $0",
+      "}>();",
+      "</script>",
+      "",
+      "<template>",
+      "  <div>",
+      "    $1",
+      "  </div>",
+      "</template>",
+      "",
+      "<style ${2:scoped}>",
+      "$3",
+      "</style>",
+      ""
+    ],
+    "description": "Creates a Vue Typescript SFC with Props"
+  },
+  "Vue Ref": {
+    "scope": "vue",
+    "prefix": "vref",
+    "body": ["const ${1:name} = ref(${2:initialValue})"],
+    "description": "Inserts a Vue Ref statement"
+  },
+  "Vue Reactive Ref": {
+    "scope": "vue",
+    "prefix": "vrref",
+    "body": ["let ${1:name} = \\$ref(${2:initialValue})"],
+    "description": "Inserts a Reactive Vue Ref statement"
+  },
+  "Vue TS Ref": {
+    "scope": "vue",
+    "prefix": "vtsref",
+    "body": ["const ${1:name} = ref<${3:type}>(${2:initialValue})"],
+    "description": "Inserts a Vue Ref statement with an explicit type"
+  },
+  "Vue TS Reactive Ref": {
+    "scope": "vue",
+    "prefix": "vtsrref",
+    "body": ["let ${1:name} = \\$ref<${3:type}>(${2:initialValue})"],
+    "description": "Inserts a Reactive Vue Ref statement with an explicit type"
+  },
+  "Lambda function": {
+    "scope": "javascript,typescript,vue",
+    "prefix": "af",
+    "body": ["($1) => $0"],
+    "description": "Insert a lambda function"
+  },
+  "Lambda function with body": {
+    "scope": "javascript,typescript,vue",
+    "prefix": "afb",
+    "body": ["($1) => {", "  $0", "}"],
+    "description": "Insert a lambda function with body"
+  },
+  "Console log": {
+    "scope": "javascript,typescript,vue",
+    "prefix": "clg",
+    "body": ["console.log($1)$0"],
+    "description": "Console log"
+  },
+  "Console log with title": {
+    "scope": "javascript,typescript,vue",
+    "prefix": "clgt",
+    "body": ["console.log(${1:title}, ${2:value})$0"],
+    "description": "Console log with title"
+  },
+  "Console log variable": {
+    "scope": "javascript,typescript,vue",
+    "prefix": "clgv",
+    "body": ["console.log(\"${2:$1}\", ${1:value})$0"],
+    "description": "Console log with title"
+  }
+}
