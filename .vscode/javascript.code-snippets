@@ -1,6 +1,6 @@
 {
   "Vue TS component": {
-    "scope": "vue",
+    "scope": "javascript,typescript,vue",
     "prefix": "vtsc",
     "body": [
       "<script setup lang=\"ts\">",
@@ -21,7 +21,7 @@
     "description": "Creates a Vue Typescript SFC"
   },
   "Vue TS component with Props": {
-    "scope": "vue",
+    "scope": "javascript,typescript,vue",
     "prefix": "vtscp",
     "body": [
       "<script setup lang=\"ts\">",
@@ -44,25 +44,25 @@
     "description": "Creates a Vue Typescript SFC with Props"
   },
   "Vue Ref": {
-    "scope": "vue",
+    "scope": "javascript,typescript,vue",
     "prefix": "vref",
     "body": ["const ${1:name} = ref(${2:initialValue})"],
     "description": "Inserts a Vue Ref statement"
   },
   "Vue Reactive Ref": {
-    "scope": "vue",
+    "scope": "javascript,typescript,vue",
     "prefix": "vrref",
     "body": ["let ${1:name} = \\$ref(${2:initialValue})"],
     "description": "Inserts a Reactive Vue Ref statement"
   },
   "Vue TS Ref": {
-    "scope": "vue",
+    "scope": "javascript,typescript,vue",
     "prefix": "vtsref",
     "body": ["const ${1:name} = ref<${3:type}>(${2:initialValue})"],
     "description": "Inserts a Vue Ref statement with an explicit type"
   },
   "Vue TS Reactive Ref": {
-    "scope": "vue",
+    "scope": "javascript,typescript,vue",
     "prefix": "vtsrref",
     "body": ["let ${1:name} = \\$ref<${3:type}>(${2:initialValue})"],
     "description": "Inserts a Reactive Vue Ref statement with an explicit type"

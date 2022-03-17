@@ -10,5 +10,8 @@ module.exports = {
   ],
   env: {
     "vue/setup-compiler-macros": true
+  },
+  rules: {
+    "@typescript-eslint/no-non-null-assertion": "off"
   }
 };
