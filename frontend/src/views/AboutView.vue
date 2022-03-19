@@ -5,7 +5,8 @@ import { RouterLink } from "vue-router";
 <template>
   <div class="about">
     <h3>
-      This is an about page, return to <RouterLink to="/">home</RouterLink>.
+      This is an about page, return to
+      <RouterLink to="/extract">extract</RouterLink>.
     </h3>
   </div>
 </template>
