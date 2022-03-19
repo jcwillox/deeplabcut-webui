@@ -61,15 +61,13 @@ watch(route, () => {
     </v-app-bar>
 
     <v-main>
-      <v-container class="pa-0" fluid>
-        <router-view v-slot="{ Component }">
-          <transition>
-            <keep-alive>
-              <component :is="Component" />
-            </keep-alive>
-          </transition>
-        </router-view>
-      </v-container>
+      <router-view v-slot="{ Component }">
+        <transition>
+          <keep-alive>
+            <component :is="Component" />
+          </keep-alive>
+        </transition>
+      </router-view>
     </v-main>
   </v-app>
 </template>
