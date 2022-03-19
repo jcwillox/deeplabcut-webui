@@ -50,7 +50,7 @@ const onFrameCallback = (
 
 /* Seeking Functions */
 const seek = (frames: number) => {
-  if (player?.paused()) {
+  if (player && !player.paused()) {
     player.pause();
   }
   seekTo(cFrame + frames);
