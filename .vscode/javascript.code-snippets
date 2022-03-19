@@ -43,11 +43,59 @@
     ],
     "description": "Creates a Vue Typescript SFC with Props"
   },
+  "Vue TS Props Block": {
+    "prefix": "vtsprops",
+    "body": ["const props = defineProps<{", "  ${1:name}: ${2:type};", "}>();"],
+    "description": "Inserts a Vue TS Define Props Block"
+  },
+  "Vue TS Emits Block": {
+    "prefix": "vtsemits",
+    "body": [
+      "const emit = defineEmits<{",
+      "  (e: \"${1:event}\", ${2:value}: ${3: type}): void;",
+      "}>();"
+    ],
+    "description": "Inserts a Vue TS Define Emits Block"
+  },
+  "Vue Expose Block": {
+    "prefix": "vexpose",
+    "body": ["defineExpose({", "  $0", "});"],
+    "description": "Inserts a Vue Expose Block"
+  },
+  "Vue Computed with Get/Set": {
+    "prefix": "vcomputedset",
+    "body": [
+      "const ${1:name} = computed({",
+      "  get: () => $0,",
+      "  set: value => {",
+      "    $2",
+      "  }",
+      "});"
+    ],
+    "description": "Inserts a Vue computed value with a setter"
+  },
+  "Vue Computed V-Model": {
+    "prefix": "vmodel",
+    "body": [
+      "const ${1:name} = computed({",
+      "  get: () => props.${2:modelValue},",
+      "  set: value => {",
+      "    emit(\"update:${2:modelValue}\", value);",
+      "  }",
+      "});"
+    ],
+    "description": "Inserts a Vue computed value backed by a v-model prop"
+  },
   "Vue Ref": {
     "scope": "javascript,typescript,vue",
     "prefix": "vref",
     "body": ["const ${1:name} = ref(${2:initialValue})"],
     "description": "Inserts a Vue Ref statement"
+  },
+  "Arrow Function Statement": {
+    "prefix": "const",
+    "body": ["const ${1:name} = (${2:params}) => {", "  $0", "}"],
+    "description": "Insert an Arrow Function Statement"
   },
   "Vue Reactive Ref": {
     "scope": "javascript,typescript,vue",
