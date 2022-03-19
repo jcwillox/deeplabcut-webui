@@ -16,6 +16,13 @@ module.exports = {
   },
   globals: {
     DOMHighResTimeStamp: true,
-    VideoFrameMetadata: true
+    VideoFrameMetadata: true,
+    $: true,
+    $$: true,
+    $ref: true,
+    $shallowRef: true,
+    $computed: true,
+    $customRef: true,
+    $toRef: true
   }
 };
