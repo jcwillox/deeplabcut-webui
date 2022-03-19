@@ -1,1 +1,0 @@
-import{d as t,n as o,m as s,a,w as n,u as c,p as r,l as e,o as _}from"./vendor.4ecc4219.js";const d={class:"about"},i=e(" This is an about page, return to "),u=e("home"),h=e(". "),x=t({setup(l){return(p,m)=>(_(),o("div",d,[s("h3",null,[i,a(c(r),{to:"/"},{default:n(()=>[u]),_:1}),h])]))}});export{x as default};
