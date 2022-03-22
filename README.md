@@ -4,12 +4,16 @@
 
 - Install the [requirements](#requirements) listed below.
 - After installing conda run `conda init <shell>`, e.g. `conda init powershell`.
+  - You can revert this later with `conda init <shell> --reverse`.
+- *Optional*: Run `conda config --set auto_activate_base false` this will stop conda from switching to the default conda `(base)` environment whenever you open PowerShell.
 - Clone and `cd` into the repository.
 - Run `task setup-conda`, this will create the conda environment for this project.
 - Run `conda activate dlc-webui`.
+- Run `cd frontend` and `pnpm install` to install the frontend packages.
 - Everything is set up now, however, you will need to change the python interpreter inside your editor manually to use the conda environment.
   - **VSCode**: open the `backend/main.py` file, press `F1`, find "Python: Select interpreter", select the interpreter called `dlc-webui`, you may need to click the refresh icon in the top-right first.
-- You can start the DeepLabCut GUI with `task dlc-gui`.
+- You can start the DeepLabCut GUI with `task dlc-gui`, or start the frontend and backend with `task fullstack`, run `task -l` to see additional scripts.
+- Additionally, when using **VSCode** you can press `F1` and search for `Task: Run Task`, then select whether you'd like to run the frontend, backend or both.
 
 ## Requirements
 
