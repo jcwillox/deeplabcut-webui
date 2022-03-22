@@ -11,14 +11,14 @@
     },
     {
       "type": "shell",
-      "command": "conda activate dlc-webui && task backend",
+      "command": "conda activate dlc-webui; task backend",
       "problemMatcher": [],
       "label": "Backend",
       "detail": "Start the backend"
     },
     {
       "type": "shell",
-      "command": "conda activate dlc-webui && task fullstack",
+      "command": "conda activate dlc-webui; task fullstack",
       "problemMatcher": [],
       "label": "Fullstack",
       "detail": "Start both frontend and backend"
