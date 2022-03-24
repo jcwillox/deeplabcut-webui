@@ -6,6 +6,7 @@ vars:
   CONDA_ENV: dlc-webui
 
 tasks:
+  ### BACKEND ###
   backend:
     desc: "Run the backend"
     ignore_error: true
@@ -13,6 +14,23 @@ tasks:
     cmds:
       - uvicorn backend.main:app --reload
 
+  backend:format:
+    desc: Format backend code
+    ignore_error: true
+    preconditions:
+      - sh: command -v black
+        msg: black does not appear to be installed, try running "pip install black"
+    cmds:
+      - black ./backend {{.args}}
+
+  backend:format:check:
+    desc: Check format of the backend code
+    cmds:
+      - task: backend:format
+        vars:
+          args: --check --diff --color
+
+  ### FRONTEND ###
   frontend:
     desc: "Run the frontend"
     ignore_error: true
@@ -20,6 +38,7 @@ tasks:
     cmds:
       - npm run dev -s -- --clearScreen false
 
+  ### MISC ###
   fullstack:
     desc: "Run the frontend and backend concurrently"
     deps: [backend, frontend]
@@ -39,13 +58,13 @@ tasks:
         {{- end -}}
 
   dlc-gui:
-    desc: "Open the DeepLabCut GUI"
+    desc: "Open DeepLabCut's builtin GUI"
     deps: [is-conda-env]
     cmds:
       - ipython -c "from deeplabcut import launch_dlc; launch_dlc()"
     ignore_error: true
 
-  ### utility tasks ###
+  ### UTILITIES ###
   has-conda:
     preconditions:
       - sh: command -v conda
