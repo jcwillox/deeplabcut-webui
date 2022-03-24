@@ -7,7 +7,7 @@ from fastapi.requests import Request
 from pydantic import validator, BaseModel
 
 from .projects import ProjectType
-from ..responses.video import VideoResponse
+from ..responses import VideoResponse
 from ..utils import QueryModel, get_project_path
 
 router = APIRouter()
