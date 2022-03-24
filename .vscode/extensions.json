@@ -8,5 +8,6 @@
     "redhat.vscode-yaml",
     "johnsoncodehk.volar",
     "johnsoncodehk.vscode-typescript-vue-plugin"
-  ]
+  ],
+  "unwantedRecommendations": ["octref.vetur"]
 }
