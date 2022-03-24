@@ -3,7 +3,7 @@ import os
 from fastapi import HTTPException, status
 from pydantic import BaseModel, ValidationError
 
-from ..const import PROJECTS_DIR
+from ..config import get_settings
 
 
 def is_safe_path(base, path, follow_symlinks=True):
@@ -22,7 +22,8 @@ def ensure_safe_path(base, path, follow_symlinks=True):
 
 def get_project_path(path, *paths):
     """Returns a path relative to the project directory, raises `HTTPException` for unsafe paths"""
-    return ensure_safe_path(PROJECTS_DIR, os.path.join(PROJECTS_DIR, path, *paths))
+    base = get_settings().projects
+    return ensure_safe_path(base, os.path.join(base, path, *paths))
 
 
 class QueryModel(BaseModel):

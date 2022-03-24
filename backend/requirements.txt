@@ -1,5 +1,6 @@
 deeplabcut[gui]
 fastapi==0.75.0
-uvicorn[standard]==0.17.5
+python-dotenv==0.19.2
+uvicorn[standard]==0.17.6
 opencv-python==4.5.5.64
 decord==0.6.0

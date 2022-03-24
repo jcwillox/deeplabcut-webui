@@ -1,8 +1,8 @@
 import os
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 
-from ..const import PROJECTS_DIR
+from ..config import get_settings, Settings
 
 router = APIRouter()
 
@@ -14,11 +14,11 @@ class ProjectType(str):
 
     @classmethod
     def validate(cls, value) -> str:
-        if value not in os.listdir(PROJECTS_DIR):
+        if value not in os.listdir(get_settings().projects):
             raise ValueError("this project does not exist")
         return value
 
 
 @router.get("")
-def list_projects():
-    return os.listdir(PROJECTS_DIR)
+def list_projects(settings: Settings = Depends(get_settings)):
+    return os.listdir(settings.projects)
