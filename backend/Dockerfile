@@ -2,6 +2,8 @@ ARG BUILD_FROM=deeplabcut/deeplabcut:latest-gui
 FROM $BUILD_FROM
 
 ENV API_KEY="mysupersecretpassword"
+ENV DLC_PROJECTS="/projects"
+
 EXPOSE 8000
 
 COPY requirements.txt requirements.txt
