@@ -1,12 +1,21 @@
 import time
 
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
 from .routers import projects, videos
 
 app = FastAPI()
 app.include_router(projects.router, prefix="/projects")
 app.include_router(videos.router, prefix="/videos")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 @app.middleware("http")
