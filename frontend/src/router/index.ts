@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory } from "vue-router";
-import AboutView from "../views/AboutView.vue";
-import HomeView from "../views/HomeView.vue";
+import AboutView from "@/views/AboutView.vue";
+import ExtractView from "@/views/ExtractView.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -8,12 +8,14 @@ const router = createRouter({
     {
       path: "/",
       name: "home",
-      component: HomeView
+      redirect: () => {
+        return { name: "extract" };
+      }
     },
     {
       path: "/extract",
       name: "extract",
-      component: HomeView
+      component: ExtractView
     },
     {
       path: "/label",
