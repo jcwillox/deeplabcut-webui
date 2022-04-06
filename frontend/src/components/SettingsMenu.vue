@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useStore } from "@/stores/global";
 import type { BasicColorSchema } from "@vueuse/core";
 import { capitalize, computed } from "vue";
 
@@ -11,6 +12,8 @@ const emit = defineEmits<{
   (e: "update:modelValue", value: boolean): void;
   (e: "update:theme", value: BasicColorSchema): void;
 }>();
+
+const store = useStore();
 
 const show = computed({
   get: () => props.modelValue,
@@ -37,10 +40,17 @@ const themeName = computed({
     <v-container>
       <v-select
         :items="['Auto', 'Light', 'Dark']"
+        class="pb-3"
         v-model="themeName"
         label="Theme"
+        hide-details
       >
       </v-select>
+      <v-text-field
+        label="Backend"
+        v-model="store.backend"
+        hide-details
+      ></v-text-field>
     </v-container>
   </v-navigation-drawer>
 </template>
