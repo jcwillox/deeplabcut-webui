@@ -2,11 +2,11 @@
 import { toTimecode } from "@/utils";
 import type { VideoJsPlayer, VideoJsPlayerOptions } from "video.js";
 import videojs from "video.js";
-import { onMounted } from "vue";
-import { $$, $ref } from "vue/macros";
+import { onMounted, watch } from "vue";
 
 const props = defineProps<{
   options?: VideoJsPlayerOptions;
+  src: string | videojs.Tech.SourceObject;
   fps: number;
 }>();
 
@@ -21,11 +21,37 @@ let cFrame = $ref(0);
 let cTimecode = $ref(toTimecode(0));
 let drift = 0;
 
+const setSource = (url: string, type = "video/mp4") => {
+  if (!player) return;
+  if (!player.paused()) {
+    player.pause();
+  }
+  player.src({ src: url, type });
+  player.load();
+  player.currentTime(0);
+};
+
+const _setFromSource = () => {
+  if (props.src) {
+    if (typeof props.src === "string") {
+      console.log("setting string source");
+      setSource(props.src);
+    } else {
+      setSource(props.src.src, props.src.type);
+    }
+  }
+};
+
+watch(() => props.src, _setFromSource);
+
 onMounted(() => {
   player = videojs(
     videoEl!,
     { fluid: true, muted: true, ...props.options },
-    () => emit("playerReady", player!)
+    () => {
+      _setFromSource();
+      emit("playerReady", player!);
+    }
   );
 
   videoEl?.requestVideoFrameCallback(onFrameCallback);
@@ -35,11 +61,14 @@ const onFrameCallback = (
   now: DOMHighResTimeStamp,
   metadata: VideoFrameMetadata
 ) => {
-  console.debug(now, metadata);
-
-  if (metadata.presentedFrames == 1 && metadata.mediaTime > 0) {
-    console.log("accounting for video start drift of", metadata.mediaTime);
-    drift = metadata.mediaTime;
+  if (metadata.presentedFrames == 1) {
+    console.debug("first frame", now, metadata);
+    if (metadata.mediaTime > 0) {
+      console.log("accounting for video start drift of", metadata.mediaTime);
+      drift = metadata.mediaTime;
+    } else {
+      drift = 0;
+    }
   }
 
   cFrame = Math.round((metadata.mediaTime - drift) * props.fps);
@@ -81,6 +110,7 @@ defineExpose({
   timecode: $$(cTimecode),
   videojs: $$(player),
   videoEl: $$(videoEl),
+  setSource,
   seek,
   seekTo,
   seekForward,
