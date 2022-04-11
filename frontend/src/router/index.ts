@@ -1,6 +1,8 @@
+import { useStore } from "@/stores/global";
 import { createRouter, createWebHistory } from "vue-router";
 import AboutView from "@/views/AboutView.vue";
 import ExtractView from "@/views/ExtractView.vue";
+import ProjectView from "@/views/ProjectView.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -9,8 +11,15 @@ const router = createRouter({
       path: "/",
       name: "home",
       redirect: () => {
-        return { name: "extract" };
+        const store = useStore();
+        if (store.project) return { name: "extract" };
+        return { name: "project" };
       }
+    },
+    {
+      path: "/project",
+      name: "project",
+      component: ProjectView
     },
     {
       path: "/extract",

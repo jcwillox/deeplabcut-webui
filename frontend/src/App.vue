@@ -1,14 +1,17 @@
 <script setup lang="ts">
+import { useStore } from "@/stores/global";
 import {
+  type BasicColorSchema,
   usePreferredColorScheme,
-  useStorage,
-  type BasicColorSchema
+  useStorage
 } from "@vueuse/core";
 import { computed, ref, watch } from "vue";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import SettingsMenu from "./components/SettingsMenu.vue";
 import SystemBar from "./components/SystemBar.vue";
 
+const store = useStore();
+const showProject = computed(() => !store.project || !store.video);
 const showSettings = ref(false);
 
 // compute which theme to use
@@ -20,8 +23,24 @@ const theme = computed(() =>
 
 // handle tracking active tab
 const route = useRoute();
+const router = useRouter();
 const tab = ref("");
-const items = ["extract", "label", "analyse"];
+
+const items = computed(() =>
+  showProject.value ? ["project"] : ["extract", "label", "analyse"]
+);
+
+watch(
+  [() => store.project, () => store.video],
+  ([newProject, newVideo]) => {
+    if (!newProject || !newVideo) {
+      router.push({ name: "project" });
+    } else if (newProject && newVideo && route.name == "project") {
+      router.push({ name: "extract" });
+    }
+  },
+  { immediate: true }
+);
 
 // bind route to active tab
 watch(
@@ -63,7 +82,7 @@ watch(
     <v-main class="pa-0">
       <router-view v-slot="{ Component }">
         <transition>
-          <keep-alive>
+          <keep-alive exclude="ProjectView">
             <component :is="Component" />
           </keep-alive>
         </transition>
