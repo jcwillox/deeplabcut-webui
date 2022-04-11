@@ -1,9 +1,21 @@
 <script setup lang="ts">
+import { useStore } from "@/stores/global";
+import { useFetch } from "@/utils/fetch";
 import type { VideoJsPlayer } from "video.js";
 import { computed } from "vue";
 import VideoJS from "../components/VideoJS.vue";
 
 let player = $ref<InstanceType<typeof VideoJS> | null>(null);
+
+const store = useStore();
+const url = computed(() => "/videos/" + store.video);
+
+// construct the url to stream the selected video
+const urlStream = computed(() => {
+  const newUrl = new URL(url.value + "/stream", store.backend);
+  newUrl.searchParams.append("project", store.project);
+  return newUrl.toString();
+});
 
 const timecode = computed(() => player?.timecode || 0);
 const frame = computed({
@@ -24,6 +36,10 @@ const toggleVideo = () => {
     player?.videojs?.pause();
   }
 };
+
+// fetch the videos fps from backend
+const { data } = useFetch(url, { refetch: true }).get().json();
+const fps = computed(() => (data.value ? data.value.fps : -1));
 </script>
 
 <template>
@@ -51,16 +67,12 @@ const toggleVideo = () => {
 
     <VideoJS
       ref="player"
-      :fps="23.976"
+      :fps="fps"
+      :src="urlStream"
       @player-ready="playerReady"
       @keydown.space="toggleVideo"
       @keydown.left="() => player?.seekBackward()"
       @keydown.right="() => player?.seekForward()"
-    >
-      <source
-        src="https://daiz.github.io/frame-accurate-ish/time.mp4"
-        type="video/mp4"
-      />
-    </VideoJS>
+    ></VideoJS>
   </v-container>
 </template>
