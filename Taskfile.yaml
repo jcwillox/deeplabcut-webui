@@ -38,10 +38,36 @@ tasks:
     cmds:
       - npm run dev -s -- --clearScreen false
 
+  frontend:lint:
+    desc: "Format and lint the frontend code"
+    dir: ./frontend
+    cmds:
+      - npm run lint:fix
+      - npm run format
+
+  frontend:lint:check:
+    desc: "Check the quality of the frontend code"
+    dir: ./frontend
+    cmds:
+      - npm run lint
+      - npm run format:check
+
   ### MISC ###
   fullstack:
     desc: "Run the frontend and backend concurrently"
     deps: [backend, frontend]
+
+  lint:
+    desc: "Lint and format the frontend and backend code"
+    cmds:
+      - task: backend:format
+      - task: frontend:lint
+
+  lint:check:
+    desc: "Check the quality of the frontend and backend code"
+    cmds:
+      - task: backend:format:check
+      - task: frontend:lint:check
 
   setup-conda:
     desc: "Setup/update the conda environment"
