@@ -14,9 +14,9 @@
     "format:check": "prettier src/ --check"
   },
   "dependencies": {
-    "@mdi/font": "^6.6.95",
-    "@vueuse/core": "^8.1.2",
-    "pinia": "^2.0.12",
+    "@mdi/font": "^6.6.96",
+    "@vueuse/core": "^8.2.5",
+    "pinia": "^2.0.13",
     "roboto-fontface": "*",
     "video.js": "^7.18.1",
     "vue": "^3.2.31",
@@ -25,26 +25,26 @@
     "webfontloader": "^1.6.28"
   },
   "devDependencies": {
-    "@rushstack/eslint-patch": "^1.1.1",
+    "@rushstack/eslint-patch": "^1.1.2",
     "@types/jsdom": "^16.2.14",
     "@types/node": "^16.11.26",
-    "@types/video.js": "^7.3.32",
+    "@types/video.js": "^7.3.33",
     "@types/webfontloader": "^1.6.34",
-    "@vitejs/plugin-vue": "^2.2.4",
+    "@vitejs/plugin-vue": "^2.3.1",
     "@vue/eslint-config-typescript": "^10.0.0",
-    "@vue/test-utils": "^2.0.0-rc.18",
+    "@vue/test-utils": "2.0.0-rc.19",
     "@vue/tsconfig": "^0.1.3",
     "@vuetify/vite-plugin": "^1.0.0-alpha.10",
-    "eslint": "^8.11.0",
-    "eslint-plugin-vue": "^8.5.0",
+    "eslint": "^8.13.0",
+    "eslint-plugin-vue": "^8.6.0",
     "jsdom": "^19.0.0",
-    "prettier": "^2.6.0",
-    "typescript": "~4.6.2",
-    "vite": "^2.8.6",
-    "vitest": "^0.7.10",
-    "vue-tsc": "0.33.7"
+    "prettier": "^2.6.2",
+    "typescript": "~4.6.3",
+    "vite": "^2.9.1",
+    "vitest": "^0.9.3",
+    "vue-tsc": "0.34.4"
   },
-  "packageManager": "pnpm@6.32.3",
+  "packageManager": "pnpm@6.32.6",
   "engines": {
     "node": "16.x"
   }
