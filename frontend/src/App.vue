@@ -7,6 +7,7 @@ import {
 import { computed, ref, watch } from "vue";
 import { useRoute } from "vue-router";
 import SettingsMenu from "./components/SettingsMenu.vue";
+import SystemBar from "./components/SystemBar.vue";
 
 const showSettings = ref(false);
 
@@ -35,11 +36,7 @@ watch(route, () => {
   <v-app :theme="theme">
     <SettingsMenu v-model="showSettings" v-model:theme="themeMode" />
 
-    <v-system-bar app fixed color="primary-darken-1">
-      <v-icon class="pr-3">mdi-movie</v-icon>
-      <span>Hello_World.mp4</span>
-      <v-spacer />
-    </v-system-bar>
+    <SystemBar />
 
     <v-app-bar color="primary" density="compact" flat app>
       <template v-slot:prepend>
