@@ -14,7 +14,7 @@
       "request": "launch",
       "module": "uvicorn",
       "cwd": "${workspaceFolder}",
-      "args": ["backend.main:app", "--reload"],
+      "args": ["backend.app.main:app", "--reload"],
       "jinja": true
     }
   ]

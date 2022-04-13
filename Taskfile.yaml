@@ -12,7 +12,7 @@ tasks:
     ignore_error: true
     deps: [is-conda-env]
     cmds:
-      - uvicorn backend.main:app --reload
+      - uvicorn backend.app.main:app --reload
 
   backend:format:
     desc: Format backend code
