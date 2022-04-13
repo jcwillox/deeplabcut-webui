@@ -11,6 +11,7 @@ def is_safe_path(base, path, follow_symlinks=True):
         path = os.path.realpath(path)
     else:
         path = os.path.abspath(path)
+    base = os.path.abspath(base)
     return base == os.path.commonpath((base, path))
 
 
