@@ -52,6 +52,39 @@ tasks:
       - npm run lint
       - npm run format:check
 
+  ### SETUP ###
+  setup:
+    desc: "Setup the frontend and backend environments/dependencies"
+    cmds:
+      - task: setup-conda
+      - task: setup-node
+
+  setup-node:
+    desc: "Setup pnpm and install frontend dependencies"
+    dir: ./frontend
+    preconditions:
+      - sh: command -v node
+        msg: node not installed
+      - sh: command -v corepack
+        msg: corepack is missing
+    cmds:
+      - corepack enable
+      - pnpm install
+
+  setup-conda:
+    desc: "Setup/update the conda environment"
+    deps: [has-conda]
+    vars:
+      envs:
+        sh: conda env list
+    cmds:
+      - |
+        {{- if (contains .CONDA_ENV .envs) -}}
+          conda env update -f ./backend/conda.yaml --prune
+        {{- else -}}
+          conda env create -f ./backend/conda.yaml
+        {{- end -}}
+
   ### MISC ###
   fullstack:
     desc: "Run the frontend and backend concurrently"
@@ -68,20 +101,6 @@ tasks:
     cmds:
       - task: backend:format:check
       - task: frontend:lint:check
-
-  setup-conda:
-    desc: "Setup/update the conda environment"
-    deps: [has-conda]
-    vars:
-      envs:
-        sh: conda env list
-    cmds:
-      - |
-        {{- if (contains .CONDA_ENV .envs) -}}
-          conda env update -f ./backend/conda.yaml --prune
-        {{- else -}}
-          conda env create -f ./backend/conda.yaml
-        {{- end -}}
 
   dlc-gui:
     desc: "Open DeepLabCut's builtin GUI"

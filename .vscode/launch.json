@@ -3,10 +3,10 @@
   "configurations": [
     {
       "name": "Node: Frontend",
-      "type": "node-terminal"
+      "type": "node-terminal",
       "request": "launch",
       "command": "npm run dev",
-      "cwd": "${workspaceFolder}/frontend",
+      "cwd": "${workspaceFolder}/frontend"
     },
     {
       "name": "Python: Backend",
