@@ -4,7 +4,7 @@ from pydantic import BaseSettings
 
 
 class Settings(BaseSettings):
-    projects: str
+    projects: str = "backend/tests/testdata"
 
     class Config:
         env_file = ".env"
