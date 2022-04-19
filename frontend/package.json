@@ -4,6 +4,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vue-tsc --noEmit && vite build",
+    "build:clean": "npm run clean && npm run build",
     "preview": "vite preview --port 5050",
     "test": "vitest --environment jsdom --watch false --passWithNoTests",
     "test:watch": "vitest --environment jsdom",
@@ -11,7 +12,8 @@
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --ignore-path ../.gitignore",
     "lint:fix": "npm run lint -s -- --fix",
     "format": "prettier src/ --write",
-    "format:check": "prettier src/ --check"
+    "format:check": "prettier src/ --check",
+    "clean": "del-cli dist/"
   },
   "dependencies": {
     "@mdi/font": "^6.6.96",
@@ -35,6 +37,7 @@
     "@vue/test-utils": "2.0.0-rc.19",
     "@vue/tsconfig": "^0.1.3",
     "@vuetify/vite-plugin": "^1.0.0-alpha.10",
+    "del-cli": "^4.0.1",
     "eslint": "^8.13.0",
     "eslint-plugin-vue": "^8.6.0",
     "jsdom": "^19.0.0",

@@ -99,6 +99,12 @@ tasks:
       - task: backend:format:check
       - task: frontend:lint:check
 
+  clean:
+    desc: "Remove temporary files and directories"
+    cmds:
+      - python ./scripts/clean_backend.py
+      - cd frontend && npm run clean -s
+
   dlc-gui:
     desc: "Open DeepLabCut's builtin GUI"
     deps: [is-conda-env]
