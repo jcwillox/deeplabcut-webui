@@ -65,10 +65,7 @@ tasks:
     preconditions:
       - sh: command -v node
         msg: node not installed
-      - sh: command -v corepack
-        msg: corepack is missing
     cmds:
-      - corepack enable
       - pnpm install
 
   setup-conda:
