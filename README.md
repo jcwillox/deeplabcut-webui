@@ -12,7 +12,7 @@
 - Install the [requirements](#requirements) listed below.
 - After installing conda run `conda init <shell>`, e.g. `conda init powershell`.
   - You can revert this later with `conda init <shell> --reverse`.
-- *Optional*: Run `conda config --set auto_activate_base false` this will stop conda from switching to the default conda `(base)` environment whenever you open PowerShell.
+- _Optional_: Run `conda config --set auto_activate_base false` this will stop conda from switching to the default conda `(base)` environment whenever you open PowerShell.
 - Clone and `cd` into the repository.
 - Run `task setup`, this will set up the environments/dependencies for the project.
   - This can also be run to update the environments/dependencies after pulling the project.

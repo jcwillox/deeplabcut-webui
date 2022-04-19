@@ -9,6 +9,9 @@
   "[javascript][javascriptreact][typescript][typescriptreact][json][jsonc][yaml][html]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
+  "[markdown]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
   "[python]": {
     "editor.defaultFormatter": "ms-python.python"
   },
