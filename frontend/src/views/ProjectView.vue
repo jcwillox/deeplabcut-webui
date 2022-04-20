@@ -13,19 +13,20 @@ import VideoDialog from "../components/VideoDialog.vue";
 const store = useStore();
 const dialog = ref(false);
 
-const { isFetching, data } = useFetch("/projects").get().json();
+const { isFetching, error, data } = useFetch("/projects").get().json();
 </script>
 
 <template>
   <v-container class="d-flex flex-column" style="max-width: 640px">
     <v-autocomplete
       v-model="store.project"
-      :items="data"
-      :loading="isFetching"
-      class="pb-3"
       label="Project"
       color="primary"
-      hide-details
+      class="pb-3"
+      :items="data"
+      :loading="isFetching"
+      :hide-details="!error"
+      :error-messages="error || ''"
       clearable
     ></v-autocomplete>
     <v-text-field
@@ -42,4 +43,8 @@ const { isFetching, data } = useFetch("/projects").get().json();
   </v-container>
 </template>
 
-<style scoped></style>
+<style scoped>
+:deep(.v-input__details) {
+  margin-bottom: 0;
+}
+</style>
