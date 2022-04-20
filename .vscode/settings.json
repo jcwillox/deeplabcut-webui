@@ -6,6 +6,8 @@
     "source.fixAll": true,
     "source.organizeImports": true
   },
+  "editor.linkedEditing": true,
+  "html.autoClosingTags": true,
   "[javascript][javascriptreact][typescript][typescriptreact][json][jsonc][yaml][html]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
