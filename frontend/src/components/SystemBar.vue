@@ -10,24 +10,39 @@ const dialog = ref(false);
 <template>
   <v-system-bar
     v-if="store.project"
-    app
     color="primary-darken-1"
     class="flex-grow-0 pl-0"
   >
-    <v-btn v-if="store.project" variant="text" size="small" :ripple="false">
+    <v-btn
+      v-if="store.project"
+      variant="text"
+      size="small"
+      class="ml-2 mr-2 pl-1 pr-1"
+      :ripple="false"
+    >
       <v-icon left>mdi-folder</v-icon>
       {{ store.project }}
     </v-btn>
     <span v-if="store.video">
-      <span class="pr-1">/</span>
-      <v-btn variant="text" size="small" @click.stop="dialog = true">
+      <span>/</span>
+      <v-btn
+        variant="text"
+        size="small"
+        @click.stop="dialog = true"
+        class="ml-1 mr-2 pl-1 pr-1"
+      >
         <v-icon left>mdi-movie</v-icon>
         {{ store.video }}
       </v-btn>
     </span>
     <v-spacer />
-    <v-icon @click="store.resetProject">mdi-close</v-icon>
-
+    <v-btn
+      variant="text"
+      size="x-small"
+      icon="mdi-close"
+      class="ml-2"
+      @click="store.resetProject"
+    ></v-btn>
     <VideoDialog v-model="dialog"> </VideoDialog>
   </v-system-bar>
 </template>
@@ -36,9 +51,5 @@ const dialog = ref(false);
 .v-btn {
   text-transform: none;
   font-weight: 400;
-}
-.mdi-close {
-  cursor: pointer;
-  opacity: 1 !important;
 }
 </style>

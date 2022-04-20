@@ -45,13 +45,13 @@ const setVideo = (video: string) => {
           <v-icon>mdi-close</v-icon>
         </v-btn>
       </v-toolbar>
-      <v-card-text
+      <v-card-content
         v-if="isFetching"
-        class="d-flex flex-column pb-4 align-center justify-center flex-grow-1"
+        class="d-flex pb-4 align-center justify-center"
       >
         <v-progress-circular indeterminate color="primary" />
-      </v-card-text>
-      <v-card-text
+      </v-card-content>
+      <v-card-content
         v-else
         class="pt-0"
         style="overflow-y: scroll; height: calc(100vh - 56px)"
@@ -61,7 +61,7 @@ const setVideo = (video: string) => {
           :items="data"
           @selected="setVideo"
         />
-      </v-card-text>
+      </v-card-content>
     </v-card>
   </v-dialog>
 </template>
