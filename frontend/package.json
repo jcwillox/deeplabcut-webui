@@ -17,24 +17,24 @@
   },
   "dependencies": {
     "@mdi/font": "^6.6.96",
-    "@vueuse/core": "^8.2.5",
+    "@vueuse/core": "^8.2.6",
     "pinia": "^2.0.13",
     "roboto-fontface": "*",
     "video.js": "^7.18.1",
-    "vue": "^3.2.31",
+    "vue": "^3.2.33",
     "vue-router": "^4.0.14",
-    "vuetify": "^3.0.0-beta.0",
+    "vuetify": "^3.0.0-beta.1",
     "webfontloader": "^1.6.28"
   },
   "devDependencies": {
     "@rushstack/eslint-patch": "^1.1.2",
     "@types/jsdom": "^16.2.14",
-    "@types/node": "^16.11.26",
+    "@types/node": "^16.11.27",
     "@types/video.js": "^7.3.33",
     "@types/webfontloader": "^1.6.34",
     "@vitejs/plugin-vue": "^2.3.1",
     "@vue/eslint-config-typescript": "^10.0.0",
-    "@vue/test-utils": "2.0.0-rc.19",
+    "@vue/test-utils": "^2.0.0-rc.20",
     "@vue/tsconfig": "^0.1.3",
     "@vuetify/vite-plugin": "^1.0.0-alpha.10",
     "del-cli": "^4.0.1",
@@ -43,11 +43,11 @@
     "jsdom": "^19.0.0",
     "prettier": "^2.6.2",
     "typescript": "~4.6.3",
-    "vite": "^2.9.1",
+    "vite": "^2.9.5",
     "vitest": "^0.9.3",
-    "vue-tsc": "0.34.4"
+    "vue-tsc": "0.34.7"
   },
-  "packageManager": "pnpm@6.32.6",
+  "packageManager": "pnpm@6.32.9",
   "engines": {
     "node": "16.x"
   }
