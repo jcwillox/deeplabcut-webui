@@ -2,9 +2,10 @@ import os
 from typing import List
 
 import cv2
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.requests import Request
-from pydantic import validator, BaseModel
+from fastapi.responses import FileResponse
+from pydantic import BaseModel, validator
 
 from .projects import ProjectType
 from ..responses import VideoResponse
@@ -66,3 +67,26 @@ def stream_video(
 ):
     path = get_project_path(params.project, "videos", params.video)
     return VideoResponse(request, file_path=path, content_type="video/mp4")
+
+
+@router.get("/{video}/frames")
+def get_frames(params: VideoCommonQuery = Depends(VideoCommonQuery)):
+    name = os.path.splitext(params.video)[0]
+    path = get_project_path(params.project, "labeled-data", name)
+
+    if not os.path.exists(path):
+        return []
+    for file in os.listdir(path):
+        if file.endswith(".png"):
+            yield file
+
+
+@router.get("/{video}/frames/{frame}")
+def get_frames(frame: str, params: VideoCommonQuery = Depends(VideoCommonQuery)):
+    name = os.path.splitext(params.video)[0]
+    path = get_project_path(params.project, "labeled-data", name, frame)
+    if not os.path.exists(path):
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="frame does not exist"
+        )
+    return FileResponse(path)
