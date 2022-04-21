@@ -14,6 +14,14 @@ const store = useStore();
 const showProject = computed(() => !store.project || !store.video);
 const showSettings = ref(false);
 
+// ensure all pages except project view are unmounted when switching or closing a project
+const keepAliveExclusion = computed(() =>
+  store.project ? ["ProjectView"] : undefined
+);
+const keepAliveInclusion = computed(() =>
+  store.project ? undefined : ["ProjectView"]
+);
+
 // compute which theme to use
 const themeMode = useStorage<BasicColorSchema>("theme", "auto");
 const systemTheme = usePreferredColorScheme();
@@ -81,7 +89,10 @@ watch(
     <v-main class="pa-0">
       <router-view v-slot="{ Component }">
         <transition>
-          <keep-alive exclude="ProjectView">
+          <keep-alive
+            :exclude="keepAliveExclusion"
+            :include="keepAliveInclusion"
+          >
             <component :is="Component" />
           </keep-alive>
         </transition>
