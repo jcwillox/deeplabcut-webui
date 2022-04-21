@@ -3,6 +3,7 @@ import { useStore } from "@/stores/global";
 import { createUrl, useFetch, useUrl } from "@/utils/fetch";
 import type { VideoJsPlayer } from "video.js";
 import { computed, ref, watch, type Ref } from "vue";
+import { VSlideGroup, VSlideGroupItem } from "vuetify/components";
 import VideoJS from "../components/VideoJS.vue";
 
 let player = $ref<InstanceType<typeof VideoJS> | null>(null);
@@ -21,6 +22,7 @@ watch(
   { immediate: true }
 );
 
+const framesUrl = computed(() => url.value + "/frames");
 const streamUrl = useUrl(url, "stream");
 
 const timecode = computed(() => player?.timecode || 0);
@@ -46,6 +48,22 @@ const toggleVideo = () => {
 // fetch the videos' fps from backend
 const { data: details } = useFetch(url, { refetch: true }).get().json();
 const fps = computed(() => (details.value ? details.value.fps : -1));
+
+// fetch the list of currently extracted frames
+const { data: frames }: { data: Ref<null | string[]> } = useFetch(framesUrl, {
+  refetch: true
+})
+  .get()
+  .json();
+
+const selectedFrame = ref<number | undefined>(undefined);
+const framesList = computed(() => (frames.value ? frames.value : []));
+
+// reset the frames list and index when changing video
+watch(framesUrl, () => {
+  frames.value = null;
+  selectedFrame.value = 0;
+});
 </script>
 
 <template>
@@ -80,5 +98,25 @@ const fps = computed(() => (details.value ? details.value.fps : -1));
       @keydown.left="() => player?.seekBackward()"
       @keydown.right="() => player?.seekForward()"
     ></VideoJS>
+
+    <VSlideGroup
+      v-if="store.video"
+      v-model="selectedFrame"
+      class="py-4"
+      center-active
+      show-arrows
+    >
+      <VSlideGroupItem
+        v-for="image in framesList"
+        :key="image"
+        v-slot="{ toggle }"
+      >
+        <v-card class="ma-4" width="100" @click="toggle">
+          <div class="d-flex fill-height align-center justify-center">
+            <v-img :src="createUrl(framesUrl, image)"></v-img>
+          </div>
+        </v-card>
+      </VSlideGroupItem>
+    </VSlideGroup>
   </v-container>
 </template>
