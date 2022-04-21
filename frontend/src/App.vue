@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { useStore } from "@/stores/global";
 import {
-  type BasicColorSchema,
   usePreferredColorScheme,
-  useStorage
+  useStorage,
+  type BasicColorSchema
 } from "@vueuse/core";
 import { computed, ref, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
@@ -27,16 +27,15 @@ const router = useRouter();
 const tab = ref("");
 
 const items = computed(() =>
-  showProject.value ? ["project"] : ["extract", "label", "analyse"]
+  showProject.value ? ["project"] : ["project", "extract", "label", "analyse"]
 );
 
+// redirect to project selection screen when no project is selected
 watch(
   [() => store.project, () => store.video],
   ([newProject, newVideo]) => {
     if (!newProject || !newVideo) {
       router.push({ name: "project" });
-    } else if (newProject && newVideo && route.name == "project") {
-      router.push({ name: "extract" });
     }
   },
   { immediate: true }
@@ -94,9 +93,6 @@ watch(
 <style>
 html {
   overflow-y: auto !important;
-}
-.v-application {
-  min-height: 100vh;
 }
 .v-table--fixed-header th {
   z-index: 1;

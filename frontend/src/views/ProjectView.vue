@@ -17,7 +17,11 @@ const { isFetching, error, data } = useFetch("/projects").get().json();
 </script>
 
 <template>
-  <v-container class="d-flex flex-column" style="max-width: 640px">
+  <v-container
+    v-if="!(store.project && store.video)"
+    class="d-flex flex-column"
+    style="max-width: 640px"
+  >
     <v-autocomplete
       v-model="store.project"
       label="Project"
@@ -40,6 +44,29 @@ const { isFetching, error, data } = useFetch("/projects").get().json();
       readonly
     ></v-text-field>
     <VideoDialog v-model="dialog"></VideoDialog>
+  </v-container>
+  <v-container
+    v-else
+    class="d-flex flex-row fill-height pa-0"
+    style="max-width: 1280px"
+    fluid
+  >
+    <div class="ma-2" style="flex-grow: 5">
+      <h2 class="text-center">{{ store.project }}</h2>
+    </div>
+    <v-divider vertical />
+    <div class="d-flex flex-column" style="flex-grow: 1">
+      <v-btn
+        class="ma-2"
+        color="red"
+        variant="text"
+        @click="store.resetProject"
+      >
+        Close Project
+      </v-btn>
+      <v-divider />
+    </div>
+    <v-divider vertical />
   </v-container>
 </template>
 

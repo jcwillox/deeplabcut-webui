@@ -1,4 +1,3 @@
-import { useStore } from "@/stores/global";
 import { createRouter, createWebHistory } from "vue-router";
 import AboutView from "@/views/AboutView.vue";
 import ExtractView from "@/views/ExtractView.vue";
@@ -9,12 +8,7 @@ const router = createRouter({
   routes: [
     {
       path: "/",
-      name: "home",
-      redirect: () => {
-        const store = useStore();
-        if (store.project) return { name: "extract" };
-        return { name: "project" };
-      }
+      redirect: "project"
     },
     {
       path: "/project",
