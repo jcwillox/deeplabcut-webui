@@ -1,8 +1,14 @@
+<script lang="ts">
+export default {
+  name: "ExtractView"
+};
+</script>
+
 <script setup lang="ts">
 import { useStore } from "@/stores/global";
 import { createUrl, useFetch, useUrl } from "@/utils/fetch";
 import type { VideoJsPlayer } from "video.js";
-import { computed, ref, watch, type Ref } from "vue";
+import { computed, ref, watch } from "vue";
 import { VSlideGroup, VSlideGroupItem } from "vuetify/components";
 import VideoJS from "../components/VideoJS.vue";
 
@@ -50,20 +56,32 @@ const { data: details } = useFetch(url, { refetch: true }).get().json();
 const fps = computed(() => (details.value ? details.value.fps : -1));
 
 // fetch the list of currently extracted frames
-const { data: frames }: { data: Ref<null | string[]> } = useFetch(framesUrl, {
+const { data: frames, execute: refetchFrames } = useFetch(framesUrl, {
   refetch: true
 })
   .get()
   .json();
 
 const selectedFrame = ref<number | undefined>(undefined);
-const framesList = computed(() => (frames.value ? frames.value : []));
+const framesList = computed<string[]>(() => (frames.value ? frames.value : []));
 
 // reset the frames list and index when changing video
 watch(framesUrl, () => {
   frames.value = null;
   selectedFrame.value = 0;
 });
+
+// extract frame logic
+const extractFrame = async () => {
+  player?.videojs?.pause();
+  const { data, statusCode } = await useFetch(url.value + "/frames")
+    .post({ frames: [frame.value] })
+    .json();
+  if (statusCode.value == 200) {
+    await refetchFrames();
+    selectedFrame.value = framesList.value.indexOf(data.value[0]);
+  }
+};
 </script>
 
 <template>
@@ -98,6 +116,36 @@ watch(framesUrl, () => {
       @keydown.left="() => player?.seekBackward()"
       @keydown.right="() => player?.seekForward()"
     ></VideoJS>
+
+    <div class="d-flex align-center justify-center my-2" style="gap: 4px">
+      <v-btn
+        size="small"
+        color="primary-darken-2"
+        icon="mdi-chevron-double-left"
+        @click="() => player?.seekBackward(10)"
+      />
+      <v-btn
+        size="small"
+        color="primary-darken-1"
+        icon="mdi-chevron-left"
+        @click="() => player?.seekBackward()"
+      />
+      <v-btn height="40" color="primary" @click="extractFrame" rounded>
+        Extract
+      </v-btn>
+      <v-btn
+        size="small"
+        color="primary-darken-1"
+        icon="mdi-chevron-right"
+        @click="() => player?.seekForward()"
+      />
+      <v-btn
+        size="small"
+        color="primary-darken-2"
+        icon="mdi-chevron-double-right"
+        @click="() => player?.seekForward(10)"
+      />
+    </div>
 
     <VSlideGroup
       v-if="store.video"
