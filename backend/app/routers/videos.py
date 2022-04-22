@@ -8,6 +8,7 @@ from fastapi.responses import FileResponse
 from pydantic import BaseModel, validator
 
 from .projects import ProjectType
+from ..config import Settings, get_settings
 from ..responses import VideoResponse
 from ..utils import QueryModel, get_project_path
 
@@ -44,7 +45,7 @@ class VideoCommonQuery(QueryModel):
         if "project" in values and value not in os.listdir(
             get_project_path(values["project"], "videos")
         ):
-            raise ValueError("this video does not exist")
+            raise ValueError(f"The video '{value}' does not exist")
         return value
 
 
@@ -82,7 +83,7 @@ def get_frames(params: VideoCommonQuery = Depends(VideoCommonQuery)):
 
 
 @router.get("/{video}/frames/{frame}")
-def get_frames(frame: str, params: VideoCommonQuery = Depends(VideoCommonQuery)):
+def get_frame(frame: str, params: VideoCommonQuery = Depends(VideoCommonQuery)):
     name = os.path.splitext(params.video)[0]
     path = get_project_path(params.project, "labeled-data", name, frame)
     if not os.path.exists(path):
@@ -90,3 +91,37 @@ def get_frames(frame: str, params: VideoCommonQuery = Depends(VideoCommonQuery))
             status_code=status.HTTP_404_NOT_FOUND, detail="frame does not exist"
         )
     return FileResponse(path)
+
+
+class ExtractRequestBody(BaseModel):
+    frames: List[int]
+
+
+@router.post("/{video}/frames", response_model=List[str])
+def extract_frames(
+    body: ExtractRequestBody,
+    params: VideoCommonQuery = Depends(VideoCommonQuery),
+    settings: Settings = Depends(get_settings),
+):
+    path = get_project_path(params.project, "videos", params.video)
+    video = cv2.VideoCapture(path)
+
+    name = os.path.splitext(params.video)[0]
+    destination = get_project_path(params.project, "labeled-data", name)
+    os.makedirs(destination, exist_ok=True)
+
+    for frame in body.frames:
+        image_name = settings.frame_format.format(frame)
+        image_path = os.path.join(destination, image_name)
+        if not os.path.exists(image_path):
+            video.set(cv2.CAP_PROP_POS_FRAMES, frame)
+            success, image = video.read()
+            if not success:
+                raise HTTPException(
+                    status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                    detail=f"Failed reading frame '{frame}' from video",
+                )
+            cv2.imwrite(image_path, image)
+        yield image_name
+
+    video.release()
