@@ -150,7 +150,7 @@ const extractFrame = async () => {
     <VSlideGroup
       v-if="store.video"
       v-model="selectedFrame"
-      class="py-4"
+      class="my-3 mt-4 elevation-1"
       center-active
       show-arrows
     >
@@ -161,7 +161,16 @@ const extractFrame = async () => {
       >
         <v-card class="ma-4" width="100" @click="toggle">
           <div class="d-flex fill-height align-center justify-center">
-            <v-img :src="createUrl(framesUrl, image)"></v-img>
+            <v-img :src="createUrl(framesUrl, image)">
+              <template v-slot:placeholder>
+                <v-row class="fill-height ma-0" align="center" justify="center">
+                  <v-progress-circular
+                    indeterminate
+                    color="grey lighten-5"
+                  ></v-progress-circular>
+                </v-row>
+              </template>
+            </v-img>
           </div>
         </v-card>
       </VSlideGroupItem>
