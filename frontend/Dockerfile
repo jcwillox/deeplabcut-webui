@@ -15,6 +15,9 @@ RUN pnpm install --offline
 
 RUN pnpm run build
 
-FROM nginx:alpine
+FROM joseluisq/static-web-server:2
 
-COPY --from=build /app/dist /usr/share/nginx/html
+ENV SERVER_LOG_LEVEL="info"
+ENV SERVER_FALLBACK_PAGE="./public/index.html"
+
+COPY --from=build /app/dist /public
