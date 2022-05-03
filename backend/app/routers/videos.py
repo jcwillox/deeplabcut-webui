@@ -9,6 +9,7 @@ from pydantic import BaseModel, validator
 
 from .projects import ProjectType
 from ..config import Settings, get_settings
+from ..managers import get_label_manager, LabelManager, LabelsModel
 from ..responses import VideoResponse
 from ..utils import QueryModel, get_project_path
 
@@ -125,3 +126,11 @@ def extract_frames(
         yield image_name
 
     video.release()
+
+
+@router.get("/{video}/labels", response_model=LabelsModel)
+def get_labels(
+    params: VideoCommonQuery = Depends(VideoCommonQuery),
+    manager: LabelManager = Depends(get_label_manager),
+):
+    return manager.get_labels(params.project, params.video)
