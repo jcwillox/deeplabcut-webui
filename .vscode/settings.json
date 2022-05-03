@@ -8,7 +8,7 @@
   },
   "editor.linkedEditing": true,
   "html.autoClosingTags": true,
-  "[javascript][javascriptreact][typescript][typescriptreact][json][jsonc][yaml][html]": {
+  "[javascript][javascriptreact][typescript][typescriptreact][json][jsonc][yaml][html][vue]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
   "[markdown]": {

@@ -130,13 +130,13 @@
   "Console log": {
     "scope": "javascript,typescript,vue",
     "prefix": "clg",
-    "body": ["console.log($1)$0"],
+    "body": ["console.log(\"$1\")$0"],
     "description": "Console log"
   },
   "Console log with title": {
     "scope": "javascript,typescript,vue",
     "prefix": "clgt",
-    "body": ["console.log(${1:title}, ${2:value})$0"],
+    "body": ["console.log(\"${1:title}\", ${2:value})$0"],
     "description": "Console log with title"
   },
   "Console log variable": {
