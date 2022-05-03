@@ -1,7 +1,8 @@
-import { createRouter, createWebHistory } from "vue-router";
 import AboutView from "@/views/AboutView.vue";
 import ExtractView from "@/views/ExtractView.vue";
+import LabelView from "@/views/LabelView.vue";
 import ProjectView from "@/views/ProjectView.vue";
+import { createRouter, createWebHistory } from "vue-router";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -23,7 +24,7 @@ const router = createRouter({
     {
       path: "/label",
       name: "label",
-      component: AboutView
+      component: LabelView
     },
     {
       path: "/analyse",
