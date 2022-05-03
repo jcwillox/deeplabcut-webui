@@ -1,17 +1,15 @@
-FROM python:3.8-slim-bullseye
+ARG BUILD_FROM=deeplabcut/deeplabcut:latest-gui
+FROM $BUILD_FROM
 
 ENV API_KEY="mysupersecretpassword"
 ENV DLC_PROJECTS="/projects"
 
 EXPOSE 8000
 
-RUN apt-get update && apt-get install -y ffmpeg \
-  && rm -rf /var/lib/apt/lists/*
-
 COPY pyproject.toml .
 COPY setup.* ./
 
-RUN pip install --no-cache-dir .
+RUN pip install --no-cache-dir .[dlc]
 
 COPY ./tests/testdata /projects
 COPY ./app /app
