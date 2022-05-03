@@ -10,9 +10,30 @@ tasks:
   backend:
     desc: "Run the backend"
     ignore_error: true
+    deps: [has-venv]
+    cmds:
+      - |
+        {{- if .PY_INTERPRETER -}}
+          '{{ .PY_INTERPRETER }}' -m uvicorn
+        {{- else if eq .CONDA_DEFAULT_ENV .CONDA_ENV -}}
+          uvicorn
+        {{- else if eq OS "windows" -}}
+          .venv/Scripts/uvicorn.exe
+        {{- else -}}
+          .venv/bin/uvicorn
+        {{- end }} backend.app.main:app --reload
+
+  backend:conda:
+    desc: "Run the backend with conda"
+    ignore_error: true
     deps: [is-conda-env]
     cmds:
       - uvicorn backend.app.main:app --reload
+
+  backend:clean:
+    desc: "Remove temporary files and directories from backend"
+    cmds:
+      - python ./scripts/clean_backend.py
 
   backend:format:
     desc: Format backend code
@@ -56,6 +77,12 @@ tasks:
   setup:
     desc: "Setup the frontend and backend environments/dependencies"
     cmds:
+      - task: setup-python
+      - task: setup-node
+
+  setup-conda-node:
+    desc: "Setup the frontend and backend environments/dependencies using conda"
+    cmds:
       - task: setup-conda
       - task: setup-node
 
@@ -67,6 +94,19 @@ tasks:
         msg: node not installed
     cmds:
       - pnpm install
+
+  setup-python:
+    desc: "Setup a venv and install dependencies"
+    deps: [has-python]
+    cmds:
+      - 'if [ ! -d ".venv" ]; then python -m venv .venv; fi'
+      - |
+        {{- if eq OS "windows" -}}
+          .venv/Scripts/pip.exe install -e backend
+        {{- else -}}
+          .venv/bin/pip install -e backend
+        {{- end -}}
+      - task: backend:clean
 
   setup-conda:
     desc: "Setup/update the conda environment"
@@ -102,7 +142,7 @@ tasks:
   clean:
     desc: "Remove temporary files and directories"
     cmds:
-      - python ./scripts/clean_backend.py
+      - task: backend:clean
       - cd frontend && npm run clean -s
 
   dlc-gui:
@@ -117,6 +157,20 @@ tasks:
     preconditions:
       - sh: command -v conda
         msg: conda not installed
+
+  has-python:
+    preconditions:
+      - sh: command -v python
+        msg: python not installed
+
+  has-venv:
+    deps: [has-python]
+    preconditions:
+      - sh: |
+          {{- if and (not .PY_INTERPRETER) (ne .CONDA_DEFAULT_ENV .CONDA_ENV) -}}
+            [ -d ".venv" ]
+          {{- end -}}
+        msg: virtualenv does not exist, try running "task setup-python"
 
   is-conda-env:
     deps: [has-conda]

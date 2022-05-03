@@ -11,14 +11,21 @@
     },
     {
       "type": "shell",
-      "command": "conda activate dlc-webui; task backend",
+      "command": "${command:python.interpreterPath}",
+      "args": ["-m", "uvicorn", "backend.app.main:app", "--reload"],
       "problemMatcher": [],
       "label": "Backend",
-      "detail": "Start the backend"
+      "detail": "Start the backend",
+      "group": "build"
     },
     {
       "type": "shell",
-      "command": "conda activate dlc-webui; task fullstack",
+      "command": "task fullstack",
+      "options": {
+        "env": {
+          "PY_INTERPRETER": "${command:python.interpreterPath}"
+        }
+      },
       "problemMatcher": [],
       "label": "Fullstack",
       "detail": "Start both frontend and backend"
