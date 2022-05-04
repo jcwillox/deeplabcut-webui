@@ -5,6 +5,7 @@ import cv2
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.requests import Request
 from fastapi.responses import FileResponse
+from natsort import os_sorted
 from pydantic import BaseModel, validator
 
 from .projects import ProjectType
@@ -26,7 +27,7 @@ class VideoItemResponse(BaseModel):
 @router.get("", response_model=List[VideoItemResponse])
 def list_videos(project: ProjectType):
     path = get_project_path(project, "videos")
-    for entry in os.scandir(path):
+    for entry in os_sorted(os.scandir(path), key=lambda x: x.name):
         entry: os.DirEntry
         info = entry.stat()
         yield {
@@ -78,7 +79,7 @@ def get_frames(params: VideoCommonQuery = Depends(VideoCommonQuery)):
 
     if not os.path.exists(path):
         return []
-    for file in os.listdir(path):
+    for file in os_sorted(os.listdir(path)):
         if file.endswith(".png"):
             yield file
 

@@ -8,6 +8,7 @@ REQUIRES = [
     "python-dotenv==0.20.0",
     "uvicorn[standard]==0.17.6",
     "opencv-python>=4.5.5.64,<5",
+    "natsort>=8.1.0,<9",
     "decord==0.6.0",
 ]
 

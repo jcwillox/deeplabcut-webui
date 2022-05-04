@@ -1,6 +1,7 @@
 import os
 
 from fastapi import APIRouter, Depends
+from natsort import os_sorted
 
 from ..config import get_settings, Settings
 
@@ -21,4 +22,4 @@ class ProjectType(str):
 
 @router.get("")
 def list_projects(settings: Settings = Depends(get_settings)):
-    return os.listdir(settings.projects)
+    return os_sorted(os.listdir(settings.projects))
