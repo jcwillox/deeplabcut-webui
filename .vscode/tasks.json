@@ -29,6 +29,13 @@
       "problemMatcher": [],
       "label": "Fullstack",
       "detail": "Start both frontend and backend"
+    },
+    {
+      "type": "shell",
+      "command": "conda activate dlc-webui; task fullstack",
+      "problemMatcher": [],
+      "label": "Fullstack (Conda)",
+      "detail": "Start both frontend and backend"
     }
   ]
 }
