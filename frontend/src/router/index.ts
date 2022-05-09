@@ -1,4 +1,3 @@
-import AboutView from "@/views/AboutView.vue";
 import ExtractView from "@/views/ExtractView.vue";
 import LabelView from "@/views/LabelView.vue";
 import ProjectView from "@/views/ProjectView.vue";
@@ -25,11 +24,6 @@ const router = createRouter({
       path: "/label",
       name: "label",
       component: LabelView
-    },
-    {
-      path: "/analyse",
-      name: "analyse",
-      component: AboutView
     }
   ]
 });

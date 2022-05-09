@@ -35,7 +35,7 @@ const router = useRouter();
 const tab = ref("");
 
 const items = computed(() =>
-  showProject.value ? ["project"] : ["project", "extract", "label", "analyse"]
+  showProject.value ? ["project"] : ["project", "extract", "label"]
 );
 
 // redirect to project selection screen when no project is selected
