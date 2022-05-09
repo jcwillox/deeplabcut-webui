@@ -15,8 +15,7 @@
       "args": ["-m", "uvicorn", "backend.app.main:app", "--reload"],
       "problemMatcher": [],
       "label": "Backend",
-      "detail": "Start the backend",
-      "group": "build"
+      "detail": "Start the backend"
     },
     {
       "type": "shell",
@@ -36,6 +35,13 @@
       "problemMatcher": [],
       "label": "Fullstack (Conda)",
       "detail": "Start both frontend and backend"
+    },
+    {
+      "type": "shell",
+      "command": "task clean",
+      "problemMatcher": [],
+      "label": "Clean",
+      "detail": "Remove temporary files from the frontend and backend"
     }
   ]
 }
