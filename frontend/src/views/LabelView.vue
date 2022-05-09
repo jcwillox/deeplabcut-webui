@@ -1,3 +1,9 @@
+<script lang="ts">
+export default {
+  name: "LabelView"
+};
+</script>
+
 <script setup lang="ts">
 import { useStore } from "@/stores/global";
 import { createUrl, useFetch } from "@/utils/fetch";
@@ -27,6 +33,7 @@ const { data: frames } = useFetch(framesUrl, {
 })
   .get()
   .json();
+const framesList = computed<string[]>(() => (frames.value ? frames.value : []));
 
 let instance: PanZoom | undefined;
 
@@ -51,7 +58,7 @@ watchEffect(() => {
         v-model="imgIndex"
       >
         <v-carousel-item v-for="(frame, i) in frames" :key="i" ref="carouselEl">
-          <v-img :src="createUrl(framesUrl, frame)">
+          <v-img :src="createUrl(framesUrl, frame)" :aspect-ratio="16 / 9">
             <template v-slot:placeholder>
               <v-row class="fill-height ma-0" align="center" justify="center">
                 <v-progress-circular
@@ -65,7 +72,11 @@ watchEffect(() => {
       </v-carousel>
     </div>
     <div style="flex-grow: 1" class="ml-1">
-      <v-img :src="createUrl(framesUrl, frames[imgIndex])" :eager="true" />
+      <v-img
+        :src="createUrl(framesUrl, framesList[imgIndex])"
+        :aspect-ratio="16 / 9"
+        :eager="true"
+      />
     </div>
   </v-container>
 </template>
