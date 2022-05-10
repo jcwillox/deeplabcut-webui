@@ -55,6 +55,21 @@ class LabelManager:
 
         return output
 
+    @staticmethod
+    def get_labelled_count(labels: LabelsModel) -> int:
+        """Returns the number of frames which have at least one point labelled."""
+
+        def has_labels(frame_: str) -> bool:
+            for bodyparts in labels[frame_].values():
+                if any(c["x"] or c["y"] for c in bodyparts.values()):
+                    return True
+
+        count = 0
+        for frame in labels:
+            if has_labels(frame):
+                count += 1
+        return count
+
 
 @lru_cache()
 def get_label_manager():

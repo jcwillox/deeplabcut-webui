@@ -22,19 +22,28 @@ class VideoItemResponse(BaseModel):
     accessed: float
     created: float
     size: int
+    extracted: int
+    labelled: int
 
 
 @router.get("", response_model=List[VideoItemResponse])
-def list_videos(project: ProjectType):
+def list_videos(
+    project: ProjectType, manager: LabelManager = Depends(get_label_manager)
+):
     path = get_project_path(project, "videos")
+
     for entry in os_sorted(os.scandir(path), key=lambda x: x.name):
         entry: os.DirEntry
         info = entry.stat()
+        labels = manager.get_labels(project, entry.name)
+
         yield {
             "name": entry.name,
             "accessed": info.st_atime,
             "created": info.st_ctime,
             "size": info.st_size,
+            "extracted": len(labels),
+            "labelled": manager.get_labelled_count(labels),
         }
 
 
