@@ -9,6 +9,7 @@ REQUIRES = [
     "uvicorn[standard]==0.17.6",
     "opencv-python>=4.5.5.64,<5",
     "natsort>=8.1.0,<9",
+    "numpy>=1.22.3,<2",
     "decord==0.6.0",
 ]
 
