@@ -3,6 +3,7 @@ import time
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from . import managers
 from .routers import projects, videos
 
 app = FastAPI()
@@ -16,6 +17,8 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+managers.register_events(app)
 
 
 @app.middleware("http")

@@ -4,6 +4,7 @@ from fastapi import HTTPException, status
 from pydantic import BaseModel, ValidationError
 
 from ..config import get_settings
+from .deepmerge import deepmerge
 
 
 def is_safe_path(base, path, follow_symlinks=True):

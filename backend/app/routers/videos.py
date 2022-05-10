@@ -144,3 +144,12 @@ def get_labels(
     manager: LabelManager = Depends(get_label_manager),
 ):
     return manager.get_labels(params.project, params.video)
+
+
+@router.put("/{video}/labels")
+def update_labels(
+    labels: LabelsModel,
+    params: VideoCommonQuery = Depends(VideoCommonQuery),
+    manager: LabelManager = Depends(get_label_manager),
+):
+    manager.add(params.project, params.video, labels)
