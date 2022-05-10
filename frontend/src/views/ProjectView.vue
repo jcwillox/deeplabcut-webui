@@ -7,18 +7,33 @@ export default {
 <script setup lang="ts">
 import { useStore } from "@/stores/global";
 import { useFetch } from "@/utils/fetch";
-import { ref } from "vue";
+import { ref, watchEffect } from "vue";
+import FileBrowser from "../components/FileBrowser.vue";
 import VideoDialog from "../components/VideoDialog.vue";
 
 const store = useStore();
 const dialog = ref(false);
 
 const { isFetching, error, data } = useFetch("/projects").get().json();
+
+const { execute, data: videos } = useFetch("/videos", { immediate: false })
+  .get()
+  .json();
+
+watchEffect(() => {
+  if (store.project) {
+    execute();
+  }
+});
+
+const setVideo = (video: string) => {
+  store.video = video;
+};
 </script>
 
 <template>
   <v-container
-    v-if="!(store.project && store.video)"
+    v-if="!store.project"
     class="d-flex flex-column"
     style="max-width: 640px"
   >
@@ -33,16 +48,6 @@ const { isFetching, error, data } = useFetch("/projects").get().json();
       :error-messages="error || ''"
       clearable
     ></v-autocomplete>
-    <v-text-field
-      class="pb-3"
-      label="Video"
-      color="primary"
-      :disabled="!store.project"
-      :model-value="store.video"
-      @click.stop="dialog = true"
-      hide-details
-      readonly
-    ></v-text-field>
     <VideoDialog v-model="dialog"></VideoDialog>
   </v-container>
   <v-container
@@ -53,6 +58,7 @@ const { isFetching, error, data } = useFetch("/projects").get().json();
   >
     <div class="ma-2" style="flex-grow: 5">
       <h2 class="text-center">{{ store.project }}</h2>
+      <FileBrowser :items="videos" @selected="setVideo" />
     </div>
     <v-divider vertical />
     <div class="d-flex flex-column" style="flex-grow: 1">
