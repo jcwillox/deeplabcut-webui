@@ -5,6 +5,8 @@ interface FileItem {
   accessed?: number;
   created?: number;
   size?: number;
+  extracted?: number;
+  labelled?: number;
 }
 
 defineProps<{
@@ -41,7 +43,8 @@ const updateSelected = (selected?: string[]) => {
       >
         <template v-slot:subtitle>
           <div v-if="item.size">
-            {{ (item.size / 1073741824).toFixed(2) }} GiB
+            {{ (item.size / 1073741824).toFixed(2) }} GiB • Extracted:
+            {{ item.extracted }} • Labelled: {{ item.labelled }}
           </div>
         </template>
       </v-list-item>
