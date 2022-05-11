@@ -2,12 +2,13 @@
 import { toTimecode } from "@/utils";
 import type { VideoJsPlayer, VideoJsPlayerOptions } from "video.js";
 import videojs from "video.js";
-import { onMounted, ref, type Ref, watch } from "vue";
+import { onMounted, ref, watch, type Ref } from "vue";
 
 const props = defineProps<{
   options?: VideoJsPlayerOptions;
   src: string | videojs.Tech.SourceObject;
   fps: number;
+  maxHeightOffset: string;
 }>();
 
 const emit = defineEmits<{
@@ -130,4 +131,22 @@ defineExpose({
 
 <style>
 @import "video.js/dist/video-js.min.css";
+
+.video-js.vjs-fluid,
+.video-js.vjs-16-9,
+.video-js.vjs-4-3,
+video.video-js,
+video.vjs-tech {
+  max-height: calc(100vh - v-bind("maxHeightOffset")) !important;
+  position: relative !important;
+  width: 100%;
+  height: auto !important;
+  max-width: 100% !important;
+  padding-top: 0 !important;
+  line-height: 0;
+}
+
+.vjs-control-bar {
+  line-height: 1;
+}
 </style>

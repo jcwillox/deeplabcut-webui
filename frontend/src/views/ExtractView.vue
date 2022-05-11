@@ -111,6 +111,7 @@ const extractFrame = async () => {
       ref="player"
       :fps="fps"
       :src="streamUrl"
+      max-height-offset="184px"
       @player-ready="playerReady"
       @keydown.space="toggleVideo"
       @keydown.left="() => player?.seekBackward()"
