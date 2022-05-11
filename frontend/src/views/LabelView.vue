@@ -1,6 +1,11 @@
 <script lang="ts">
 export default {
-  name: "LabelView"
+  name: "LabelView",
+  data() {
+    return {
+      dialog: false
+    };
+  }
 };
 </script>
 
@@ -78,5 +83,44 @@ watchEffect(() => {
         :eager="true"
       />
     </div>
+  </v-container>
+  <v-container fluid class="d-flex align-center justify-center my-2">
+    <v-row justify="center">
+      <v-dialog v-model="dialog">
+        <template v-slot:activator="{ props }">
+          <v-btn color="primary" rounded v-bind="props"> Open Dialog </v-btn>
+        </template>
+        <v-card>
+          <v-card-title>
+            <span class="text-h5">Select Frame</span>
+          </v-card-title>
+          <v-row class="d-flex align-center justify-center">
+            <v-col v-for="(frame, i) in frames" :key="i" cols="auto">
+              <v-img
+                v-if="i === imgIndex"
+                :src="createUrl(framesUrl, frame)"
+                :aspect-ratio="16 / 9"
+                cover
+                :width="400"
+                style="
+                  border-style: solid;
+                  border-width: 5px;
+                  border-color: yellowgreen;
+                "
+              >
+              </v-img>
+              <v-img
+                v-else
+                :src="createUrl(framesUrl, frame)"
+                :aspect-ratio="16 / 9"
+                cover
+                :width="400"
+              >
+              </v-img>
+            </v-col>
+          </v-row>
+        </v-card>
+      </v-dialog>
+    </v-row>
   </v-container>
 </template>
