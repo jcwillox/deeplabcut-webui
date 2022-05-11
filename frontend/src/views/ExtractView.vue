@@ -82,6 +82,13 @@ const extractFrame = async () => {
     selectedFrame.value = framesList.value.indexOf(data.value[0]);
   }
 };
+
+// Change player to frame of clicked of element
+const clickFrame = frameName => {
+  const regex = /\d+/;
+  const frameNumber = regex.exec(frameName);
+  player?.seekTo(Number(frameNumber));
+};
 </script>
 
 <template>
@@ -161,7 +168,10 @@ const extractFrame = async () => {
       >
         <v-card class="ma-4" width="100" @click="toggle">
           <div class="d-flex fill-height align-center justify-center">
-            <v-img :src="createUrl(framesUrl, image)">
+            <v-img
+              :src="createUrl(framesUrl, image)"
+              @click="clickFrame(image)"
+            >
               <template v-slot:placeholder>
                 <v-row class="fill-height ma-0" align="center" justify="center">
                   <v-progress-circular
