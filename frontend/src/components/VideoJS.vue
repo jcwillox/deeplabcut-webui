@@ -2,7 +2,7 @@
 import { toTimecode } from "@/utils";
 import type { VideoJsPlayer, VideoJsPlayerOptions } from "video.js";
 import videojs from "video.js";
-import { onMounted, watch } from "vue";
+import { onMounted, ref, type Ref, watch } from "vue";
 
 const props = defineProps<{
   options?: VideoJsPlayerOptions;
@@ -14,27 +14,26 @@ const emit = defineEmits<{
   (e: "playerReady", videojs: VideoJsPlayer): void;
 }>();
 
-let videoEl = $ref<HTMLVideoElement | null>(null);
-let player = $ref<VideoJsPlayer | null>(null);
+const videoEl: Ref<HTMLVideoElement | null> = ref(null);
+const player: Ref<VideoJsPlayer | null> = ref(null);
 
-let cFrame = $ref(0);
-let cTimecode = $ref(toTimecode(0));
+const cFrame = ref(0);
+const cTimecode = ref(toTimecode(0));
 let drift = 0;
 
 const setSource = (url: string, type = "video/mp4") => {
-  if (!player) return;
-  if (!player.paused()) {
-    player.pause();
+  if (!player.value) return;
+  if (!player.value.paused()) {
+    player.value.pause();
   }
-  player.src({ src: url, type });
-  player.load();
-  player.currentTime(0);
+  player.value.src({ src: url, type });
+  player.value.load();
+  player.value.currentTime(0);
 };
 
 const _setFromSource = () => {
   if (props.src) {
     if (typeof props.src === "string") {
-      console.log("setting string source");
       setSource(props.src);
     } else {
       setSource(props.src.src, props.src.type);
@@ -45,16 +44,16 @@ const _setFromSource = () => {
 watch(() => props.src, _setFromSource);
 
 onMounted(() => {
-  player = videojs(
-    videoEl!,
+  player.value = videojs(
+    videoEl.value!,
     { fluid: true, muted: true, ...props.options },
     () => {
       _setFromSource();
-      emit("playerReady", player!);
+      emit("playerReady", player.value!);
     }
   );
 
-  videoEl?.requestVideoFrameCallback(onFrameCallback);
+  videoEl.value?.requestVideoFrameCallback(onFrameCallback);
 });
 
 const onFrameCallback = (
@@ -64,25 +63,25 @@ const onFrameCallback = (
   if (metadata.presentedFrames == 1) {
     console.debug("first frame", now, metadata);
     if (metadata.mediaTime > 0) {
-      console.log("accounting for video start drift of", metadata.mediaTime);
+      console.debug("accounting for video start drift of", metadata.mediaTime);
       drift = metadata.mediaTime;
     } else {
       drift = 0;
     }
   }
 
-  cFrame = Math.round((metadata.mediaTime - drift) * props.fps);
-  cTimecode = toTimecode(metadata.mediaTime - drift);
+  cFrame.value = Math.round((metadata.mediaTime - drift) * props.fps);
+  cTimecode.value = toTimecode(metadata.mediaTime - drift);
 
-  videoEl?.requestVideoFrameCallback(onFrameCallback);
+  videoEl.value?.requestVideoFrameCallback(onFrameCallback);
 };
 
 /* Seeking Functions */
 const seek = (frames: number) => {
-  if (player && !player.paused()) {
-    player.pause();
+  if (player.value && !player.value.paused()) {
+    player.value.pause();
   }
-  seekTo(cFrame + frames);
+  seekTo(cFrame.value + frames);
 };
 
 const seekForward = (frames = 1) => {
@@ -95,21 +94,21 @@ const seekBackward = (frames = 1) => {
 
 const seekTo = (frame: number) => {
   const time = frame / props.fps + drift;
-  console.log(`seeking to: ${frame} (${toTimecode(time)})`, time);
+  console.debug(`seeking to: ${frame} (${toTimecode(time)})`, time);
   if (drift) {
-    console.log(
+    console.debug(
       `actual    : ${frame} (${toTimecode(time - drift)})`,
       time - drift
     );
   }
-  player?.currentTime(time + 0.00001);
+  player.value?.currentTime(time + 0.00001);
 };
 
 defineExpose({
-  frame: $$(cFrame),
-  timecode: $$(cTimecode),
-  videojs: $$(player),
-  videoEl: $$(videoEl),
+  frame: cFrame,
+  timecode: cTimecode,
+  videojs: player,
+  videoEl: videoEl,
   setSource,
   seek,
   seekTo,
