@@ -48,6 +48,9 @@ jobs:
       - name: "Check format"
         run: pnpm run format:check
 
+      - name: "Run Typecheck"
+        run: pnpm run typecheck
+
   build:
     name: Build & Test
     runs-on: ubuntu-latest
