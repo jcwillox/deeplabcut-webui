@@ -83,7 +83,7 @@ const extractFrame = async () => {
   }
 };
 
-// Change player to frame of clicked of element
+// change the player to the frame extracted from the images name
 const clickFrame = frameName => {
   const regex = /\d+/;
   const frameNumber = regex.exec(frameName);
