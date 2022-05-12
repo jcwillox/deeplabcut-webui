@@ -161,7 +161,15 @@ const clickFrame = (frameName: string) => {
       center-active
       show-arrows
     >
+      <VSlideGroupItem v-if="!framesList.length">
+        <span
+          >There are currently no extracted frames. Please use the extract
+          button to extract the currently selected frame.</span
+        >
+      </VSlideGroupItem>
+
       <VSlideGroupItem
+        v-else
         v-for="image in framesList"
         :key="image"
         v-slot="{ toggle }"
