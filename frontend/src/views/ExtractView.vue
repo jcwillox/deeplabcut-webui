@@ -7,12 +7,11 @@ export default {
 <script setup lang="ts">
 import { useStore } from "@/stores/global";
 import { createUrl, useFetch, useUrl } from "@/utils/fetch";
-import type { VideoJsPlayer } from "video.js";
 import { computed, ref, watch } from "vue";
 import { VSlideGroup, VSlideGroupItem } from "vuetify/components";
 import VideoJS from "../components/VideoJS.vue";
 
-let player = $ref<InstanceType<typeof VideoJS> | null>(null);
+const player = ref<InstanceType<typeof VideoJS> | null>(null);
 
 const store = useStore();
 const url = ref("");
@@ -31,23 +30,19 @@ watch(
 const framesUrl = computed(() => url.value + "/frames");
 const streamUrl = useUrl(url, "stream");
 
-const timecode = computed(() => player?.timecode || 0);
+const timecode = computed(() => player.value?.timecode || 0);
 const frame = computed({
-  get: () => player?.frame || 0,
+  get: () => player.value?.frame || 0,
   set: value => {
-    player?.seekTo(Number(value));
+    player.value?.seekTo(Number(value));
   }
 });
 
-const playerReady = (videojs: VideoJsPlayer) => {
-  console.log("player-ready", videojs);
-};
-
 const toggleVideo = () => {
-  if (player?.videojs?.paused()) {
-    player.videojs.play();
+  if (player.value?.videojs?.paused()) {
+    player.value.videojs.play();
   } else {
-    player?.videojs?.pause();
+    player.value?.videojs?.pause();
   }
 };
 
@@ -73,7 +68,7 @@ watch(framesUrl, () => {
 
 // extract frame logic
 const extractFrame = async () => {
-  player?.videojs?.pause();
+  player.value?.videojs?.pause();
   const { data, statusCode } = await useFetch(url.value + "/frames")
     .post({ frames: [frame.value] })
     .json();
@@ -86,7 +81,7 @@ const extractFrame = async () => {
 // change the player to the frame extracted from the images name
 const clickFrame = (frameName: string) => {
   const frameNumber = /\d+/.exec(frameName);
-  player?.seekTo(Number(frameNumber));
+  player.value?.seekTo(Number(frameNumber));
 };
 </script>
 
@@ -118,10 +113,9 @@ const clickFrame = (frameName: string) => {
       :fps="fps"
       :src="streamUrl"
       max-height-offset="184px"
-      @player-ready="playerReady"
       @keydown.space="toggleVideo"
-      @keydown.left="() => player?.seekBackward()"
-      @keydown.right="() => player?.seekForward()"
+      @keydown.left="player?.seekBackward()"
+      @keydown.right="player?.seekForward()"
     ></VideoJS>
 
     <div class="d-flex align-center justify-center my-2" style="gap: 4px">
@@ -129,13 +123,13 @@ const clickFrame = (frameName: string) => {
         size="small"
         color="primary-darken-2"
         icon="mdi-chevron-double-left"
-        @click="() => player?.seekBackward(10)"
+        @click="player?.seekBackward(10)"
       />
       <v-btn
         size="small"
         color="primary-darken-1"
         icon="mdi-chevron-left"
-        @click="() => player?.seekBackward()"
+        @click="player?.seekBackward()"
       />
       <v-btn height="40" color="primary" @click="extractFrame" rounded>
         Extract
@@ -144,13 +138,13 @@ const clickFrame = (frameName: string) => {
         size="small"
         color="primary-darken-1"
         icon="mdi-chevron-right"
-        @click="() => player?.seekForward()"
+        @click="player?.seekForward()"
       />
       <v-btn
         size="small"
         color="primary-darken-2"
         icon="mdi-chevron-double-right"
-        @click="() => player?.seekForward(10)"
+        @click="player?.seekForward(10)"
       />
     </div>
 
