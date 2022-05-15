@@ -88,35 +88,77 @@ watchEffect(() => {
     <v-row justify="center">
       <v-dialog v-model="dialog">
         <template v-slot:activator="{ props }">
-          <v-btn color="primary" rounded v-bind="props"> Open Dialog </v-btn>
+          <v-btn color="primary" rounded v-bind="props">
+            Frame: {{ imgIndex + 1 }} of {{ framesList.length }}
+          </v-btn>
         </template>
         <v-card>
           <v-card-title>
-            <span class="text-h5">Select Frame</span>
+            <span class="text-h5"> Select Frame </span>
           </v-card-title>
           <v-row class="d-flex align-center justify-center">
             <v-col v-for="(frame, i) in frames" :key="i" cols="auto">
-              <v-img
-                v-if="i === imgIndex"
-                :src="createUrl(framesUrl, frame)"
-                :aspect-ratio="16 / 9"
-                cover
-                :width="400"
-                style="
-                  border-style: solid;
-                  border-width: 5px;
-                  border-color: yellowgreen;
-                "
-              >
-              </v-img>
-              <v-img
-                v-else
-                :src="createUrl(framesUrl, frame)"
-                :aspect-ratio="16 / 9"
-                cover
-                :width="400"
-              >
-              </v-img>
+              <div v-if="i === imgIndex">
+                <v-img
+                  :src="createUrl(framesUrl, frame)"
+                  :aspect-ratio="16 / 9"
+                  cover
+                  :width="400"
+                  style="
+                    border-style: solid;
+                    border-width: 5px;
+                    border-color: yellowgreen;
+                  "
+                  @click="
+                    imgIndex = i;
+                    dialog = false;
+                  "
+                >
+                  <template v-slot:placeholder>
+                    <v-row
+                      class="fill-height ma-0"
+                      align="center"
+                      justify="center"
+                    >
+                      <v-progress-circular
+                        indeterminate
+                        color="grey-lighten-5"
+                      ></v-progress-circular>
+                    </v-row>
+                  </template>
+                </v-img>
+                <p class="d-flex align-center justify-center">
+                  Frame: {{ i + 1 }}
+                </p>
+              </div>
+              <div v-else>
+                <v-img
+                  :src="createUrl(framesUrl, frame)"
+                  :aspect-ratio="16 / 9"
+                  cover
+                  :width="400"
+                  @click="
+                    imgIndex = i;
+                    dialog = false;
+                  "
+                >
+                  <template v-slot:placeholder>
+                    <v-row
+                      class="fill-height ma-0"
+                      align="center"
+                      justify="center"
+                    >
+                      <v-progress-circular
+                        indeterminate
+                        color="grey-lighten-5"
+                      ></v-progress-circular>
+                    </v-row>
+                  </template>
+                </v-img>
+                <p class="d-flex align-center justify-center">
+                  Frame: {{ i + 1 }}
+                </p>
+              </div>
             </v-col>
           </v-row>
         </v-card>
