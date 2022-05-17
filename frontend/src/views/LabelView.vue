@@ -5,11 +5,11 @@ export default {
 </script>
 
 <script setup lang="ts">
+import LabelEditor from "@/components/LabelEditor.vue";
 import { useStore } from "@/stores/global";
 import { createUrl, useFetch } from "@/utils/fetch";
-import panzoom, { type PanZoom } from "panzoom";
-import { computed, ref, watch, watchEffect } from "vue";
-import type { VCarouselItem } from "vuetify/components";
+import type { PanzoomEventDetail } from "@panzoom/panzoom/dist/src/types";
+import { computed, ref, watch } from "vue";
 
 const store = useStore();
 const imgIndex = ref(0);
@@ -49,27 +49,27 @@ watchEffect(() => {
 
 <template>
   <v-container fluid class="d-flex pa-1">
-    <div style="flex-grow: 4">
-      <v-carousel
-        v-if="frames"
-        hide-delimiters
-        progress="primary"
-        class="fill-height"
-        v-model="imgIndex"
-      >
-        <v-carousel-item v-for="(frame, i) in frames" :key="i" ref="carouselEl">
-          <v-img :src="createUrl(framesUrl, frame)" :aspect-ratio="16 / 9">
-            <template v-slot:placeholder>
-              <v-row class="fill-height ma-0" align="center" justify="center">
-                <v-progress-circular
-                  indeterminate
-                  color="grey lighten-5"
-                ></v-progress-circular>
-              </v-row>
-            </template>
-          </v-img>
-        </v-carousel-item>
-      </v-carousel>
+    <div class="d-flex flex-row align-center" style="flex-grow: 4">
+      <v-btn
+        class="h-100 rounded-0"
+        icon="mdi-chevron-left"
+        variant="plain"
+        size="small"
+        @click="imgIndex--"
+      ></v-btn>
+      <LabelEditor
+        class="flex-grow-1"
+        :image="framesList[imgIndex]"
+        ref="labelEditorEl"
+        @panzoomchange="panZoomChange"
+      />
+      <v-btn
+        class="h-100 rounded-0"
+        icon="mdi-chevron-right"
+        variant="plain"
+        size="small"
+        @click="imgIndex++"
+      ></v-btn>
     </div>
     <div style="flex-grow: 1" class="ml-1">
       <v-img
