@@ -1,13 +1,13 @@
 <script setup lang="ts">
-import { useStore } from "@/stores/global";
-import { createUrl } from "@/utils/fetch";
+import { useStore } from "@/stores";
+import { createCachedUrl } from "@/utils/fetch";
 import Panzoom, { type PanzoomObject } from "@panzoom/panzoom";
 import type { PanzoomEventDetail } from "@panzoom/panzoom/dist/src/types";
-import { computed, onMounted, ref, watch } from "vue";
+import { computed, onMounted, ref } from "vue";
 import type { VImg } from "vuetify/components";
 
 defineProps<{
-  image: string;
+  image?: string;
 }>();
 
 const emit = defineEmits<{
@@ -16,20 +16,9 @@ const emit = defineEmits<{
 
 const store = useStore();
 const imgEl = ref<InstanceType<typeof VImg> | null>(null);
+const framesUrl = computed(() => "/videos/" + store.video + "/frames");
+
 let instance: PanzoomObject | undefined;
-let url = ref("");
-
-watch(
-  () => store.video,
-  () => {
-    if (store.video) {
-      url.value = "/videos/" + store.video;
-    }
-  },
-  { immediate: true }
-);
-
-const framesUrl = computed(() => url.value + "/frames");
 
 onMounted(() => {
   instance = Panzoom(imgEl.value!.$el, {
@@ -50,7 +39,7 @@ onMounted(() => {
   <div>
     <v-img
       ref="imgEl"
-      :src="createUrl(framesUrl, image)"
+      :src="createCachedUrl(framesUrl, image)"
       :aspect-ratio="16 / 9"
       :eager="true"
     >

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useStore } from "@/stores/global";
+import { useStore } from "@/stores";
 import { ref } from "vue";
 import VideoDialog from "./VideoDialog.vue";
 
@@ -23,7 +23,7 @@ const dialog = ref(false);
       <v-icon left>mdi-folder</v-icon>
       {{ store.project }}
     </v-btn>
-    <span v-if="store.video">
+    <span v-if="store.cVideo">
       <span>/</span>
       <v-btn
         variant="text"
@@ -32,7 +32,7 @@ const dialog = ref(false);
         class="ml-1 mr-2 pl-1 pr-1"
       >
         <v-icon left>mdi-movie</v-icon>
-        {{ store.video }}
+        {{ store.cVideo }}
       </v-btn>
     </span>
     <v-spacer />

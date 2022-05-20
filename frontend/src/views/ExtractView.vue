@@ -5,30 +5,18 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { useStore } from "@/stores/global";
-import { createUrl, useFetch, useUrl } from "@/utils/fetch";
+import { useStore, useFrames } from "@/stores";
+import { createCachedUrl, useFetch } from "@/utils/fetch";
 import { computed, ref, watch } from "vue";
 import { VSlideGroup, VSlideGroupItem } from "vuetify/components";
 import VideoJS from "../components/VideoJS.vue";
 
+const store = useStore();
+const frames = useFrames();
 const player = ref<InstanceType<typeof VideoJS> | null>(null);
 
-const store = useStore();
-const url = ref("");
-
-// only update url when there is a video to prevent requesting broken urls
-watch(
-  () => store.video,
-  () => {
-    if (store.video) {
-      url.value = "/videos/" + store.video;
-    }
-  },
-  { immediate: true }
-);
-
-const framesUrl = computed(() => url.value + "/frames");
-const streamUrl = useUrl(url, "stream");
+const videoUrl = computed(() => "/videos/" + store.video);
+const framesUrl = computed(() => videoUrl.value + "/frames");
 
 const timecode = computed(() => player.value?.timecode || 0);
 const frame = computed({
@@ -47,34 +35,27 @@ const toggleVideo = () => {
 };
 
 // fetch the videos' fps from backend
-const { data: details } = useFetch(url, { refetch: true }).get().json();
+const { data: details } = useFetch(videoUrl, { refetch: true }).get().json();
 const fps = computed(() => (details.value ? details.value.fps : -1));
-
-// fetch the list of currently extracted frames
-const { data: frames, execute: refetchFrames } = useFetch(framesUrl, {
-  refetch: true
-})
-  .get()
-  .json();
-
 const selectedFrame = ref<number | undefined>(undefined);
-const framesList = computed<string[]>(() => (frames.value ? frames.value : []));
 
-// reset the frames list and index when changing video
-watch(framesUrl, () => {
-  frames.value = null;
-  selectedFrame.value = 0;
-});
+// reset selected frame changing video
+watch(
+  () => frames.items,
+  () => {
+    if (frames.items.length == 0) {
+      selectedFrame.value = 0;
+    }
+  }
+);
 
 // extract frame logic
 const extractFrame = async () => {
   player.value?.videojs?.pause();
-  const { data, statusCode } = await useFetch(url.value + "/frames")
-    .post({ frames: [frame.value] })
-    .json();
+  const { data, statusCode } = await frames.extract(frame.value);
   if (statusCode.value == 200) {
-    await refetchFrames();
-    selectedFrame.value = framesList.value.indexOf(data.value[0]);
+    await frames.update();
+    selectedFrame.value = frames.items.indexOf(data.value[0]);
   }
 };
 
@@ -111,7 +92,7 @@ const clickFrame = (frameName: string) => {
     <VideoJS
       ref="player"
       :fps="fps"
-      :src="streamUrl"
+      :src="createCachedUrl(videoUrl, 'stream')"
       max-height-offset="184px"
       @keydown.space="toggleVideo"
       @keydown.left="player?.seekBackward()"
@@ -156,14 +137,14 @@ const clickFrame = (frameName: string) => {
       show-arrows
     >
       <VSlideGroupItem
-        v-for="image in framesList"
+        v-for="image in frames.items"
         :key="image"
         v-slot="{ toggle }"
       >
         <v-card class="ma-4" width="100" @click="toggle">
           <div class="d-flex fill-height align-center justify-center">
             <v-img
-              :src="createUrl(framesUrl, image)"
+              :src="createCachedUrl(framesUrl, image)"
               @click="clickFrame(image)"
             >
               <template v-slot:placeholder>

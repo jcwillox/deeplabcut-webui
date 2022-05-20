@@ -6,13 +6,14 @@ export default {
 
 <script setup lang="ts">
 import LabelEditor from "@/components/LabelEditor.vue";
-import { useStore } from "@/stores/global";
-import { createUrl, useFetch } from "@/utils/fetch";
+import { useStore, useFrames } from "@/stores";
+import { createCachedUrl } from "@/utils/fetch";
 import type { PanzoomEventDetail } from "@panzoom/panzoom/dist/src/types";
-import { computed, ref, watch } from "vue";
+import { computed, ref } from "vue";
 
 const store = useStore();
-const url = ref("");
+const frames = useFrames();
+const framesUrl = computed(() => "/videos/" + store.video + "/frames");
 
 const labelEditorEl = ref<InstanceType<typeof LabelEditor> | null>(null);
 
@@ -21,37 +22,18 @@ const imgIndex = computed({
   get: () => imgCounter.value,
   set: value => {
     if (value < 0) {
-      if (framesList.value.length > 0) {
-        imgCounter.value = framesList.value.length - 1;
+      if (frames.items.length > 0) {
+        imgCounter.value = frames.items.length - 1;
       } else {
         imgCounter.value = 0;
       }
-    } else if (value >= framesList.value.length) {
+    } else if (value >= frames.items.length) {
       imgCounter.value = 0;
     } else {
       imgCounter.value = value;
     }
   }
 });
-
-watch(
-  () => store.video,
-  () => {
-    if (store.video) {
-      url.value = "/videos/" + store.video;
-    }
-  },
-  { immediate: true }
-);
-
-const framesUrl = computed(() => url.value + "/frames");
-
-const { data: frames } = useFetch(framesUrl, {
-  refetch: true
-})
-  .get()
-  .json();
-const framesList = computed<string[]>(() => (frames.value ? frames.value : []));
 
 const mapWidth = ref("0%");
 const mapHeight = ref("0%");
@@ -78,7 +60,7 @@ const panZoomChange = (detail: PanzoomEventDetail) => {
       ></v-btn>
       <LabelEditor
         class="flex-grow-1"
-        :image="framesList[imgIndex]"
+        :image="frames.items[imgIndex]"
         ref="labelEditorEl"
         @panzoomchange="panZoomChange"
       />
@@ -92,7 +74,8 @@ const panZoomChange = (detail: PanzoomEventDetail) => {
     </div>
     <div style="flex-grow: 1" class="ml-1">
       <v-img
-        :src="createUrl(framesUrl, framesList[imgIndex])"
+        v-if="store.video"
+        :src="createCachedUrl(framesUrl, frames.items[imgIndex])"
         :aspect-ratio="16 / 9"
         :eager="true"
       >

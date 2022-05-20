@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { useStore } from "@/stores/global";
+import { useStore } from "@/stores";
+import { clearUrlCache } from "@/utils";
 import {
   usePreferredColorScheme,
   useStorage,
@@ -11,7 +12,7 @@ import SettingsMenu from "./components/SettingsMenu.vue";
 import SystemBar from "./components/SystemBar.vue";
 
 const store = useStore();
-const showProject = computed(() => !store.project || !store.video);
+const showProject = computed(() => !store.project || !store.cVideo);
 const showSettings = ref(false);
 
 // ensure all pages except project view are unmounted when switching or closing a project
@@ -40,7 +41,7 @@ const items = computed(() =>
 
 // redirect to project selection screen when no project is selected
 watch(
-  [() => store.project, () => store.video],
+  [() => store.project, () => store.cVideo],
   ([newProject, newVideo]) => {
     if (!newProject || !newVideo) {
       router.push({ name: "project" });
@@ -48,6 +49,9 @@ watch(
   },
   { immediate: true }
 );
+
+// clear cached urls when we change video
+watch(() => store.video, clearUrlCache);
 
 // bind route to active tab
 watch(
