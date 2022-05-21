@@ -1,4 +1,7 @@
 <script setup lang="ts">
+import SettingsMenu from "@/components/SettingsMenu.vue";
+import SnackbarPWA from "@/components/SnackbarPWA.vue";
+import SystemBar from "@/components/SystemBar.vue";
 import { useStore } from "@/stores";
 import { clearUrlCache } from "@/utils";
 import {
@@ -8,8 +11,6 @@ import {
 } from "@vueuse/core";
 import { computed, ref, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
-import SettingsMenu from "./components/SettingsMenu.vue";
-import SystemBar from "./components/SystemBar.vue";
 
 const store = useStore();
 const showProject = computed(() => !store.project || !store.cVideo);
@@ -68,7 +69,7 @@ watch(
 <template>
   <v-app :theme="theme">
     <SettingsMenu v-model="showSettings" v-model:theme="themeMode" />
-
+    <SnackbarPWA />
     <SystemBar />
 
     <v-app-bar color="primary" density="compact" class="position-relative" flat>
