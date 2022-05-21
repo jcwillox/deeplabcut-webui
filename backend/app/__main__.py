@@ -5,6 +5,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from . import managers
+from .config import get_settings
 from .routers import projects, videos
 
 app = FastAPI()
@@ -36,7 +37,15 @@ def status():
 
 
 def main(**kwargs):
-    uvicorn.run(app, **kwargs)
+    settings = get_settings()
+    uvicorn.run(
+        app,
+        host=settings.host,
+        port=settings.port,
+        ssl_certfile=settings.ssl_certfile,
+        ssl_keyfile=settings.ssl_keyfile,
+        **kwargs,
+    )
 
 
 if __name__ == "__main__":
