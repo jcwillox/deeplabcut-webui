@@ -21,14 +21,14 @@ tasks:
           .venv/Scripts/uvicorn.exe
         {{- else -}}
           .venv/bin/uvicorn
-        {{- end }} backend.app.main:app --reload
+        {{- end }} backend.app.__main__:app --reload
 
   backend:conda:
     desc: "Run the backend with conda"
     ignore_error: true
     deps: [is-conda-env]
     cmds:
-      - uvicorn backend.app.main:app --reload
+      - uvicorn backend.app.__main__:app --reload
 
   clean:backend:
     desc: "Remove temporary files and directories from the backend"

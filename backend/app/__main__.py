@@ -1,5 +1,6 @@
 import time
 
+import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -32,3 +33,11 @@ async def print_process_time(request, call_next):
 @app.get("/")
 def status():
     return {"status": "running"}
+
+
+def main(**kwargs):
+    uvicorn.run(app, **kwargs)
+
+
+if __name__ == "__main__":
+    main()
