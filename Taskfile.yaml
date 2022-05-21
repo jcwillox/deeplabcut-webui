@@ -30,12 +30,12 @@ tasks:
     cmds:
       - uvicorn backend.app.main:app --reload
 
-  backend:clean:
-    desc: "Remove temporary files and directories from backend"
+  clean:backend:
+    desc: "Remove temporary files and directories from the backend"
     cmds:
       - python ./scripts/clean_backend.py
 
-  backend:format:
+  lint:backend:
     desc: Format backend code
     ignore_error: true
     preconditions:
@@ -44,10 +44,10 @@ tasks:
     cmds:
       - black ./backend {{.args}}
 
-  backend:format:check:
+  lint:check:backend:
     desc: Check format of the backend code
     cmds:
-      - task: backend:format
+      - task: lint:backend
         vars:
           args: --check --diff --color
 
@@ -59,19 +59,26 @@ tasks:
     cmds:
       - npm run dev -s -- --clearScreen false
 
-  frontend:lint:
+  clean:frontend:
+    desc: "Remove temporary files and directories from the frontend"
+    cmds:
+      - cd frontend && npm run clean -s
+
+  lint:frontend:
     desc: "Format and lint the frontend code"
     dir: ./frontend
     cmds:
       - npm run lint:fix
       - npm run format
+      - npm run typecheck
 
-  frontend:lint:check:
+  lint:check:frontend:
     desc: "Check the quality of the frontend code"
     dir: ./frontend
     cmds:
       - npm run lint
       - npm run format:check
+      - npm run typecheck
 
   ### SETUP ###
   setup:
@@ -106,7 +113,7 @@ tasks:
         {{- else -}}
           .venv/bin/pip install -e backend
         {{- end -}}
-      - task: backend:clean
+      - task: clean:backend
 
   setup-conda:
     desc: "Setup/update the conda environment"
@@ -130,20 +137,20 @@ tasks:
   lint:
     desc: "Lint and format the frontend and backend code"
     cmds:
-      - task: backend:format
-      - task: frontend:lint
+      - task: lint:backend
+      - task: lint:frontend
 
   lint:check:
     desc: "Check the quality of the frontend and backend code"
     cmds:
-      - task: backend:format:check
-      - task: frontend:lint:check
+      - task: lint:check:backend
+      - task: lint:check:frontend
 
   clean:
     desc: "Remove temporary files and directories"
     cmds:
-      - task: backend:clean
-      - cd frontend && npm run clean -s
+      - task: clean:backend
+      - task: clean:frontend
 
   dlc-gui:
     desc: "Open DeepLabCut's builtin GUI"
