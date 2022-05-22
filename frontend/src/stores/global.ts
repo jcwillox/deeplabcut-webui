@@ -16,8 +16,8 @@ export const useStore = defineStore("global", {
     setVideo(video: string) {
       this.video = video;
       this.cVideo = video;
-      useFrames().update();
       useFrames().items = [];
     }
-  }
+  },
+  persist: true
 });

@@ -2,7 +2,7 @@
 import SettingsMenu from "@/components/SettingsMenu.vue";
 import SnackbarPWA from "@/components/SnackbarPWA.vue";
 import SystemBar from "@/components/SystemBar.vue";
-import { useStore } from "@/stores";
+import { useFrames, useStore } from "@/stores";
 import { clearUrlCache } from "@/utils";
 import {
   usePreferredColorScheme,
@@ -13,6 +13,7 @@ import { computed, ref, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 
 const store = useStore();
+const frames = useFrames();
 const showProject = computed(() => !store.project || !store.cVideo);
 const showSettings = ref(false);
 
@@ -51,15 +52,16 @@ watch(
   { immediate: true }
 );
 
-// clear cached urls when we change video
+// track video changes
 watch(() => store.video, clearUrlCache);
 
 // bind route to active tab
 watch(
   route,
   () => {
-    if (route.name) {
+    if (route && route.name) {
       tab.value = route.name.toString();
+      frames.handleRouteChange(route.name);
     }
   },
   { immediate: true }
