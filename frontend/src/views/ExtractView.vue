@@ -129,14 +129,14 @@ const clickFrame = (frameName: string) => {
       />
     </div>
 
-    <VSlideGroup
+    <v-slide-group
       v-if="store.video"
       v-model="selectedFrame"
       class="my-3 mt-4 elevation-1"
       center-active
       show-arrows
     >
-      <VSlideGroupItem
+      <v-slide-group-item
         v-for="image in frames.items"
         :key="image"
         v-slot="{ toggle }"
@@ -158,7 +158,7 @@ const clickFrame = (frameName: string) => {
             </v-img>
           </div>
         </v-card>
-      </VSlideGroupItem>
-    </VSlideGroup>
+      </v-slide-group-item>
+    </v-slide-group>
   </v-container>
 </template>
