@@ -1,11 +1,6 @@
 <script lang="ts">
 export default {
-  name: "LabelView",
-  data() {
-    return {
-      dialog: false
-    };
-  }
+  name: "LabelView"
 };
 </script>
 
@@ -20,6 +15,7 @@ const store = useStore();
 const imgIndex = ref(0);
 const carouselEl = ref<InstanceType<typeof VCarouselItem>[] | null>(null);
 const url = ref("");
+const dialog = ref(false);
 
 watch(
   () => store.video,
@@ -96,71 +92,41 @@ watchEffect(() => {
           <v-card-title>
             <span class="text-h5"> Select Frame </span>
           </v-card-title>
-          <v-row class="d-flex align-center justify-center">
-            <v-col v-for="(frame, i) in frames" :key="i" cols="auto">
-              <div v-if="i === imgIndex">
-                <v-img
-                  :src="createUrl(framesUrl, frame)"
-                  :aspect-ratio="16 / 9"
-                  cover
-                  :width="400"
-                  style="
-                    border-style: solid;
-                    border-width: 5px;
-                    border-color: yellowgreen;
-                  "
-                  @click="
-                    imgIndex = i;
-                    dialog = false;
-                  "
-                >
-                  <template v-slot:placeholder>
-                    <v-row
-                      class="fill-height ma-0"
-                      align="center"
-                      justify="center"
-                    >
-                      <v-progress-circular
-                        indeterminate
-                        color="grey-lighten-5"
-                      ></v-progress-circular>
-                    </v-row>
-                  </template>
-                </v-img>
-                <p class="d-flex align-center justify-center">
-                  Frame: {{ i + 1 }}
-                </p>
-              </div>
-              <div v-else>
-                <v-img
-                  :src="createUrl(framesUrl, frame)"
-                  :aspect-ratio="16 / 9"
-                  cover
-                  :width="400"
-                  @click="
-                    imgIndex = i;
-                    dialog = false;
-                  "
-                >
-                  <template v-slot:placeholder>
-                    <v-row
-                      class="fill-height ma-0"
-                      align="center"
-                      justify="center"
-                    >
-                      <v-progress-circular
-                        indeterminate
-                        color="grey-lighten-5"
-                      ></v-progress-circular>
-                    </v-row>
-                  </template>
-                </v-img>
-                <p class="d-flex align-center justify-center">
-                  Frame: {{ i + 1 }}
-                </p>
-              </div>
-            </v-col>
-          </v-row>
+          <v-card-content>
+            <v-row class="text-center" justify="center">
+              <v-col v-for="(frame, i) in frames" :key="i" cols="auto">
+                <div>
+                  <v-img
+                    :style="
+                      i === imgIndex && { border: '5px solid yellowgreen' }
+                    "
+                    :src="createUrl(framesUrl, frame)"
+                    :aspect-ratio="16 / 9"
+                    :width="400"
+                    @click="
+                      imgIndex = i;
+                      dialog = false;
+                    "
+                    cover
+                  >
+                    <template v-slot:placeholder>
+                      <v-row
+                        class="fill-height ma-0"
+                        align="center"
+                        justify="center"
+                      >
+                        <v-progress-circular
+                          indeterminate
+                          color="grey-lighten-5"
+                        ></v-progress-circular>
+                      </v-row>
+                    </template>
+                  </v-img>
+                </div>
+                {{ frame }}
+              </v-col>
+            </v-row>
+          </v-card-content>
         </v-card>
       </v-dialog>
     </v-row>
