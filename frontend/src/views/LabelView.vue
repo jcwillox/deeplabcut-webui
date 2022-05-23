@@ -9,7 +9,7 @@ import LabelEditor from "@/components/LabelEditor.vue";
 import { useFrames, useStore } from "@/stores";
 import { createCachedUrl, useFetch } from "@/utils/fetch";
 import type { PanzoomEventDetail } from "@panzoom/panzoom/dist/src/types";
-import { computed, ref } from "vue";
+import { computed, ref, watch } from "vue";
 
 const store = useStore();
 const frames = useFrames();
@@ -20,23 +20,25 @@ const labelEditorEl = ref<InstanceType<typeof LabelEditor> | null>(null);
 const labelsUrl = computed(() => "/videos/" + store.video + "/labels");
 const { data: labels } = useFetch(labelsUrl, { refetch: true }).get().json();
 
-const imgCounter = ref(0);
-const imgIndex = computed({
-  get: () => imgCounter.value,
-  set: value => {
-    if (value < 0) {
-      if (frames.items.length > 0) {
-        imgCounter.value = frames.items.length - 1;
-      } else {
-        imgCounter.value = 0;
-      }
-    } else if (value >= frames.items.length) {
-      imgCounter.value = 0;
-    } else {
-      imgCounter.value = value;
+const imgIndex = ref(0);
+const updateIndex = (n: number) => {
+  if (frames.items.length == 0) {
+    imgIndex.value = 0;
+  } else {
+    const length = frames.items.length;
+    imgIndex.value = (((imgIndex.value + n) % length) + length) % length;
+  }
+};
+
+// reset selected frame when changing video
+watch(
+  () => frames.items,
+  () => {
+    if (frames.items.length == 0) {
+      imgIndex.value = 0;
     }
   }
-});
+);
 
 const mapWidth = ref("0%");
 const mapHeight = ref("0%");
@@ -59,7 +61,7 @@ const panZoomChange = (detail: PanzoomEventDetail) => {
         icon="mdi-chevron-left"
         variant="plain"
         size="small"
-        @click="imgIndex--"
+        @click="updateIndex(-1)"
       ></v-btn>
       <LabelEditor
         class="flex-grow-1"
@@ -72,7 +74,7 @@ const panZoomChange = (detail: PanzoomEventDetail) => {
         icon="mdi-chevron-right"
         variant="plain"
         size="small"
-        @click="imgIndex++"
+        @click="updateIndex(1)"
       ></v-btn>
     </div>
     <div style="flex-grow: 1" class="ml-1">
