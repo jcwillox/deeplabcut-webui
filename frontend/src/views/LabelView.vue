@@ -6,8 +6,8 @@ export default {
 
 <script setup lang="ts">
 import LabelEditor from "@/components/LabelEditor.vue";
-import { useStore, useFrames } from "@/stores";
-import { createCachedUrl } from "@/utils/fetch";
+import { useFrames, useStore } from "@/stores";
+import { createCachedUrl, useFetch } from "@/utils/fetch";
 import type { PanzoomEventDetail } from "@panzoom/panzoom/dist/src/types";
 import { computed, ref } from "vue";
 
@@ -16,6 +16,9 @@ const frames = useFrames();
 const framesUrl = computed(() => "/videos/" + store.video + "/frames");
 
 const labelEditorEl = ref<InstanceType<typeof LabelEditor> | null>(null);
+
+const labelsUrl = computed(() => "/videos/" + store.video + "/labels");
+const { data: labels } = useFetch(labelsUrl, { refetch: true }).get().json();
 
 const imgCounter = ref(0);
 const imgIndex = computed({
@@ -81,6 +84,32 @@ const panZoomChange = (detail: PanzoomEventDetail) => {
       >
         <div id="zoomBox"></div>
       </v-img>
+
+      <v-list v-if="labels">
+        <v-list-group
+          v-for="(label, key) in labels[frames.items[imgIndex]]"
+          :key="key"
+        >
+          <template v-slot:activator="{ props }">
+            <v-list-item
+              v-bind="props"
+              :title="(key as unknown as string)"
+              :value="key"
+            ></v-list-item>
+          </template>
+
+          <v-list-item
+            v-for="(coord, bodypart) in labels[frames.items[imgIndex]][key]"
+            :key="bodypart"
+            :value="bodypart"
+            :title="(bodypart as unknown as string)"
+            :subtitle="`x: ${
+              labels[frames.items[imgIndex]][key][bodypart]['x']
+            },  y: ${labels[frames.items[imgIndex]][key][bodypart]['y']}`"
+            prepend-icon="mdi-circle"
+          ></v-list-item>
+        </v-list-group>
+      </v-list>
     </div>
   </v-container>
 </template>
