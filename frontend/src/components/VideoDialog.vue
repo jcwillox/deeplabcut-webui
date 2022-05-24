@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useStore } from "@/stores/global";
+import { useStore } from "@/stores";
 import { useFetch } from "@/utils";
 import { computed, watch } from "vue";
 import FileBrowser from "./FileBrowser.vue";
@@ -20,7 +20,7 @@ const dialog = computed({
   }
 });
 
-const { execute, data, isFetching } = useFetch("videos", { immediate: false })
+const { execute, data, isFetching } = useFetch("/videos", { immediate: false })
   .get()
   .json();
 
@@ -29,8 +29,8 @@ watch(dialog, () => dialog.value && execute());
 
 // set the globally selected video and close the dialog
 const setVideo = (video: string) => {
-  store.video = video;
   dialog.value = false;
+  store.setVideo(video);
 };
 </script>
 

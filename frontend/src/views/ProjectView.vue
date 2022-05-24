@@ -5,7 +5,7 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { useStore } from "@/stores/global";
+import { useStore } from "@/stores";
 import { useFetch } from "@/utils/fetch";
 import { watchEffect } from "vue";
 import FileBrowser from "../components/FileBrowser.vue";
@@ -29,10 +29,6 @@ watchEffect(() => {
     execute();
   }
 });
-
-const setVideo = (video: string) => {
-  store.video = video;
-};
 </script>
 
 <template>
@@ -71,7 +67,7 @@ const setVideo = (video: string) => {
         v-else
         class="pa-0 mt-2"
         :items="videos"
-        @selected="setVideo"
+        @selected="store.setVideo"
       />
     </div>
     <v-divider vertical />

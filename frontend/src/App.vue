@@ -1,5 +1,9 @@
 <script setup lang="ts">
-import { useStore } from "@/stores/global";
+import SettingsMenu from "@/components/SettingsMenu.vue";
+import SnackbarPWA from "@/components/SnackbarPWA.vue";
+import SystemBar from "@/components/SystemBar.vue";
+import { useFrames, useStore } from "@/stores";
+import { clearUrlCache } from "@/utils";
 import {
   usePreferredColorScheme,
   useStorage,
@@ -7,11 +11,10 @@ import {
 } from "@vueuse/core";
 import { computed, ref, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
-import SettingsMenu from "./components/SettingsMenu.vue";
-import SystemBar from "./components/SystemBar.vue";
 
 const store = useStore();
-const showProject = computed(() => !store.project || !store.video);
+const frames = useFrames();
+const showProject = computed(() => !store.project || !store.cVideo);
 const showSettings = ref(false);
 
 // ensure all pages except project view are unmounted when switching or closing a project
@@ -40,7 +43,7 @@ const items = computed(() =>
 
 // redirect to project selection screen when no project is selected
 watch(
-  [() => store.project, () => store.video],
+  [() => store.project, () => store.cVideo],
   ([newProject, newVideo]) => {
     if (!newProject || !newVideo) {
       router.push({ name: "project" });
@@ -49,12 +52,16 @@ watch(
   { immediate: true }
 );
 
+// track video changes
+watch(() => store.video, clearUrlCache);
+
 // bind route to active tab
 watch(
   route,
   () => {
-    if (route.name) {
+    if (route && route.name) {
       tab.value = route.name.toString();
+      frames.handleRouteChange(route.name);
     }
   },
   { immediate: true }
@@ -64,7 +71,7 @@ watch(
 <template>
   <v-app :theme="theme">
     <SettingsMenu v-model="showSettings" v-model:theme="themeMode" />
-
+    <SnackbarPWA />
     <SystemBar />
 
     <v-app-bar color="primary" density="compact" class="position-relative" flat>

@@ -1,6 +1,5 @@
 FROM python:3.8-slim-bullseye
 
-ENV API_KEY="mysupersecretpassword"
 ENV DLC_PROJECTS="/projects"
 
 EXPOSE 8000
@@ -16,4 +15,4 @@ RUN pip install --no-cache-dir .
 COPY ./tests/testdata /projects
 COPY ./app /app
 
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uvicorn", "app.__main__:app", "--host", "0.0.0.0", "--port", "8000"]

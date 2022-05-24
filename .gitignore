@@ -257,3 +257,7 @@ cython_debug/
 ### Misc
 .task/
 .idea/
+
+# exclude images created during testing
+backend/tests/testdata/*/labeled-data/*/*.png
+!backend/tests/testdata/*/labeled-data/*/*.demo.png

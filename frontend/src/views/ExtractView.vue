@@ -5,82 +5,64 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { useStore } from "@/stores/global";
-import { createUrl, useFetch, useUrl } from "@/utils/fetch";
-import type { VideoJsPlayer } from "video.js";
+import { useStore, useFrames } from "@/stores";
+import { createCachedUrl, useFetch } from "@/utils/fetch";
 import { computed, ref, watch } from "vue";
 import { VSlideGroup, VSlideGroupItem } from "vuetify/components";
 import VideoJS from "../components/VideoJS.vue";
 
-let player = $ref<InstanceType<typeof VideoJS> | null>(null);
-
 const store = useStore();
-const url = ref("");
+const frames = useFrames();
+const player = ref<InstanceType<typeof VideoJS> | null>(null);
 
-// only update url when there is a video to prevent requesting broken urls
-watch(
-  () => store.video,
-  () => {
-    if (store.video) {
-      url.value = "/videos/" + store.video;
-    }
-  },
-  { immediate: true }
-);
+const videoUrl = computed(() => "/videos/" + store.video);
+const framesUrl = computed(() => videoUrl.value + "/frames");
 
-const framesUrl = computed(() => url.value + "/frames");
-const streamUrl = useUrl(url, "stream");
-
-const timecode = computed(() => player?.timecode || 0);
+const timecode = computed(() => player.value?.timecode || 0);
 const frame = computed({
-  get: () => player?.frame || 0,
+  get: () => player.value?.frame || 0,
   set: value => {
-    player?.seekTo(Number(value));
+    player.value?.seekTo(Number(value));
   }
 });
 
-const playerReady = (videojs: VideoJsPlayer) => {
-  console.log("player-ready", videojs);
-};
-
 const toggleVideo = () => {
-  if (player?.videojs?.paused()) {
-    player.videojs.play();
+  if (player.value?.videojs?.paused()) {
+    player.value.videojs.play();
   } else {
-    player?.videojs?.pause();
+    player.value?.videojs?.pause();
   }
 };
 
 // fetch the videos' fps from backend
-const { data: details } = useFetch(url, { refetch: true }).get().json();
+const { data: details } = useFetch(videoUrl, { refetch: true }).get().json();
 const fps = computed(() => (details.value ? details.value.fps : -1));
-
-// fetch the list of currently extracted frames
-const { data: frames, execute: refetchFrames } = useFetch(framesUrl, {
-  refetch: true
-})
-  .get()
-  .json();
-
 const selectedFrame = ref<number | undefined>(undefined);
-const framesList = computed<string[]>(() => (frames.value ? frames.value : []));
 
-// reset the frames list and index when changing video
-watch(framesUrl, () => {
-  frames.value = null;
-  selectedFrame.value = 0;
-});
+// reset selected frame changing video
+watch(
+  () => frames.items,
+  () => {
+    if (frames.items.length == 0) {
+      selectedFrame.value = 0;
+    }
+  }
+);
 
 // extract frame logic
 const extractFrame = async () => {
-  player?.videojs?.pause();
-  const { data, statusCode } = await useFetch(url.value + "/frames")
-    .post({ frames: [frame.value] })
-    .json();
+  player.value?.videojs?.pause();
+  const { data, statusCode } = await frames.extract(frame.value);
   if (statusCode.value == 200) {
-    await refetchFrames();
-    selectedFrame.value = framesList.value.indexOf(data.value[0]);
+    await frames.update();
+    selectedFrame.value = frames.items.indexOf(data.value[0]);
   }
+};
+
+// change the player to the frame extracted from the images name
+const clickFrame = (frameName: string) => {
+  const frameNumber = /\d+/.exec(frameName);
+  player.value?.seekTo(Number(frameNumber));
 };
 </script>
 
@@ -110,11 +92,11 @@ const extractFrame = async () => {
     <VideoJS
       ref="player"
       :fps="fps"
-      :src="streamUrl"
-      @player-ready="playerReady"
+      :src="createCachedUrl(videoUrl, 'stream')"
+      max-height-offset="184px"
       @keydown.space="toggleVideo"
-      @keydown.left="() => player?.seekBackward()"
-      @keydown.right="() => player?.seekForward()"
+      @keydown.left="player?.seekBackward()"
+      @keydown.right="player?.seekForward()"
     ></VideoJS>
 
     <div class="d-flex align-center justify-center my-2" style="gap: 4px">
@@ -122,13 +104,13 @@ const extractFrame = async () => {
         size="small"
         color="primary-darken-2"
         icon="mdi-chevron-double-left"
-        @click="() => player?.seekBackward(10)"
+        @click="player?.seekBackward(10)"
       />
       <v-btn
         size="small"
         color="primary-darken-1"
         icon="mdi-chevron-left"
-        @click="() => player?.seekBackward()"
+        @click="player?.seekBackward()"
       />
       <v-btn height="40" color="primary" @click="extractFrame" rounded>
         Extract
@@ -137,31 +119,34 @@ const extractFrame = async () => {
         size="small"
         color="primary-darken-1"
         icon="mdi-chevron-right"
-        @click="() => player?.seekForward()"
+        @click="player?.seekForward()"
       />
       <v-btn
         size="small"
         color="primary-darken-2"
         icon="mdi-chevron-double-right"
-        @click="() => player?.seekForward(10)"
+        @click="player?.seekForward(10)"
       />
     </div>
 
-    <VSlideGroup
+    <v-slide-group
       v-if="store.video"
       v-model="selectedFrame"
       class="my-3 mt-4 elevation-1"
       center-active
       show-arrows
     >
-      <VSlideGroupItem
-        v-for="image in framesList"
+      <v-slide-group-item
+        v-for="image in frames.items"
         :key="image"
         v-slot="{ toggle }"
       >
         <v-card class="ma-4" width="100" @click="toggle">
           <div class="d-flex fill-height align-center justify-center">
-            <v-img :src="createUrl(framesUrl, image)">
+            <v-img
+              :src="createCachedUrl(framesUrl, image)"
+              @click="clickFrame(image)"
+            >
               <template v-slot:placeholder>
                 <v-row class="fill-height ma-0" align="center" justify="center">
                   <v-progress-circular
@@ -173,7 +158,7 @@ const extractFrame = async () => {
             </v-img>
           </div>
         </v-card>
-      </VSlideGroupItem>
-    </VSlideGroup>
+      </v-slide-group-item>
+    </v-slide-group>
   </v-container>
 </template>
