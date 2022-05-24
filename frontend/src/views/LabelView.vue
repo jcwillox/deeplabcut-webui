@@ -12,6 +12,7 @@ import type { PanzoomEventDetail } from "@panzoom/panzoom/dist/src/types";
 import { computed, ref, watch } from "vue";
 
 const store = useStore();
+const dialog = ref(false);
 const frames = useFrames();
 const framesUrl = computed(() => "/videos/" + store.video + "/frames");
 
@@ -113,6 +114,58 @@ const panZoomChange = (detail: PanzoomEventDetail) => {
         </v-list-group>
       </v-list>
     </div>
+  </v-container>
+  <v-container fluid class="d-flex align-center justify-center my-2">
+    <v-row justify="center">
+      <v-dialog v-model="dialog">
+        <template v-slot:activator="{ props }">
+          <v-btn color="primary" rounded v-bind="props">
+            Frame: {{ imgIndex + 1 }} of {{ frames.items.length }}
+          </v-btn>
+        </template>
+        <v-toolbar color="primary" class="rounded-t">
+          <v-toolbar-title>Select Frame</v-toolbar-title>
+          <v-spacer />
+          <v-btn icon="mdi-close" @click="dialog = false" />
+        </v-toolbar>
+        <v-card style="height: calc(100vh - 104px)" class="rounded-t-0">
+          <v-card-content>
+            <v-row class="text-center" justify="center">
+              <v-col v-for="(frame, i) in frames.items" :key="i" cols="auto">
+                <div>
+                  <v-img
+                    :style="
+                      i === imgIndex && { border: '5px solid yellowgreen' }
+                    "
+                    :src="createCachedUrl(framesUrl, frame)"
+                    :aspect-ratio="16 / 9"
+                    :width="250"
+                    @click="
+                      imgIndex = i;
+                      dialog = false;
+                    "
+                  >
+                    <template v-slot:placeholder>
+                      <v-row
+                        class="fill-height ma-0"
+                        align="center"
+                        justify="center"
+                      >
+                        <v-progress-circular
+                          indeterminate
+                          color="grey-lighten-5"
+                        ></v-progress-circular>
+                      </v-row>
+                    </template>
+                  </v-img>
+                </div>
+                {{ frame }}
+              </v-col>
+            </v-row>
+          </v-card-content>
+        </v-card>
+      </v-dialog>
+    </v-row>
   </v-container>
 </template>
 
