@@ -88,10 +88,12 @@ watchEffect(() => {
             Frame: {{ imgIndex + 1 }} of {{ framesList.length }}
           </v-btn>
         </template>
-        <v-card>
-          <v-card-title>
-            <span class="text-h5"> Select Frame </span>
-          </v-card-title>
+        <v-toolbar color="primary" class="rounded-t">
+          <v-toolbar-title>Select Frame</v-toolbar-title>
+          <v-spacer />
+          <v-btn icon="mdi-close" @click="dialog = false" />
+        </v-toolbar>
+        <v-card style="height: calc(100vh - 104px)" class="rounded-t-0">
           <v-card-content>
             <v-row class="text-center" justify="center">
               <v-col v-for="(frame, i) in frames" :key="i" cols="auto">
@@ -102,12 +104,11 @@ watchEffect(() => {
                     "
                     :src="createUrl(framesUrl, frame)"
                     :aspect-ratio="16 / 9"
-                    :width="400"
+                    :width="250"
                     @click="
                       imgIndex = i;
                       dialog = false;
                     "
-                    cover
                   >
                     <template v-slot:placeholder>
                       <v-row
