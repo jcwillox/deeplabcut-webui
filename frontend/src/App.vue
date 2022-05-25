@@ -66,6 +66,27 @@ watch(
   },
   { immediate: true }
 );
+
+// handle opening relevant documentation page
+const getDocsPage = () => {
+  switch (route.name) {
+    case "project":
+      if (store.project) {
+        return "/guide/video/";
+      }
+      return "/guide/project/";
+    case "extract":
+      return "/guide/extract/";
+    case "label":
+      return "/guide/label/";
+    default:
+      return "";
+  }
+};
+
+const openDocs = () => {
+  window.location.assign("/docs" + getDocsPage());
+};
 </script>
 
 <template>
@@ -88,9 +109,18 @@ watch(
         </v-tabs>
       </template>
 
-      <template v-slot:append>
-        <v-btn icon="mdi-cog" @click.stop="showSettings = true"></v-btn>
-      </template>
+      <v-spacer />
+
+      <v-btn @click="openDocs" icon>
+        <v-icon>mdi-help-circle</v-icon>
+        <v-tooltip activator="parent" anchor="bottom">Help</v-tooltip>
+      </v-btn>
+      <v-btn class="mr-n3" @click.stop="showSettings = true" icon>
+        <v-icon>mdi-cog</v-icon>
+        <v-tooltip activator="parent" anchor="bottom" class="settings">
+          Settings
+        </v-tooltip>
+      </v-btn>
     </v-app-bar>
 
     <v-main class="pa-0">
@@ -114,5 +144,8 @@ html {
 }
 .v-table--fixed-header th {
   z-index: 1;
+}
+div.v-tooltip.settings > div {
+  transform: translate(-12px);
 }
 </style>
