@@ -86,7 +86,7 @@ const getDocsPage = () => {
 };
 
 const openDocs = () => {
-  window.location.assign("/docs" + getDocsPage());
+  window.location.assign(import.meta.env.BASE_URL + "docs" + getDocsPage());
 };
 </script>
 
