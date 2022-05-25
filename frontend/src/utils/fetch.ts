@@ -1,6 +1,6 @@
-import { useStore } from "@/stores";
-import { createFetch } from "@vueuse/core";
+import { useErrors, useStore } from "@/stores";
 import { isArrayDefined } from "@/utils/index";
+import { createFetch } from "@vueuse/core";
 
 const cache: Map<string, string> = new Map();
 export const clearUrlCache = () => cache.clear();
@@ -38,6 +38,30 @@ export const useFetch = createFetch({
   options: {
     async beforeFetch({ url, options }) {
       return { url: createUrl(url), options };
+    },
+    afterFetch(ctx) {
+      // clear error state after successful request
+      useErrors().reset();
+      return ctx;
+    },
+    onFetchError(ctx) {
+      const errors = useErrors();
+      if (ctx.response && ctx.response.status >= 400) {
+        if (ctx.response.status >= 500) {
+          errors.set({
+            status: ctx.response.status,
+            message: ctx.error.message,
+            stack: ctx.error.stack
+          });
+        }
+      } else if (ctx.error) {
+        // no response has been received
+        errors.set({
+          message: ctx.error.message,
+          stack: ctx.error.stack
+        });
+      }
+      return ctx;
     }
   },
   fetchOptions: {

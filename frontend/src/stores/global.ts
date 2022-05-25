@@ -6,7 +6,8 @@ export const useStore = defineStore("global", {
     project: "",
     video: "",
     cVideo: "",
-    backend: "http://127.0.0.1:8000"
+    backend: "http://127.0.0.1:8000",
+    token: ""
   }),
   actions: {
     resetProject() {

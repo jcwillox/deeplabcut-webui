@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { useStore } from "@/stores/global";
+import DialogBackend from "@/components/BackendDialog.vue";
 import type { BasicColorSchema } from "@vueuse/core";
-import { capitalize, computed } from "vue";
+import { capitalize, computed, ref } from "vue";
 
 const props = defineProps<{
   modelValue: boolean;
@@ -13,7 +13,7 @@ const emit = defineEmits<{
   (e: "update:theme", value: BasicColorSchema): void;
 }>();
 
-const store = useStore();
+const dialogBackend = ref(false);
 
 const show = computed({
   get: () => props.modelValue,
@@ -29,28 +29,40 @@ const themeName = computed({
 </script>
 
 <template>
-  <v-navigation-drawer v-model="show" temporary position="right" :width="300">
+  <v-navigation-drawer v-model="show" :width="300" position="right" temporary>
     <v-toolbar>
       <v-toolbar-title>Settings</v-toolbar-title>
       <v-spacer></v-spacer>
-      <v-btn icon @click.stop="show = false">
-        <v-icon>mdi-close</v-icon>
-      </v-btn>
+      <v-btn @click.stop="show = false" icon="mdi-close" />
     </v-toolbar>
     <v-container>
       <v-select
-        :items="['Auto', 'Light', 'Dark']"
-        class="pb-3"
-        v-model="themeName"
         label="Theme"
+        v-model="themeName"
+        :items="['Auto', 'Light', 'Dark']"
         hide-details
+      />
+      <v-card
+        v-ripple
+        title="Backend"
+        subtitle="Configuration"
+        variant="contained-text"
+        style="cursor: pointer; user-select: none"
+        @click="dialogBackend = true"
       >
-      </v-select>
-      <v-text-field
-        label="Backend"
-        v-model="store.backend"
-        hide-details
-      ></v-text-field>
+        <template #append>
+          <v-avatar>
+            <v-icon size="32">mdi-chevron-right</v-icon>
+          </v-avatar>
+        </template>
+      </v-card>
+      <DialogBackend v-model="dialogBackend" />
     </v-container>
   </v-navigation-drawer>
 </template>
+
+<style scoped>
+.v-container > *:not(:last-child) {
+  margin-bottom: 8px;
+}
+</style>
