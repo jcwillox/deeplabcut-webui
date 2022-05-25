@@ -80,6 +80,39 @@ tasks:
       - npm run format:check
       - npm run typecheck
 
+  build-with-docs:
+    desc: "Build the frontend and embed the docs site"
+    deps: [has-venv]
+    cmds:
+      - cd frontend && npm run build
+      - |
+        {{- if .PY_INTERPRETER -}}
+          '{{ .PY_INTERPRETER }}' -m mkdocs
+        {{- else if eq .CONDA_DEFAULT_ENV .CONDA_ENV -}}
+          mkdocs
+        {{- else if eq OS "windows" -}}
+          .venv/Scripts/mkdocs.exe
+        {{- else -}}
+          .venv/bin/mkdocs
+        {{- end }} build -d frontend/dist/docs
+
+  ### DOCS ###
+  docs:
+    desc: "Run the docs"
+    ignore_error: true
+    deps: [has-venv]
+    cmds:
+      - |
+        {{- if .PY_INTERPRETER -}}
+          '{{ .PY_INTERPRETER }}' -m mkdocs
+        {{- else if eq .CONDA_DEFAULT_ENV .CONDA_ENV -}}
+          mkdocs
+        {{- else if eq OS "windows" -}}
+          .venv/Scripts/mkdocs.exe
+        {{- else -}}
+          .venv/bin/mkdocs
+        {{- end }} serve --dev-addr localhost:3001
+
   ### SETUP ###
   setup:
     desc: "Setup the frontend and backend environments/dependencies"
@@ -109,9 +142,9 @@ tasks:
       - 'if [ ! -d ".venv" ]; then python -m venv .venv; fi'
       - |
         {{- if eq OS "windows" -}}
-          .venv/Scripts/pip.exe install -e backend
+          .venv/Scripts/pip.exe install -e backend[docs]
         {{- else -}}
-          .venv/bin/pip install -e backend
+          .venv/bin/pip install -e backend[docs]
         {{- end -}}
       - task: clean:backend
 
@@ -177,7 +210,7 @@ tasks:
           {{- if and (not .PY_INTERPRETER) (ne .CONDA_DEFAULT_ENV .CONDA_ENV) -}}
             [ -d ".venv" ]
           {{- end -}}
-        msg: virtualenv does not exist, try running "task setup-python"
+        msg: virtualenv does not exist, try running "task setup-python" or using conda
 
   is-conda-env:
     deps: [has-conda]

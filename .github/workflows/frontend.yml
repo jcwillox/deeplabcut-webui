@@ -112,12 +112,17 @@ jobs:
           cache: ${{ !env.ACT && 'pnpm' || '' }}
 
       - name: "Install dependencies"
-        run: pnpm install
+        run: |
+          pnpm install
+          pip install -r ../backend/requirements-docs.txt
 
       - name: "Run Build"
+        env:
+          SITE_DESCRIPTION: ${{ github.event.repository.description }}
         run: |
           pnpm run build
           ln -s ./index.html ./dist/404.html
+          cd .. && mkdocs build -d frontend/dist/docs
 
       - name: "Deploy 🚀"
         uses: JamesIves/github-pages-deploy-action@v4

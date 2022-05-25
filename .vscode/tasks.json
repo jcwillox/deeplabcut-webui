@@ -19,6 +19,14 @@
     },
     {
       "type": "shell",
+      "command": "${command:python.interpreterPath}",
+      "args": ["-m", "mkdocs", "serve", "--dev-addr", "localhost:3001"],
+      "problemMatcher": [],
+      "label": "Docs",
+      "detail": "Start the docs site"
+    },
+    {
+      "type": "shell",
       "command": "task fullstack",
       "options": {
         "env": {

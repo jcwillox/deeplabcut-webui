@@ -13,6 +13,9 @@ export default defineConfig({
     }),
     vuetify(),
     VitePWA({
+      workbox: {
+        navigateFallbackDenylist: [RegExp("^.*\\/docs.*$")]
+      },
       manifest: {
         name: "DeepLabCut WebUI",
         short_name: "DLC WebUI",

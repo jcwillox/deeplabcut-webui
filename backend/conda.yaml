@@ -9,4 +9,4 @@ dependencies:
   - nb_conda
   - ffmpeg
   - pip:
-      - .[dlc]
+      - .[dlc,docs]

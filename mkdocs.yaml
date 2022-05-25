@@ -1,0 +1,71 @@
+site_name: DeepLabCut WebUI
+site_description: !ENV SITE_DESCRIPTION
+site_url: https://jcwillox.github.io/deeplabcut-webui/docs
+
+repo_name: jcwillox/deeplabcut-webui
+repo_url: https://github.com/jcwillox/deeplabcut-webui
+edit_uri: edit/main/docs/
+
+copyright: Copyright &copy; MIT
+
+nav:
+  - "index.md"
+  - Guide:
+      - "guide/getting-started.md"
+      - "guide/project.md"
+      - "guide/video.md"
+      - "guide/extract.md"
+      - "guide/label.md"
+  - Setup:
+      - "setup/index.md"
+  - Development:
+      - "development/index.md"
+
+theme:
+  name: "material"
+  icon:
+    logo: material/rodent
+  favicon: "assets/favicon.ico"
+  features:
+    - navigation.instant
+    - navigation.expand
+    - navigation.top
+    - navigation.indexes
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: purple
+      accent: deep purple
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to dark theme
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: purple
+      accent: deep purple
+      toggle:
+        icon: material/weather-night
+        name: Switch to light theme
+
+plugins:
+  - search
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - md_in_html
+  - toc:
+      permalink: "#"
+  - pymdownx.snippets
+  - pymdownx.caret
+  - pymdownx.highlight
+  - pymdownx.inlinehilite
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - pymdownx.emoji:
+      emoji_index: !!python/name:materialx.emoji.twemoji
+      emoji_generator: !!python/name:materialx.emoji.to_svg

@@ -17,8 +17,12 @@ DLC_REQUIRE = [
     "deeplabcut[gui]>=2.2.1,<3",
 ]
 
+with open("requirements-docs.txt") as file:
+    DOCS_REQUIRE = file.read().splitlines(keepends=False)
+
 EXTRAS_REQUIRE = {
     "dlc": DLC_REQUIRE,
+    "docs": DOCS_REQUIRE,
 }
 
 if __name__ == "__main__":
