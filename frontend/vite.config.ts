@@ -1,12 +1,23 @@
 import vue from "@vitejs/plugin-vue";
 import vuetify from "@vuetify/vite-plugin";
+import { execSync } from "child_process";
 import { fileURLToPath, URL } from "url";
 import { defineConfig } from "vite";
 import { VitePWA } from "vite-plugin-pwa";
 
+const quoteCommand = (command: string) => {
+  return JSON.stringify(execSync(command).toString());
+};
+
 // https://vitejs.dev/config/
 export default defineConfig({
   base: process.env.VITE_BASE || "/",
+  define: {
+    __BUILD_TIME__: JSON.stringify(new Date().toISOString()),
+    __COMMIT__: quoteCommand("git rev-parse HEAD"),
+    __BRANCH__: quoteCommand("git rev-parse --abbrev-ref HEAD"),
+    __VERSION__: quoteCommand("git describe --tags --dirty --always")
+  },
   plugins: [
     vue({
       reactivityTransform: true

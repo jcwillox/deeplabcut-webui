@@ -2,6 +2,7 @@
 import SettingsMenu from "@/components/SettingsMenu.vue";
 import SnackbarPWA from "@/components/SnackbarPWA.vue";
 import SystemBar from "@/components/SystemBar.vue";
+import VersionDialog from "@/components/VersionDialog.vue";
 import { useFrames, useStore } from "@/stores";
 import { clearUrlCache } from "@/utils";
 import {
@@ -115,6 +116,7 @@ const openDocs = () => {
         <v-icon>mdi-help-circle</v-icon>
         <v-tooltip activator="parent" anchor="bottom">Help</v-tooltip>
       </v-btn>
+      <VersionDialog />
       <v-btn class="mr-n3" @click.stop="showSettings = true" icon>
         <v-icon>mdi-cog</v-icon>
         <v-tooltip activator="parent" anchor="bottom" class="settings">
