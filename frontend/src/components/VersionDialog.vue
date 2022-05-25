@@ -3,6 +3,7 @@ import { ref } from "vue";
 
 const dialog = ref(false);
 const buildTime = __BUILD_TIME__;
+const localBuildTime = new Date(__BUILD_TIME__).toLocaleString();
 const commit = __COMMIT__;
 const branch = __BRANCH__;
 const version = __VERSION__;
@@ -21,12 +22,32 @@ const version = __VERSION__;
       <v-spacer />
       <v-btn @click="dialog = false" icon="mdi-close" />
     </v-toolbar>
-    <v-card class="parent rounded-t-0" elevation="0">
+    <v-card class="parent rounded-t-0 text-no-wrap pb-2" elevation="0">
       <v-card-text>
-        <div><b>Version:</b> {{ version }}</div>
-        <div><b>Branch:</b> {{ branch }}</div>
-        <div><b>Commit:</b> {{ commit }}</div>
-        <div><b>Built At:</b> {{ buildTime }}</div>
+        <v-table>
+          <tbody>
+            <tr>
+              <td>Version</td>
+              <td>{{ version }}</td>
+            </tr>
+            <tr>
+              <td>Branch</td>
+              <td>{{ branch }}</td>
+            </tr>
+            <tr>
+              <td>Commit</td>
+              <td>{{ commit }}</td>
+            </tr>
+            <tr>
+              <td>Build Time</td>
+              <td>{{ buildTime }}</td>
+            </tr>
+            <tr>
+              <td>Build Time (Local)</td>
+              <td>{{ localBuildTime }}</td>
+            </tr>
+          </tbody>
+        </v-table>
       </v-card-text>
     </v-card>
   </v-dialog>
@@ -34,10 +55,14 @@ const version = __VERSION__;
 
 <style scoped>
 .v-card.parent {
-  width: 500px;
+  width: 570px;
 }
 
-@media screen and (max-width: 500px) {
+tbody > tr > td:first-child {
+  font-weight: bold;
+}
+
+@media screen and (max-width: 570px) {
   .v-card.parent {
     width: 100vw;
   }
