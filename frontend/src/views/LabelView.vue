@@ -141,6 +141,10 @@ const createSubtitle = (coords: LabelsCoords) => {
         class="flex-grow-0"
       >
         <div id="zoomBox" />
+        <div class="panel top" />
+        <div class="panel left" />
+        <div class="panel right" />
+        <div class="panel bottom" />
       </v-img>
 
       <v-list
@@ -245,6 +249,32 @@ const createSubtitle = (coords: LabelsCoords) => {
   top: calc(v-bind("mapHeight") - 50% / v-bind("mapScale"));
   width: calc(100% / v-bind("mapScale"));
   height: calc(100% / v-bind("mapScale"));
+}
+
+.panel {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  background-color: black;
+  opacity: 0.6;
+}
+.panel.top {
+  height: calc(v-bind("mapHeight") - 50% / v-bind("mapScale"));
+}
+.panel.left {
+  top: calc(v-bind("mapHeight") - 50% / v-bind("mapScale"));
+  height: calc(100% / v-bind("mapScale"));
+  width: calc(v-bind("mapWidth") - 50% / v-bind("mapScale"));
+}
+.panel.right {
+  top: calc(v-bind("mapHeight") - 50% / v-bind("mapScale"));
+  height: calc(100% / v-bind("mapScale"));
+  left: calc(50% / v-bind("mapScale") + v-bind("mapWidth"));
+}
+.panel.bottom {
+  top: calc(v-bind("mapHeight") + 50% / v-bind("mapScale"));
 }
 
 .v-list-group__items .v-list-item {
