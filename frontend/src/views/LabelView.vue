@@ -19,7 +19,9 @@ const framesUrl = computed(() => "/videos/" + store.video + "/frames");
 const labelEditorEl = ref<InstanceType<typeof LabelEditor> | null>(null);
 
 const labelsUrl = computed(() => "/videos/" + store.video + "/labels");
-const { data: labels } = useFetch(labelsUrl, { refetch: true }).get().json();
+const { data: labels } = useFetch<string>(labelsUrl, { refetch: true })
+  .get()
+  .json<LabelsModel>();
 
 const imgIndex = ref(0);
 const updateIndex = (n: number) => {
@@ -30,6 +32,11 @@ const updateIndex = (n: number) => {
     imgIndex.value = (((imgIndex.value + n) % length) + length) % length;
   }
 };
+
+const image = computed<string>(() => frames.items[imgIndex.value]);
+const individuals = computed<LabelsIndividuals>(() =>
+  labels.value ? labels.value[image.value] : {}
+);
 
 // reset selected frame when changing video
 watch(
@@ -43,7 +50,7 @@ watch(
 
 const mapWidth = ref("0%");
 const mapHeight = ref("0%");
-const mapScale = ref(8);
+const mapScale = ref(1);
 
 const panZoomChange = (detail: PanzoomEventDetail) => {
   const width = labelEditorEl.value!.$el.getBoundingClientRect().width;
@@ -51,6 +58,39 @@ const panZoomChange = (detail: PanzoomEventDetail) => {
   mapScale.value = detail.scale;
   mapWidth.value = ((width / 2 - detail.x) / width) * 100 + "%";
   mapHeight.value = ((height / 2 - detail.y) / height) * 100 + "%";
+};
+
+const opened = ref();
+const selected = ref();
+
+// ensure exactly one individual is open
+watch(opened, (value: string[], oldValue: string[]) => {
+  if (opened.value.length == 2) {
+    opened.value.shift();
+  } else if (value.length == 0) {
+    opened.value = oldValue;
+  }
+});
+
+// set first individual as open when loaded
+watch(individuals, (value, oldValue) => {
+  if (value && (!oldValue || Object.keys(oldValue).length == 0)) {
+    opened.value = [Object.keys(value).shift()];
+  }
+});
+
+const createSubtitle = (coords: LabelsCoords) => {
+  let output = "";
+  if (coords.x) {
+    output += "x: " + Math.round(coords.x);
+    if (coords.y) {
+      output += " • ";
+    }
+  }
+  if (coords.y) {
+    output += "y: " + Math.round(coords.y);
+  }
+  return output;
 };
 </script>
 
@@ -85,32 +125,45 @@ const panZoomChange = (detail: PanzoomEventDetail) => {
         :aspect-ratio="16 / 9"
         :eager="true"
       >
-        <div id="zoomBox"></div>
+        <div id="zoomBox" />
       </v-img>
 
-      <v-list v-if="labels">
+      <v-list
+        v-if="labels"
+        v-model:opened="opened"
+        v-model:selected="selected"
+        class="overflow-y-auto"
+      >
         <v-list-group
-          v-for="(label, key) in labels[frames.items[imgIndex]]"
-          :key="key"
+          v-for="(bodyparts, individual) in individuals"
+          :key="individual"
+          :value="individual"
         >
           <template v-slot:activator="{ props }">
-            <v-list-item
-              v-bind="props"
-              :title="(key as unknown as string)"
-              :value="key"
-            ></v-list-item>
+            <v-list-item v-bind="props" active-color="blue" :value="individual">
+              <v-list-item-header>
+                <v-list-item-title class="text-capitalize">
+                  {{ individual }}
+                </v-list-item-title>
+              </v-list-item-header>
+            </v-list-item>
           </template>
 
           <v-list-item
-            v-for="(coord, bodypart) in labels[frames.items[imgIndex]][key]"
-            :key="bodypart"
-            :value="bodypart"
-            :title="(bodypart as unknown as string)"
-            :subtitle="`x: ${
-              labels[frames.items[imgIndex]][key][bodypart]['x']
-            },  y: ${labels[frames.items[imgIndex]][key][bodypart]['y']}`"
-            prepend-icon="mdi-circle"
-          ></v-list-item>
+            v-for="(coords, bodypart) in bodyparts"
+            :key="`${individual}-${bodypart}`"
+            :value="`${individual}-${bodypart}`"
+          >
+            <v-list-item-avatar start>
+              <v-icon>mdi-circle</v-icon>
+            </v-list-item-avatar>
+            <v-list-item-header>
+              <v-list-item-title>{{ bodypart }}</v-list-item-title>
+              <v-list-item-subtitle>{{
+                createSubtitle(coords)
+              }}</v-list-item-subtitle>
+            </v-list-item-header>
+          </v-list-item>
         </v-list-group>
       </v-list>
     </div>
@@ -177,5 +230,9 @@ const panZoomChange = (detail: PanzoomEventDetail) => {
   top: calc(v-bind("mapHeight") - 50% / v-bind("mapScale"));
   width: calc(100% / v-bind("mapScale"));
   height: calc(100% / v-bind("mapScale"));
+}
+
+.v-list-group__items .v-list-item {
+  padding-inline-start: calc(8px + var(--indent-padding)) !important;
 }
 </style>
