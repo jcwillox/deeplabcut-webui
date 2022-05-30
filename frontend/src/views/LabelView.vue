@@ -95,35 +95,50 @@ const createSubtitle = (coords: LabelsCoords) => {
 </script>
 
 <template>
-  <v-container fluid class="d-flex pa-1">
-    <div class="d-flex flex-row align-center" style="flex-grow: 4">
-      <v-btn
-        class="h-100 rounded-0"
-        icon="mdi-chevron-left"
-        variant="plain"
-        size="small"
-        @click="updateIndex(-1)"
-      ></v-btn>
-      <LabelEditor
-        class="flex-grow-1"
-        :image="frames.items[imgIndex]"
-        ref="labelEditorEl"
-        @panzoomchange="panZoomChange"
-      />
-      <v-btn
-        class="h-100 rounded-0"
-        icon="mdi-chevron-right"
-        variant="plain"
-        size="small"
-        @click="updateIndex(1)"
-      ></v-btn>
+  <v-container
+    class="d-flex flex-wrap flex-sm-nowrap justify-center pa-1"
+    style="max-height: calc(100vh - 80px)"
+    fluid
+  >
+    <div
+      class="flex-grow-1"
+      :style="{
+        maxWidth: `calc((100vh - 80px) * ${labelEditorEl?.aspectRatioString} + 80px)`
+      }"
+    >
+      <div class="d-flex">
+        <v-btn
+          class="rounded-0 rounded-s h-auto"
+          icon="mdi-chevron-left"
+          size="small"
+          style="background-color: rgb(var(--v-theme-on-surface-variant))"
+          variant="plain"
+          @click="updateIndex(-1)"
+        ></v-btn>
+        <LabelEditor
+          ref="labelEditorEl"
+          :image="frames.items[imgIndex]"
+          :labels="labels"
+          class="flex-grow-1"
+          @panzoomchange="panZoomChange"
+        >
+        </LabelEditor>
+        <v-btn
+          class="rounded-0 rounded-e h-auto"
+          icon="mdi-chevron-right"
+          variant="plain"
+          size="small"
+          style="background-color: rgb(var(--v-theme-on-surface-variant))"
+          @click="updateIndex(1)"
+        ></v-btn>
+      </div>
     </div>
-    <div style="flex-grow: 1" class="ml-1">
+    <div class="d-flex flex-column pl-1 w-25" style="max-width: 280px">
       <v-img
         v-if="store.video"
         :src="createCachedUrl(framesUrl, frames.items[imgIndex])"
-        :aspect-ratio="16 / 9"
-        :eager="true"
+        :aspect-ratio="labelEditorEl?.aspectRatio"
+        class="flex-grow-0"
       >
         <div id="zoomBox" />
       </v-img>
