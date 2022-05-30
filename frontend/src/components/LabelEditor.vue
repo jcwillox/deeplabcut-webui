@@ -33,6 +33,22 @@ onMounted(() => {
     instance.zoomWithWheel
   );
 });
+
+const aspectRatio = ref<number | undefined>(undefined);
+const aspectRatioString = ref<string | undefined>(undefined);
+
+const handleImgLoad = () => {
+  if (imgEl.value && imgEl.value.image) {
+    aspectRatio.value =
+      imgEl.value.image.naturalWidth / imgEl.value.image.naturalHeight;
+    aspectRatioString.value = `${imgEl.value.image.naturalWidth}/${imgEl.value.image.naturalHeight}`;
+  }
+};
+
+defineExpose({
+  aspectRatio,
+  aspectRatioString
+});
 </script>
 
 <template>
@@ -40,8 +56,8 @@ onMounted(() => {
     <v-img
       ref="imgEl"
       :src="createCachedUrl(framesUrl, image)"
-      :aspect-ratio="16 / 9"
-      :eager="true"
+      :aspect-ratio="aspectRatio"
+      @load="handleImgLoad"
     >
       <template v-slot:placeholder>
         <v-row class="fill-height ma-0" align="center" justify="center">
