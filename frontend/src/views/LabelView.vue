@@ -5,6 +5,7 @@ export default {
 </script>
 
 <script setup lang="ts">
+import FramesDialog from "@/components/FramesDialog.vue";
 import LabelEditor from "@/components/LabelEditor.vue";
 import { useFrames, useStore } from "@/stores";
 import { createCachedUrl, useFetch } from "@/utils/fetch";
@@ -12,7 +13,6 @@ import type { PanzoomEventDetail } from "@panzoom/panzoom/dist/src/types";
 import { computed, ref, watch } from "vue";
 
 const store = useStore();
-const dialog = ref(false);
 const frames = useFrames();
 const framesUrl = computed(() => "/videos/" + store.video + "/frames");
 
@@ -106,13 +106,12 @@ const createSubtitle = (coords: LabelsCoords) => {
         maxWidth: `calc((100vh - 80px) * ${labelEditorEl?.aspectRatioString} + 80px)`
       }"
     >
-      <div class="d-flex">
+      <div class="d-flex button-surface">
         <v-btn
           class="rounded-0 rounded-s h-auto"
           icon="mdi-chevron-left"
-          size="small"
-          style="background-color: rgb(var(--v-theme-on-surface-variant))"
           variant="plain"
+          size="small"
           @click="updateIndex(-1)"
         ></v-btn>
         <LabelEditor
@@ -123,14 +122,32 @@ const createSubtitle = (coords: LabelsCoords) => {
           @panzoomchange="panZoomChange"
         >
         </LabelEditor>
-        <v-btn
-          class="rounded-0 rounded-e h-auto"
-          icon="mdi-chevron-right"
-          variant="plain"
-          size="small"
-          style="background-color: rgb(var(--v-theme-on-surface-variant))"
-          @click="updateIndex(1)"
-        ></v-btn>
+        <div class="d-flex flex-column">
+          <FramesDialog v-model="imgIndex">
+            <template #activator="props1">
+              <v-tooltip bottom>
+                <template v-slot:activator="props2">
+                  <v-btn
+                    v-bind="{ ...props2.props, ...props1.props }"
+                    class="rounded-0 rounded-te"
+                    icon="mdi-expand-all"
+                    variant="plain"
+                    size="small"
+                  />
+                </template>
+                <span>Show all frames</span>
+              </v-tooltip>
+            </template>
+          </FramesDialog>
+          <v-divider />
+          <v-btn
+            class="rounded-0 rounded-be flex-grow-1"
+            icon="mdi-chevron-right"
+            variant="plain"
+            size="small"
+            @click="updateIndex(1)"
+          />
+        </div>
       </div>
     </div>
     <div class="d-flex flex-column pl-1 w-25" style="max-width: 280px">
@@ -187,58 +204,6 @@ const createSubtitle = (coords: LabelsCoords) => {
       </v-list>
     </div>
   </v-container>
-  <v-container fluid class="d-flex align-center justify-center my-2">
-    <v-row justify="center">
-      <v-dialog v-model="dialog">
-        <template v-slot:activator="{ props }">
-          <v-btn color="primary" rounded v-bind="props">
-            Frame: {{ imgIndex + 1 }} of {{ frames.items.length }}
-          </v-btn>
-        </template>
-        <v-toolbar color="primary" class="rounded-t">
-          <v-toolbar-title>Select Frame</v-toolbar-title>
-          <v-spacer />
-          <v-btn icon="mdi-close" @click="dialog = false" />
-        </v-toolbar>
-        <v-card style="height: calc(100vh - 104px)" class="rounded-t-0">
-          <v-card-content>
-            <v-row class="text-center" justify="center">
-              <v-col v-for="(frame, i) in frames.items" :key="i" cols="auto">
-                <div>
-                  <v-img
-                    :style="
-                      i === imgIndex && { border: '5px solid yellowgreen' }
-                    "
-                    :src="createCachedUrl(framesUrl, frame)"
-                    :aspect-ratio="16 / 9"
-                    :width="250"
-                    @click="
-                      imgIndex = i;
-                      dialog = false;
-                    "
-                  >
-                    <template v-slot:placeholder>
-                      <v-row
-                        class="fill-height ma-0"
-                        align="center"
-                        justify="center"
-                      >
-                        <v-progress-circular
-                          indeterminate
-                          color="grey-lighten-5"
-                        ></v-progress-circular>
-                      </v-row>
-                    </template>
-                  </v-img>
-                </div>
-                {{ frame }}
-              </v-col>
-            </v-row>
-          </v-card-content>
-        </v-card>
-      </v-dialog>
-    </v-row>
-  </v-container>
 </template>
 
 <style scoped>
@@ -279,5 +244,9 @@ const createSubtitle = (coords: LabelsCoords) => {
 
 .v-list-group__items .v-list-item {
   padding-inline-start: calc(8px + var(--indent-padding)) !important;
+}
+
+.button-surface .v-btn {
+  background-color: rgb(var(--v-theme-on-surface-variant));
 }
 </style>
