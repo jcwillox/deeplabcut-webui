@@ -8,8 +8,8 @@ export default {
 import FramesDialog from "@/components/FramesDialog.vue";
 import LabelEditor from "@/components/LabelEditor.vue";
 import { useFrames, useStore } from "@/stores";
+import { createCachedUrl, useFetch } from "@/utils";
 import { evaluate_cmap } from "@/utils/colormap";
-import { createCachedUrl, useFetch } from "@/utils/fetch";
 import type { PanzoomEventDetail } from "@panzoom/panzoom/dist/src/types";
 import { computed, ref, watch } from "vue";
 
@@ -64,6 +64,39 @@ const panZoomChange = (detail: PanzoomEventDetail) => {
 const opened = ref<string[] | undefined>(undefined);
 const selected = ref<string[] | undefined>(undefined);
 
+const { data: configProject } = useFetch("/projects/" + store.project)
+  .get()
+  .json();
+
+// extract and cache bodypart colors
+const colors = computed(() => {
+  const individual =
+    individuals.value && Object.keys(individuals.value).shift();
+  if (individual && configProject.value.colormap) {
+    const bodyparts = Object.keys(individuals.value[individual]);
+    return bodyparts.map((_, i) => {
+      const rgb = evaluate_cmap(
+        i / bodyparts.length,
+        configProject.value.colormap
+      );
+      return `rgb(${rgb.join(",")})`;
+    });
+  }
+  return [];
+});
+
+// extract and cache individual colors
+const colorsIndividuals = computed(() => {
+  const names = individuals.value && Object.keys(individuals.value);
+  if (names) {
+    return names.map((_, i) => {
+      const rgb = evaluate_cmap(i / names.length, "Set1");
+      return `rgb(${rgb.join(",")})`;
+    });
+  }
+  return [];
+});
+
 // ensure exactly one individual is open
 watch(opened, (value, oldValue) => {
   if (opened.value?.length == 2) {
@@ -73,18 +106,11 @@ watch(opened, (value, oldValue) => {
   }
 });
 
-let colorList = ref<[number, number, number][] | undefined>(undefined);
 // set first individual as open when loaded
 watch(individuals, (value, oldValue) => {
   if (value && (!oldValue || Object.keys(oldValue).length == 0)) {
     const individual = Object.keys(value).shift();
     opened.value = individual ? [individual] : undefined;
-    if (individual) {
-      colorList.value = getColorList(
-        Object.keys(individuals.value[individual]).length
-      );
-      console.log(colorList);
-    }
   }
 });
 
@@ -110,14 +136,6 @@ const getLabelledCount = (bodyparts: LabelsBodyparts) => {
     }
   }
   return count;
-};
-
-const getColorList = (colorCount: number) => {
-  let list = [];
-  for (let i = 0; i < colorCount; i++) {
-    list.push(evaluate_cmap((i * 1) / colorCount, "plasma", false));
-  }
-  return list;
 };
 </script>
 
@@ -148,7 +166,7 @@ const getColorList = (colorCount: number) => {
           :image="frames.items[imgIndex]"
           :labels="labels"
           :selected="selected && selected[0]"
-          :color-list="colorList"
+          :colors="colors"
           class="flex-grow-1 h-100"
           @panzoomchange="panZoomChange"
         >
@@ -202,12 +220,19 @@ const getColorList = (colorCount: number) => {
         class="overflow-y-auto"
       >
         <v-list-group
-          v-for="(bodyparts, individual) in individuals"
+          v-for="(bodyparts, individual, index) in individuals"
           :key="individual"
           :value="individual"
         >
           <template v-slot:activator="{ props }">
             <v-list-item v-bind="props" active-color="blue" :value="individual">
+              <template #prepend>
+                <v-list-item-avatar start>
+                  <v-icon :style="{ color: colorsIndividuals[index] }">
+                    mdi-circle
+                  </v-icon>
+                </v-list-item-avatar>
+              </template>
               <template #title>
                 <span class="text-capitalize">{{ individual }}</span>
               </template>
@@ -223,25 +248,17 @@ const getColorList = (colorCount: number) => {
             :key="`${individual}-${bodypart}`"
             :value="`${individual}-${bodypart}`"
           >
-            <v-list-item-avatar start>
-              <v-icon
-                v-if="colorList"
-                :style="{
-                  color: `rgb(
-                      ${colorList[index][0]},
-                      ${colorList[index][1]},
-                      ${colorList[index][2]}
-                    )`
-                }"
-                >mdi-circle</v-icon
-              >
-            </v-list-item-avatar>
-            <v-list-item-header>
-              <v-list-item-title>{{ bodypart }}</v-list-item-title>
-              <v-list-item-subtitle>{{
-                createSubtitle(coords)
-              }}</v-list-item-subtitle>
-            </v-list-item-header>
+            <template #prepend>
+              <v-list-item-avatar start>
+                <v-icon :style="{ color: colors[index] }">mdi-circle</v-icon>
+              </v-list-item-avatar>
+            </template>
+            <template #title>
+              {{ bodypart }}
+            </template>
+            <template #subtitle>
+              {{ createSubtitle(coords) }}
+            </template>
           </v-list-item>
         </v-list-group>
       </v-list>
@@ -286,7 +303,7 @@ const getColorList = (colorCount: number) => {
 }
 
 .v-list-group__items .v-list-item {
-  padding-inline-start: calc(8px + var(--indent-padding)) !important;
+  --indent-padding: 16px;
 }
 
 .button-surface .v-btn {

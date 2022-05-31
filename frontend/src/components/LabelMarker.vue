@@ -68,7 +68,7 @@ div {
   left: 0;
   position: absolute;
   border-radius: 50%;
-  border: 1px solid v-bind("props.color");
+  border: 2px solid v-bind("props.color");
   width: 12px;
   height: 12px;
 }

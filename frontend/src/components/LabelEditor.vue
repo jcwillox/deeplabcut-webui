@@ -12,7 +12,7 @@ const props = defineProps<{
   image?: string;
   labels: LabelsModel | null;
   selected?: string;
-  colorList?: [number, number, number][];
+  colors: string[];
 }>();
 
 const emit = defineEmits<{
@@ -70,18 +70,14 @@ const updateLabelItems = () => {
     const individuals = props.labels[props.image];
     for (const individual in individuals) {
       const bodyparts = individuals[individual];
-      const bodypartsKeys = Object.keys(bodyparts);
-      for (let i = 0; i < Object.keys(bodyparts).length; i++) {
-        const coords = bodyparts[bodypartsKeys[i]];
+      let i = 0;
+      for (const bodypart in bodyparts) {
+        const coords = bodyparts[bodypart];
         const newCoords = calcRelativeToOrigin(coords.x, coords.y, -6, -6);
-        if (newCoords && props.colorList) {
-          items.push([
-            individual,
-            bodypartsKeys[i],
-            newCoords,
-            `rgb(${props.colorList[i][0]}, ${props.colorList[i][1]}, ${props.colorList[i][2]})`
-          ]);
+        if (newCoords) {
+          items.push([individual, bodypart, newCoords, props.colors[i]]);
         }
+        i++;
       }
     }
   }
