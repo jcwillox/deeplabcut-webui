@@ -1,3 +1,8 @@
+type LabelsCoords = Record<"x" | "y", number | null | undefined>;
+type LabelsBodyparts = Record<string, LabelsCoords>;
+type LabelsIndividuals = Record<string, LabelsBodyparts>;
+type LabelsModel = Record<string, LabelsIndividuals>;
+
 type VideoFrameRequestCallbackId = number;
 
 interface VideoFrameMetadata {

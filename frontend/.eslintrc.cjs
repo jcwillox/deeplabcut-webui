@@ -17,6 +17,10 @@ module.exports = {
   globals: {
     DOMHighResTimeStamp: true,
     VideoFrameMetadata: true,
+    LabelsModel: true,
+    LabelsCoords: true,
+    LabelsBodyparts: true,
+    LabelsIndividuals: true,
     __BUILD_TIME__: true,
     __COMMIT__: true,
     __BRANCH__: true,
