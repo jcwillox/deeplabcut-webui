@@ -60,14 +60,14 @@ const panZoomChange = (detail: PanzoomEventDetail) => {
   mapHeight.value = ((height / 2 - detail.y) / height) * 100 + "%";
 };
 
-const opened = ref();
-const selected = ref();
+const opened = ref<string[] | undefined>(undefined);
+const selected = ref<string[] | undefined>(undefined);
 
 // ensure exactly one individual is open
-watch(opened, (value: string[], oldValue: string[]) => {
-  if (opened.value.length == 2) {
+watch(opened, (value, oldValue) => {
+  if (opened.value?.length == 2) {
     opened.value.shift();
-  } else if (value.length == 0) {
+  } else if (value?.length == 0) {
     opened.value = oldValue;
   }
 });
@@ -75,7 +75,8 @@ watch(opened, (value: string[], oldValue: string[]) => {
 // set first individual as open when loaded
 watch(individuals, (value, oldValue) => {
   if (value && (!oldValue || Object.keys(oldValue).length == 0)) {
-    opened.value = [Object.keys(value).shift()];
+    const individual = Object.keys(value).shift();
+    opened.value = individual ? [individual] : undefined;
   }
 });
 
@@ -92,6 +93,16 @@ const createSubtitle = (coords: LabelsCoords) => {
   }
   return output;
 };
+
+const getLabelledCount = (bodyparts: LabelsBodyparts) => {
+  let count = 0;
+  for (const bodypart in bodyparts) {
+    if (bodyparts[bodypart].x && bodyparts[bodypart].y) {
+      count++;
+    }
+  }
+  return count;
+};
 </script>
 
 <template>
@@ -107,18 +118,21 @@ const createSubtitle = (coords: LabelsCoords) => {
       }"
     >
       <div class="d-flex button-surface">
-        <v-btn
-          class="rounded-0 rounded-s h-auto"
-          icon="mdi-chevron-left"
-          variant="plain"
-          size="small"
-          @click="updateIndex(-1)"
-        ></v-btn>
+        <div class="d-flex flex-column">
+          <v-btn
+            class="rounded-0 rounded-s flex-grow-1"
+            icon="mdi-chevron-left"
+            variant="plain"
+            size="small"
+            @click="updateIndex(-1)"
+          />
+        </div>
         <LabelEditor
           ref="labelEditorEl"
           :image="frames.items[imgIndex]"
           :labels="labels"
-          class="flex-grow-1"
+          :selected="selected && selected[0]"
+          class="flex-grow-1 h-100"
           @panzoomchange="panZoomChange"
         >
         </LabelEditor>
@@ -177,11 +191,13 @@ const createSubtitle = (coords: LabelsCoords) => {
         >
           <template v-slot:activator="{ props }">
             <v-list-item v-bind="props" active-color="blue" :value="individual">
-              <v-list-item-header>
-                <v-list-item-title class="text-capitalize">
-                  {{ individual }}
-                </v-list-item-title>
-              </v-list-item-header>
+              <template #title>
+                <span class="text-capitalize">{{ individual }}</span>
+              </template>
+              <template #subtitle>
+                {{ getLabelledCount(individuals[individual]) }} /
+                {{ Object.keys(individuals[individual]).length }}
+              </template>
             </v-list-item>
           </template>
 
