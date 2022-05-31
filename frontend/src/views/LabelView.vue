@@ -8,6 +8,7 @@ export default {
 import FramesDialog from "@/components/FramesDialog.vue";
 import LabelEditor from "@/components/LabelEditor.vue";
 import { useFrames, useStore } from "@/stores";
+import { evaluate_cmap } from "@/utils/colormap";
 import { createCachedUrl, useFetch } from "@/utils/fetch";
 import type { PanzoomEventDetail } from "@panzoom/panzoom/dist/src/types";
 import { computed, ref, watch } from "vue";
@@ -72,11 +73,18 @@ watch(opened, (value, oldValue) => {
   }
 });
 
+let colorList = ref<[number, number, number][] | undefined>(undefined);
 // set first individual as open when loaded
 watch(individuals, (value, oldValue) => {
   if (value && (!oldValue || Object.keys(oldValue).length == 0)) {
     const individual = Object.keys(value).shift();
     opened.value = individual ? [individual] : undefined;
+    if (individual) {
+      colorList.value = getColorList(
+        Object.keys(individuals.value[individual]).length
+      );
+      console.log(colorList);
+    }
   }
 });
 
@@ -102,6 +110,14 @@ const getLabelledCount = (bodyparts: LabelsBodyparts) => {
     }
   }
   return count;
+};
+
+const getColorList = (colorCount: number) => {
+  let list = [];
+  for (let i = 0; i < colorCount; i++) {
+    list.push(evaluate_cmap((i * 1) / colorCount, "plasma", false));
+  }
+  return list;
 };
 </script>
 
@@ -132,6 +148,7 @@ const getLabelledCount = (bodyparts: LabelsBodyparts) => {
           :image="frames.items[imgIndex]"
           :labels="labels"
           :selected="selected && selected[0]"
+          :color-list="colorList"
           class="flex-grow-1 h-100"
           @panzoomchange="panZoomChange"
         >
@@ -202,12 +219,22 @@ const getLabelledCount = (bodyparts: LabelsBodyparts) => {
           </template>
 
           <v-list-item
-            v-for="(coords, bodypart) in bodyparts"
+            v-for="(coords, bodypart, index) in bodyparts"
             :key="`${individual}-${bodypart}`"
             :value="`${individual}-${bodypart}`"
           >
             <v-list-item-avatar start>
-              <v-icon>mdi-circle</v-icon>
+              <v-icon
+                v-if="colorList"
+                :style="{
+                  color: `rgb(
+                      ${colorList[index][0]},
+                      ${colorList[index][1]},
+                      ${colorList[index][2]}
+                    )`
+                }"
+                >mdi-circle</v-icon
+              >
             </v-list-item-avatar>
             <v-list-item-header>
               <v-list-item-title>{{ bodypart }}</v-list-item-title>

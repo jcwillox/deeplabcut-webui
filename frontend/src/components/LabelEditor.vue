@@ -12,6 +12,7 @@ const props = defineProps<{
   image?: string;
   labels: LabelsModel | null;
   selected?: string;
+  colorList?: [number, number, number][];
 }>();
 
 const emit = defineEmits<{
@@ -62,18 +63,24 @@ const imgEl = ref<InstanceType<typeof VImg> | null>(null);
 const parentEl: Ref<HTMLDivElement | null> = ref(null);
 const labelMarkerEls = ref<InstanceType<typeof LabelMarker>[] | null>(null);
 
-const labelItems = ref<[string, string, LabelsCoords][]>([]);
+const labelItems = ref<[string, string, LabelsCoords, string][]>([]);
 const updateLabelItems = () => {
-  const items: [string, string, LabelsCoords][] = [];
+  const items: [string, string, LabelsCoords, string][] = [];
   if (props.image && props.labels) {
     const individuals = props.labels[props.image];
     for (const individual in individuals) {
       const bodyparts = individuals[individual];
-      for (const bodypart in bodyparts) {
-        const coords = bodyparts[bodypart];
+      const bodypartsKeys = Object.keys(bodyparts);
+      for (let i = 0; i < Object.keys(bodyparts).length; i++) {
+        const coords = bodyparts[bodypartsKeys[i]];
         const newCoords = calcRelativeToOrigin(coords.x, coords.y, -6, -6);
-        if (newCoords) {
-          items.push([individual, bodypart, newCoords]);
+        if (newCoords && props.colorList) {
+          items.push([
+            individual,
+            bodypartsKeys[i],
+            newCoords,
+            `rgb(${props.colorList[i][0]}, ${props.colorList[i][1]}, ${props.colorList[i][2]})`
+          ]);
         }
       }
     }
@@ -156,9 +163,10 @@ defineExpose({
       </template>
       <LabelMarker
         ref="labelMarkerEls"
-        v-for="[individual, bodypart, coords] in labelItems"
+        v-for="[individual, bodypart, coords, color] in labelItems"
         :key="`${individual}-${bodypart}`"
         :coords="coords"
+        :color="color"
         :parent="panzoom"
         :selected="`${individual}-${bodypart}` === props.selected"
       />
