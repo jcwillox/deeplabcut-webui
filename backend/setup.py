@@ -11,6 +11,7 @@ REQUIRES = [
     "natsort>=8.1.0,<9",
     "numpy>=1.22.3,<2",
     "decord==0.6.0",
+    "PyYAML>=6.0,<7.0",
 ]
 
 DLC_REQUIRE = [

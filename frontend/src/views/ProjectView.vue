@@ -42,6 +42,7 @@ watchEffect(() => {
       label="Project"
       color="primary"
       class="pb-3"
+      item-title="name"
       :items="projects"
       :loading="isFetching"
       :hide-details="!error"
