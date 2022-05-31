@@ -7,6 +7,7 @@ const props = defineProps<{
   coords: LabelsCoords;
   selected?: boolean;
   parent: PanzoomObject | null;
+  color: string;
 }>();
 
 const panzoom = ref<PanzoomObject | null>(null);
@@ -67,7 +68,7 @@ div {
   left: 0;
   position: absolute;
   border-radius: 50%;
-  border: 1px solid red;
+  border: 1px solid v-bind("props.color");
   width: 12px;
   height: 12px;
 }
