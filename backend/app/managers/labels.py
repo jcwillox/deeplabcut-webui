@@ -100,9 +100,11 @@ class LabelManager:
     @staticmethod
     def write_labels(project, video, labels: LabelsModel):
         name = os.path.splitext(video)[0]
-        path = get_project_path(project, "labeled-data", name, "CollectedData_TM")
-        path_hdf = path + ".h5"
-        path_csv = path + ".csv"
+        base_path = get_project_path(project, "labeled-data", name)
+        backup_path = os.path.join(base_path, "backups")
+        path_hdf = os.path.join(base_path, "CollectedData_TM.h5")
+        path_csv = os.path.join(base_path, "CollectedData_TM.csv")
+        os.makedirs(backup_path, exist_ok=True)
 
         config = get_project_config(project)
         if not config:
@@ -155,8 +157,15 @@ class LabelManager:
                         df.loc[image_path][("TM", bodypart, coord)] = value
 
         # create backups before writing the files
-        os.replace(path_hdf, path_hdf + ".bak")
-        os.replace(path_csv, path_csv + ".bak")
+        def create_backup(path, suffix, overwrite=False):
+            backup_target = os.path.join(backup_path, os.path.basename(path) + suffix)
+            if overwrite or not os.path.exists(backup_target):
+                shutil.copy2(path, backup_target)
+
+        create_backup(path_hdf, ".original")
+        create_backup(path_csv, ".original")
+        create_backup(path_hdf, ".bak", overwrite=True)
+        create_backup(path_csv, ".bak", overwrite=True)
 
         # save to disk
         df.to_csv(path_csv)
