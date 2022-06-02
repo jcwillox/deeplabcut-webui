@@ -112,6 +112,7 @@ class ExtractRequestBody(BaseModel):
 def extract_frames(
     body: ExtractRequestBody,
     params: VideoCommonQuery = Depends(VideoCommonQuery),
+    manager: LabelManager = Depends(get_label_manager),
     settings: Settings = Depends(get_settings),
 ):
     path = get_project_path(params.project, "videos", params.video)
@@ -133,6 +134,8 @@ def extract_frames(
                     detail=f"Failed reading frame '{frame}' from video",
                 )
             cv2.imwrite(image_path, image)
+        # add new frame to collected data file
+        manager.add(params.project, params.video, {image_name: {}})
         yield image_name
 
     video.release()

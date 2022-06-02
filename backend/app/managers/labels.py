@@ -1,4 +1,5 @@
 import os
+import shutil
 import threading
 import time
 from functools import lru_cache
@@ -9,10 +10,14 @@ import numpy as np
 import pandas as pd
 from fastapi import FastAPI
 
-from ..utils import get_project_path, deepmerge
+from ..utils import get_project_path, deepmerge, get_project_config
 
 # frame -> individual -> bodypart -> coords
-LabelsModel = Dict[str, Dict[str, Dict[str, Dict[Literal["x", "y"], Optional[float]]]]]
+LabelsCoords = Dict[Literal["x", "y"], Optional[float]]
+LabelsBodyparts = Dict[str, LabelsCoords]
+LabelsIndividuals = Dict[str, LabelsBodyparts]
+LabelsModel = Dict[str, LabelsIndividuals]
+
 LabelsGroups = Dict[Tuple[str, str], LabelsModel]
 
 
@@ -99,13 +104,55 @@ class LabelManager:
         path_hdf = path + ".h5"
         path_csv = path + ".csv"
 
-        df: pd.DataFrame = cast(pd.DataFrame, pd.read_hdf(path_hdf))
+        config = get_project_config(project)
+        if not config:
+            return
 
-        for image, parts in labels.items():
-            for bodypart, coords in parts.items():
-                image_path = os.path.join("labeled-data", name, image)
-                for coord, value in coords.items():
-                    df.loc[image_path][("TM", bodypart, coord)] = value
+        df: Optional[pd.DataFrame] = None
+        relative_image_paths = [
+            os.path.join("labeled-data", name, image) for image in labels
+        ]
+
+        if not os.path.exists(path_hdf):
+            # create new data frame
+            a = np.empty((len(labels), 2))
+            a[:] = np.nan
+            for bodypart in config.bodyparts:
+                cols = pd.MultiIndex.from_product(
+                    [["TM"], [bodypart], ["x", "y"]],
+                    names=["scorer", "bodyparts", "coords"],
+                )
+                index = pd.Index(relative_image_paths)
+                frame = pd.DataFrame(a, columns=cols, index=index)
+                df = pd.concat([df, frame], axis=1)
+        else:
+            # load dataframe from disk
+            df: pd.DataFrame = cast(pd.DataFrame, pd.read_hdf(path_hdf))
+
+            # add new images to dataframe
+            new_images = list(set(relative_image_paths) - set(df.index))
+            if new_images:
+                new_df: Optional[pd.DataFrame] = None
+                a = np.empty((len(new_images), 2))
+                a[:] = np.nan
+                for bodypart in config.bodyparts:
+                    cols = pd.MultiIndex.from_product(
+                        [["TM"], [bodypart], ["x", "y"]],
+                        names=["scorer", "bodyparts", "coords"],
+                    )
+                    index = pd.Index(new_images)
+                    frame = pd.DataFrame(a, columns=cols, index=index)
+                    new_df = pd.concat([new_df, frame], axis=1)
+
+                df = pd.concat([df, new_df], axis=0)
+                df.sort_index(inplace=True)
+
+        for image, individuals in labels.items():
+            for individual, bodyparts in individuals.items():
+                for bodypart, coords in bodyparts.items():
+                    image_path = os.path.join("labeled-data", name, image)
+                    for coord, value in coords.items():
+                        df.loc[image_path][("TM", bodypart, coord)] = value
 
         # create backups before writing the files
         os.replace(path_hdf, path_hdf + ".bak")
