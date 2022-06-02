@@ -1,0 +1,18 @@
+colormap: rainbow
+multianimalproject: true
+individuals:
+  - individual1
+  - individual2
+  - individual3
+  - individual4
+  - individual5
+  - individual6
+
+bodyparts: MULTI!
+multianimalbodyparts:
+  - HeadBack
+  - PincerMid
+  - LeftEye
+  - RightEye
+  - PostPetiole
+  - ThoraxFront

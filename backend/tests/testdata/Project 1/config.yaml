@@ -1,0 +1,9 @@
+colormap: plasma
+multianimalproject: false
+bodyparts:
+  - HeadBack
+  - PincerMid
+  - LeftEye
+  - RightEye
+  - AbdomenFront
+  - ThoraxFront

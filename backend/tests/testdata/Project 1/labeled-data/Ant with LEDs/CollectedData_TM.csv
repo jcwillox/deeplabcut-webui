@@ -1,0 +1,5 @@
+scorer,TM,TM,TM,TM,TM,TM,TM,TM,TM,TM,TM,TM
+bodyparts,HeadBack,HeadBack,PincerMid,PincerMid,LeftEye,LeftEye,RightEye,RightEye,AbdomenFront,AbdomenFront,ThoraxFront,ThoraxFront
+coords,x,y,x,y,x,y,x,y,x,y,x,y
+labeled-data\Ant with LEDs\img0129.demo.png,1156.5784440973214,392.64926979090245,1126.615967740185,302.33255204074453,1125.759896987124,369.96308002427503,1170.275576146298,354.1255513192711,1199.381981750374,540.9526304546781,1167.2793285105843,423.46824456820747
+labeled-data\Ant with LEDs\img0242.demo.png,,,,,,,,,,,,
