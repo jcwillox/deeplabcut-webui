@@ -18,6 +18,15 @@ export default defineConfig({
     __BRANCH__: quoteCommand("git rev-parse --abbrev-ref HEAD"),
     __VERSION__: quoteCommand("git describe --tags --dirty --always")
   },
+  server: {
+    proxy: {
+      "^/docs.*$": {
+        target: "http://localhost:3001",
+        changeOrigin: true,
+        rewrite: path => path.replace(/^\/docs/, "/deeplabcut-webui/docs")
+      }
+    }
+  },
   plugins: [
     vue({
       reactivityTransform: true
