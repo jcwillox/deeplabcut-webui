@@ -1,9 +1,9 @@
 import vue from "@vitejs/plugin-vue";
-import vuetify from "@vuetify/vite-plugin";
 import { execSync } from "child_process";
 import { fileURLToPath, URL } from "url";
 import { defineConfig } from "vite";
 import { VitePWA } from "vite-plugin-pwa";
+import vuetify from "vite-plugin-vuetify";
 
 const quoteCommand = (command: string) => {
   return JSON.stringify(execSync(command).toString());

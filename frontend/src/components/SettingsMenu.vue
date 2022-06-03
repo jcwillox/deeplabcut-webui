@@ -27,17 +27,16 @@ const themeName = computed({
 </script>
 
 <template>
-  <v-navigation-drawer v-model="show" :width="300" position="right" temporary>
+  <v-navigation-drawer v-model="show" :width="300" location="right">
     <v-toolbar>
       <v-toolbar-title>Settings</v-toolbar-title>
-      <v-btn @click.stop="show = false" icon="mdi-close" />
+      <v-btn icon="mdi-close" @click.stop="show = false" />
     </v-toolbar>
     <v-container>
       <v-select
-        label="Theme"
+        v-bind="{ label: 'Theme', hideDetails: true }"
         v-model="themeName"
         :items="['Auto', 'Light', 'Dark']"
-        hide-details
       />
       <DialogBackend>
         <template #activator="{ props }">

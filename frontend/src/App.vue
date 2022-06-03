@@ -114,21 +114,32 @@ const openDocs = () => {
 
       <v-btn @click="openDocs" icon>
         <v-icon>mdi-help-circle</v-icon>
-        <v-tooltip activator="parent" anchor="bottom">Help</v-tooltip>
+        <v-tooltip
+          v-bind="{ activator: 'parent' }"
+          location="bottom"
+          text="Help"
+        />
       </v-btn>
       <VersionDialog>
         <template #activator="{ props }">
           <v-btn v-bind="props" icon>
             <v-icon>mdi-information</v-icon>
-            <v-tooltip activator="parent" anchor="bottom">About</v-tooltip>
+            <v-tooltip
+              v-bind="{ activator: 'parent' }"
+              location="bottom"
+              text="About"
+            />
           </v-btn>
         </template>
       </VersionDialog>
       <v-btn class="mr-n3" @click.stop="showSettings = true" icon>
         <v-icon>mdi-cog</v-icon>
-        <v-tooltip activator="parent" anchor="bottom" class="settings">
-          Settings
-        </v-tooltip>
+        <v-tooltip
+          v-bind="{ activator: 'parent' }"
+          location="bottom"
+          class="settings"
+          text="Settings"
+        />
       </v-btn>
     </v-app-bar>
 
@@ -150,12 +161,16 @@ const openDocs = () => {
 <style>
 html {
   overflow-y: auto !important;
+  --v-scrollbar-offset: 0px !important;
 }
 .v-table--fixed-header th {
   z-index: 1;
 }
 div.v-tooltip.settings > div {
   transform: translate(-12px);
+}
+.v-overlay header.v-toolbar.v-theme--dark.bg-primary {
+  background: rgb(var(--v-theme-on-surface-variant)) !important;
 }
 .toolbar-fixed {
   top: 0;

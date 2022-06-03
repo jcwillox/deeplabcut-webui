@@ -173,19 +173,19 @@ const getLabelledCount = (bodyparts: LabelsBodyparts) => {
         </LabelEditor>
         <div class="d-flex flex-column">
           <FramesDialog v-model="imgIndex">
-            <template #activator="props1">
-              <v-tooltip bottom>
-                <template v-slot:activator="props2">
-                  <v-btn
-                    v-bind="{ ...props2.props, ...props1.props }"
-                    class="rounded-0 rounded-te"
-                    icon="mdi-expand-all"
-                    variant="plain"
-                    size="small"
-                  />
-                </template>
-                <span>Show all frames</span>
-              </v-tooltip>
+            <template #activator="{ props }">
+              <v-btn
+                v-bind="props"
+                class="rounded-0 rounded-te"
+                variant="plain"
+                size="small"
+                icon
+              >
+                <v-icon size="small">mdi-expand-all</v-icon>
+                <v-tooltip v-bind="{ activator: 'parent' }" location="end">
+                  Show all frames
+                </v-tooltip>
+              </v-btn>
             </template>
           </FramesDialog>
           <v-divider />

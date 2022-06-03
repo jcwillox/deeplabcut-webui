@@ -1,5 +1,5 @@
 <script setup lang="ts">
-interface FileItem {
+export interface FileItem {
   name: string;
   folder?: boolean;
   accessed?: number;
@@ -34,7 +34,7 @@ const updateSelected = (selected?: string[]) => {
 </script>
 
 <template>
-  <v-list two-line @update:selected="updateSelected">
+  <v-list @update:selected="updateSelected">
     <template v-for="(item, i) in items" :key="i">
       <v-list-item
         :value="item.name"

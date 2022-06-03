@@ -7,10 +7,16 @@ export default {
 <script setup lang="ts">
 import { useStore } from "@/stores";
 import { useFetch } from "@/utils/fetch";
-import { watchEffect } from "vue";
+import { computed, watchEffect } from "vue";
 import FileBrowser from "../components/FileBrowser.vue";
 
 const store = useStore();
+const project = computed({
+  get: () => store.project || undefined,
+  set: value => {
+    store.project = value || "";
+  }
+});
 
 const {
   isFetching,
@@ -38,16 +44,17 @@ watchEffect(() => {
     style="max-width: 640px"
   >
     <v-autocomplete
-      v-model="store.project"
-      label="Project"
-      color="primary"
-      class="pb-3"
-      item-title="name"
+      v-bind="{
+        label: 'Project',
+        color: 'primary',
+        loading: isFetching,
+        hideDetails: !error,
+        errorMessages: error || '',
+        clearable: true
+      }"
+      v-model="project"
       :items="projects"
-      :loading="isFetching"
-      :hide-details="!error"
-      :error-messages="error || ''"
-      clearable
+      item-title="name"
     ></v-autocomplete>
   </v-container>
   <v-container

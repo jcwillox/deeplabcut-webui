@@ -13,14 +13,14 @@ watch([offlineReady, needRefresh], () => {
 </script>
 
 <template>
-  <v-snackbar v-model="show" timeout="-1" top right>
+  <v-snackbar v-model="show" :timeout="-1" location="top end">
     <span v-if="offlineReady" class="text-white"
       >This app is ready to work offline.</span
     >
     <span v-else-if="needRefresh" class="text-white"
       >New version available, click on reload button to update.</span
     >
-    <template v-slot:actions>
+    <template #actions>
       <v-btn
         v-if="needRefresh"
         class="text-blue"
