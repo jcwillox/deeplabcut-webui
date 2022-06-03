@@ -12,10 +12,10 @@ nav:
   - "index.md"
   - Guide:
       - "guide/getting-started.md"
-      - "guide/project.md"
-      - "guide/video.md"
-      - "guide/extract.md"
-      - "guide/label.md"
+      - "guide/select-project.md"
+      - "guide/select-video.md"
+      - "guide/extracting.md"
+      - "guide/labelling.md"
   - Setup:
       - "setup/index.md"
   - Development:

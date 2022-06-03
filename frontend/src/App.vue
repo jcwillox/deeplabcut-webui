@@ -73,13 +73,13 @@ const getDocsPage = () => {
   switch (route.name) {
     case "project":
       if (store.project) {
-        return "/guide/video/";
+        return "/guide/select-video/";
       }
-      return "/guide/project/";
+      return "/guide/select-project/";
     case "extract":
-      return "/guide/extract/";
+      return "/guide/extracting/";
     case "label":
-      return "/guide/label/";
+      return "/guide/labelling/";
     default:
       return "";
   }
