@@ -2,9 +2,11 @@
 import { useStore } from "@/stores";
 import { ref } from "vue";
 import VideoDialog from "./VideoDialog.vue";
+import { useRouter } from "vue-router";
 
 const store = useStore();
 const dialog = ref(false);
+const router = useRouter();
 </script>
 
 <template>
@@ -15,26 +17,26 @@ const dialog = ref(false);
   >
     <v-btn
       v-if="store.project"
-      :ripple="false"
-      class="ml-2 mr-2 pl-1 pr-1"
-      variant="text"
       size="small"
+      variant="text"
+      class="ml-1 pl-2 pr-1"
+      prepend-icon="mdi-folder"
+      @click="router.push({ name: 'project' })"
     >
-      <v-icon left>mdi-folder</v-icon>
       {{ store.project }}
     </v-btn>
     <span v-if="store.cVideo">
-      <span>/</span>
+      <span class="mx-1">/</span>
       <VideoDialog v-model="dialog">
         <template #activator="{ props }">
           <v-btn
             v-bind="props"
-            class="ml-1 mr-2 px-1"
-            variant="text"
             size="small"
+            variant="text"
+            class="pl-2 pr-1"
+            prepend-icon="mdi-movie"
             @click.stop="dialog = true"
           >
-            <v-icon left>mdi-movie</v-icon>
             {{ store.cVideo }}
           </v-btn>
         </template>
@@ -45,9 +47,8 @@ const dialog = ref(false);
       icon="mdi-close"
       variant="text"
       size="x-small"
-      class="ml-2"
       @click="store.resetProject"
-    ></v-btn>
+    />
   </v-system-bar>
 </template>
 
