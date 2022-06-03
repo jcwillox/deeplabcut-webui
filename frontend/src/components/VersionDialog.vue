@@ -11,19 +11,15 @@ const version = __VERSION__;
 
 <template>
   <v-dialog v-model="dialog">
-    <template #activator="{ props }">
-      <v-btn v-bind="props" icon>
-        <v-icon>mdi-information</v-icon>
-        <v-tooltip activator="parent" anchor="bottom">About</v-tooltip>
-      </v-btn>
+    <template #activator="props">
+      <slot name="activator" v-bind="props" />
     </template>
-    <v-toolbar class="rounded-t" fixed>
-      <v-toolbar-title>About</v-toolbar-title>
-      <v-spacer />
-      <v-btn @click="dialog = false" icon="mdi-close" />
-    </v-toolbar>
-    <v-card class="parent rounded-t-0 text-no-wrap pb-2" elevation="0">
-      <v-card-text>
+    <v-card class="parent">
+      <v-toolbar class="toolbar-fixed">
+        <v-toolbar-title>About</v-toolbar-title>
+        <v-btn icon="mdi-close" @click="dialog = false" />
+      </v-toolbar>
+      <v-card-text class="pb-4">
         <v-table>
           <tbody>
             <tr>

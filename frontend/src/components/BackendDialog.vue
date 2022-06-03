@@ -2,27 +2,18 @@
 import AlertCard from "@/components/AlertCard.vue";
 import { useErrors, useStore } from "@/stores";
 import { useFetch } from "@/utils";
-import { useVModel } from "@vueuse/core";
 import { ref } from "vue";
-
-const props = defineProps<{
-  modelValue: boolean;
-}>();
-
-const emit = defineEmits<{
-  (e: "update:modelValue", value: boolean): void;
-}>();
 
 const store = useStore();
 const errors = useErrors();
-const show = useVModel(props, "modelValue", emit);
+const dialog = ref(false);
 const showToken = ref(false);
 const { isFetching, execute } = useFetch("/");
 
 // automatically show the dialog on network error
 errors.$subscribe((_, state) => {
   if (state.error) {
-    show.value = true;
+    dialog.value = true;
   }
 });
 
@@ -34,13 +25,31 @@ const reset = () => {
   store.backend = "http://127.0.0.1:8000";
   store.token = "";
 };
+
+const openDocs = () => {
+  window.location.assign(import.meta.env.BASE_URL + "docs/");
+};
 </script>
 
 <template>
   <div>
-    <v-dialog v-model="show" :persistent="errors.error">
+    <v-dialog v-model="dialog" :persistent="errors.error">
+      <template #activator="props">
+        <slot name="activator" v-bind="props" />
+      </template>
       <v-card class="parent">
-        <v-card-title>Backend Configuration</v-card-title>
+        <v-toolbar class="toolbar-fixed">
+          <v-toolbar-title>Backend Configuration</v-toolbar-title>
+          <v-btn @click="openDocs" icon>
+            <v-icon class="text-high-emphasis">mdi-help-circle</v-icon>
+            <v-tooltip activator="parent" anchor="bottom">Help</v-tooltip>
+          </v-btn>
+          <v-btn
+            v-if="!errors.error"
+            icon="mdi-close"
+            @click="dialog = false"
+          />
+        </v-toolbar>
         <v-card-content>
           <AlertCard
             v-if="errors.error || !errors.updatedAt"
@@ -75,10 +84,11 @@ const reset = () => {
             :append-icon="showToken ? 'mdi-eye' : 'mdi-eye-off'"
             :type="showToken ? 'text' : 'password'"
             @click:append="showToken = !showToken"
-            clearable
             hide-details
+            clearable
           ></v-text-field>
         </v-card-content>
+        <v-divider />
         <v-card-actions class="justify-end">
           <v-btn color="red" @click="reset">Reset</v-btn>
           <v-spacer />

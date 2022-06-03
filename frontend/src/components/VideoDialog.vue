@@ -35,35 +35,37 @@ const setVideo = (video: string) => {
 </script>
 
 <template>
-  <v-dialog v-model="dialog" scrollable fullscreen>
-    <slot></slot>
-    <v-card class="d-flex flex-column">
-      <v-toolbar color="primary" fixed>
+  <v-dialog v-model="dialog">
+    <template #activator="props">
+      <slot name="activator" v-bind="props" />
+    </template>
+    <v-card class="parent">
+      <v-toolbar color="primary" class="toolbar-fixed">
         <v-toolbar-title>Select Video</v-toolbar-title>
-        <v-spacer />
-        <v-btn icon dark @click="dialog = false">
-          <v-icon>mdi-close</v-icon>
-        </v-btn>
+        <v-btn density="default" icon="mdi-close" @click="dialog = false" />
       </v-toolbar>
       <v-card-content
         v-if="isFetching"
-        class="d-flex pb-4 align-center justify-center"
+        class="d-flex align-center justify-center"
       >
-        <v-progress-circular indeterminate color="primary" />
+        <v-progress-circular color="primary" indeterminate />
       </v-card-content>
-      <v-card-content
-        v-else
-        class="pt-0"
-        style="overflow-y: scroll; height: calc(100vh - 56px)"
-      >
-        <FileBrowser
-          style="margin: auto; max-width: 680px"
-          :items="data"
-          @selected="setVideo"
-        />
+      <v-card-content v-else class="overflow-y-auto py-0">
+        <FileBrowser :items="data" @selected="setVideo" />
       </v-card-content>
     </v-card>
   </v-dialog>
 </template>
 
-<style scoped></style>
+<style scoped>
+.v-card.parent {
+  width: 800px;
+  height: calc(100vh - 48px);
+}
+
+@media screen and (max-width: 800px) {
+  .v-card.parent {
+    width: calc(100vw - 24px);
+  }
+}
+</style>

@@ -15,35 +15,39 @@ const dialog = ref(false);
   >
     <v-btn
       v-if="store.project"
+      :ripple="false"
+      class="ml-2 mr-2 pl-1 pr-1"
       variant="text"
       size="small"
-      class="ml-2 mr-2 pl-1 pr-1"
-      :ripple="false"
     >
       <v-icon left>mdi-folder</v-icon>
       {{ store.project }}
     </v-btn>
     <span v-if="store.cVideo">
       <span>/</span>
-      <v-btn
-        variant="text"
-        size="small"
-        @click.stop="dialog = true"
-        class="ml-1 mr-2 pl-1 pr-1"
-      >
-        <v-icon left>mdi-movie</v-icon>
-        {{ store.cVideo }}
-      </v-btn>
+      <VideoDialog v-model="dialog">
+        <template #activator="{ props }">
+          <v-btn
+            v-bind="props"
+            class="ml-1 mr-2 px-1"
+            variant="text"
+            size="small"
+            @click.stop="dialog = true"
+          >
+            <v-icon left>mdi-movie</v-icon>
+            {{ store.cVideo }}
+          </v-btn>
+        </template>
+      </VideoDialog>
     </span>
     <v-spacer />
     <v-btn
+      icon="mdi-close"
       variant="text"
       size="x-small"
-      icon="mdi-close"
       class="ml-2"
       @click="store.resetProject"
     ></v-btn>
-    <VideoDialog v-model="dialog"> </VideoDialog>
   </v-system-bar>
 </template>
 

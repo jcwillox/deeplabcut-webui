@@ -116,7 +116,14 @@ const openDocs = () => {
         <v-icon>mdi-help-circle</v-icon>
         <v-tooltip activator="parent" anchor="bottom">Help</v-tooltip>
       </v-btn>
-      <VersionDialog />
+      <VersionDialog>
+        <template #activator="{ props }">
+          <v-btn v-bind="props" icon>
+            <v-icon>mdi-information</v-icon>
+            <v-tooltip activator="parent" anchor="bottom">About</v-tooltip>
+          </v-btn>
+        </template>
+      </VersionDialog>
       <v-btn class="mr-n3" @click.stop="showSettings = true" icon>
         <v-icon>mdi-cog</v-icon>
         <v-tooltip activator="parent" anchor="bottom" class="settings">
@@ -149,5 +156,14 @@ html {
 }
 div.v-tooltip.settings > div {
   transform: translate(-12px);
+}
+.toolbar-fixed {
+  top: 0;
+  position: sticky;
+  flex-shrink: 0;
+  z-index: 1;
+}
+.cursor-pointer {
+  cursor: pointer;
 }
 </style>
