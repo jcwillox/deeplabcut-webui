@@ -1,6 +1,6 @@
-scorer,TM,TM,TM,TM,TM,TM,TM,TM,TM,TM,TM,TM
-bodyparts,HeadBack,HeadBack,PincerMid,PincerMid,LeftEye,LeftEye,RightEye,RightEye,AbdomenFront,AbdomenFront,ThoraxFront,ThoraxFront
-coords,x,y,x,y,x,y,x,y,x,y,x,y
-labeled-data\Frame Test\img0000.demo.png,,,,,,,,,,,,
-labeled-data\Frame Test\img0119.demo.png,,,,,,,,,,,,
-labeled-data\Frame Test\img0448.demo.png,,,,,,,,,,,,
+scorer,,,TM,TM,TM,TM,TM,TM,TM,TM,TM,TM,TM,TM
+bodyparts,,,HeadBack,HeadBack,PincerMid,PincerMid,LeftEye,LeftEye,RightEye,RightEye,AbdomenFront,AbdomenFront,ThoraxFront,ThoraxFront
+coords,,,x,y,x,y,x,y,x,y,x,y,x,y
+labeled-data,Frame Test,img0000.demo.png,,,,,,,,,,,,
+labeled-data,Frame Test,img0119.demo.png,,,,,,,,,,,,
+labeled-data,Frame Test,img0448.demo.png,,,,,,,,,,,,

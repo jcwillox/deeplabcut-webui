@@ -11,6 +11,7 @@ import pandas as pd
 from fastapi import FastAPI
 
 from ..utils import get_project_path, deepmerge, get_project_config
+from ..utils.conversion import ensure_multi_index
 
 # frame -> individual -> bodypart -> coords
 LabelsCoords = Dict[Literal["x", "y"], Optional[float]]
@@ -58,7 +59,7 @@ class LabelManager:
         multi_animal = "individuals" in df.columns.names
 
         for image in df.index:
-            image_name = os.path.basename(image)
+            image_name = image[-1]
             output.setdefault(image_name, {})
 
             if multi_animal:
@@ -111,9 +112,7 @@ class LabelManager:
             return
 
         df: Optional[pd.DataFrame] = None
-        relative_image_paths = [
-            os.path.join("labeled-data", name, image) for image in labels
-        ]
+        relative_image_paths = [("labeled-data", name, image) for image in labels]
 
         if not os.path.exists(path_hdf):
             # create new data frame
@@ -124,12 +123,13 @@ class LabelManager:
                     [["TM"], [bodypart], ["x", "y"]],
                     names=["scorer", "bodyparts", "coords"],
                 )
-                index = pd.Index(relative_image_paths)
+                index = pd.MultiIndex.from_tuples(relative_image_paths)
                 frame = pd.DataFrame(a, columns=cols, index=index)
                 df = pd.concat([df, frame], axis=1)
         else:
             # load dataframe from disk
             df: pd.DataFrame = cast(pd.DataFrame, pd.read_hdf(path_hdf))
+            ensure_multi_index(df)
 
             # add new images to dataframe
             new_images = list(set(relative_image_paths) - set(df.index))
@@ -142,17 +142,18 @@ class LabelManager:
                         [["TM"], [bodypart], ["x", "y"]],
                         names=["scorer", "bodyparts", "coords"],
                     )
-                    index = pd.Index(new_images)
+                    index = pd.MultiIndex.from_tuples(new_images)
                     frame = pd.DataFrame(a, columns=cols, index=index)
                     new_df = pd.concat([new_df, frame], axis=1)
 
                 df = pd.concat([df, new_df], axis=0)
-                df.sort_index(inplace=True)
+
+        df.sort_index(inplace=True)
 
         for image, individuals in labels.items():
+            image_path = ("labeled-data", name, image)
             for individual, bodyparts in individuals.items():
                 for bodypart, coords in bodyparts.items():
-                    image_path = os.path.join("labeled-data", name, image)
                     for coord, value in coords.items():
                         df.loc[image_path][("TM", bodypart, coord)] = value
 
