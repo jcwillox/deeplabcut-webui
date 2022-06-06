@@ -21,6 +21,7 @@ module.exports = {
     LabelsCoords: true,
     LabelsBodyparts: true,
     LabelsIndividuals: true,
+    ProjectConfig: true,
     __BUILD_TIME__: true,
     __COMMIT__: true,
     __BRANCH__: true,

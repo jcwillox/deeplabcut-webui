@@ -15,12 +15,11 @@ import { computed, ref, watch } from "vue";
 
 const store = useStore();
 const frames = useFrames();
-const framesUrl = computed(() => "/videos/" + store.video + "/frames");
 
 const labelEditorEl = ref<InstanceType<typeof LabelEditor> | null>(null);
 
 const labelsUrl = computed(() => "/videos/" + store.video + "/labels");
-const { data: labels } = useFetch<string>(labelsUrl, { refetch: true })
+const { data: labels } = useFetch(labelsUrl, { refetch: true })
   .get()
   .json<LabelsModel>();
 
@@ -34,7 +33,7 @@ const updateIndex = (n: number) => {
   }
 };
 
-const image = computed<string>(() => frames.items[imgIndex.value]);
+const image = computed(() => frames.items[imgIndex.value]);
 const individuals = computed<LabelsIndividuals>(() =>
   labels.value ? labels.value[image.value] : {}
 );
@@ -61,23 +60,20 @@ const panZoomChange = (detail: PanzoomEventDetail) => {
   mapHeight.value = ((height / 2 - detail.y) / height) * 100 + "%";
 };
 
-const opened = ref<string[] | undefined>(undefined);
-const selected = ref<string[] | undefined>(undefined);
-
 const { data: configProject } = useFetch("/projects/" + store.project)
   .get()
-  .json();
+  .json<ProjectConfig>();
 
 // extract and cache bodypart colors
 const colors = computed(() => {
   const individual =
     individuals.value && Object.keys(individuals.value).shift();
-  if (individual && configProject.value.colormap) {
+  if (individual && configProject.value?.colormap) {
     const bodyparts = Object.keys(individuals.value[individual]);
     return bodyparts.map((_, i) => {
       const rgb = evaluate_cmap(
         i / bodyparts.length,
-        configProject.value.colormap
+        configProject.value!.colormap
       );
       return `rgb(${rgb.join(",")})`;
     });
@@ -96,6 +92,9 @@ const colorsIndividuals = computed(() => {
   }
   return [];
 });
+
+const opened = ref<string[] | undefined>(undefined);
+const selected = ref<string[] | undefined>(undefined);
 
 // ensure exactly one individual is open
 watch(opened, (value, oldValue) => {
@@ -201,8 +200,7 @@ const getLabelledCount = (bodyparts: LabelsBodyparts) => {
     </div>
     <div class="d-flex flex-column pl-1 w-25" style="max-width: 280px">
       <v-img
-        v-if="store.video"
-        :src="createCachedUrl(framesUrl, frames.items[imgIndex])"
+        :src="createCachedUrl(frames.framesUrl, frames.items[imgIndex])"
         :aspect-ratio="labelEditorEl?.aspectRatio"
         class="flex-grow-0"
       >

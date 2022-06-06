@@ -3,6 +3,13 @@ type LabelsBodyparts = Record<string, LabelsCoords>;
 type LabelsIndividuals = Record<string, LabelsBodyparts>;
 type LabelsModel = Record<string, LabelsIndividuals>;
 
+interface ProjectConfig {
+  multi_animal: boolean;
+  colormap: string;
+  bodyparts: string[];
+  individuals?: string[];
+}
+
 type VideoFrameRequestCallbackId = number;
 
 interface VideoFrameMetadata {
