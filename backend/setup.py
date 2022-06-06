@@ -14,16 +14,21 @@ REQUIRES = [
     "PyYAML>=6.0,<7.0",
 ]
 
-DLC_REQUIRE = [
+DLC_REQUIRES = [
     "deeplabcut[gui]>=2.2.1,<3",
 ]
 
 with open("requirements-docs.txt") as file:
-    DOCS_REQUIRE = file.read().splitlines(keepends=False)
+    DOCS_REQUIRES = file.read().splitlines(keepends=False)
+
+BUILD_REQUIRES = [
+    "pyinstaller>=5.1,<6",
+]
 
 EXTRAS_REQUIRE = {
-    "dlc": DLC_REQUIRE,
-    "docs": DOCS_REQUIRE,
+    "dlc": DLC_REQUIRES,
+    "docs": DOCS_REQUIRES,
+    "build": BUILD_REQUIRES,
 }
 
 if __name__ == "__main__":

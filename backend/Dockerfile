@@ -1,4 +1,4 @@
-FROM python:3.8-slim-bullseye
+FROM python:3.10-slim-bullseye
 
 ENV DLC_PROJECTS="/projects"
 
@@ -8,6 +8,8 @@ RUN apt-get update && apt-get install -y ffmpeg \
   && rm -rf /var/lib/apt/lists/*
 
 COPY pyproject.toml .
+COPY pyinstaller.spec .
+COPY requirements*.txt .
 COPY setup.* ./
 
 RUN pip install --no-cache-dir .

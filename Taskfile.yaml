@@ -113,6 +113,22 @@ tasks:
           .venv/bin/mkdocs
         {{- end }} serve --dev-addr localhost:3001
 
+  ### BINARY ###
+  build:bundle:
+    desc: "Build backend binary bundle"
+    dir: ./backend
+    cmds:
+      - |
+        {{- if .PY_INTERPRETER -}}
+          '{{ .PY_INTERPRETER }}' -m pyinstaller
+        {{- else if eq .CONDA_DEFAULT_ENV .CONDA_ENV -}}
+          pyinstaller
+        {{- else if eq OS "windows" -}}
+          ../.venv/Scripts/pyinstaller.exe
+        {{- else -}}
+          ../.venv/bin/pyinstaller
+        {{- end }} pyinstaller.spec
+
   ### SETUP ###
   setup:
     desc: "Setup the frontend and backend environments/dependencies"

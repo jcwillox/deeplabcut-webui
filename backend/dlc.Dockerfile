@@ -7,6 +7,8 @@ ENV DLC_PROJECTS="/projects"
 EXPOSE 8000
 
 COPY pyproject.toml .
+COPY pyinstaller.spec .
+COPY requirements*.txt .
 COPY setup.* ./
 
 RUN pip install --no-cache-dir .[dlc]
