@@ -172,6 +172,18 @@ div.v-tooltip.settings > div {
 .v-overlay header.v-toolbar.v-theme--dark.bg-primary {
   background: rgb(var(--v-theme-on-surface-variant)) !important;
 }
+.v-tooltip kbd {
+  border-radius: 3px;
+  background: rgb(var(--v-theme-surface-variant));
+  color: rgb(var(--v-kbd-color));
+  font-size: 85%;
+  font-weight: normal;
+  font-family: inherit;
+  padding: 0.2em 0.4rem;
+}
+.v-tooltip kbd:not(:first-child) {
+  margin-left: 2px;
+}
 .toolbar-fixed {
   top: 0;
   position: sticky;

@@ -103,30 +103,53 @@ const clickFrame = (frameName: string) => {
       <v-btn
         size="small"
         color="primary-darken-2"
-        icon="mdi-chevron-double-left"
         @click="player?.seekBackward(10)"
-      />
-      <v-btn
-        size="small"
-        color="primary-darken-1"
-        icon="mdi-chevron-left"
-        @click="player?.seekBackward()"
-      />
-      <v-btn height="40" color="primary" @click="extractFrame" rounded>
-        Extract
+        icon
+      >
+        <v-icon size="small">mdi-chevron-double-left</v-icon>
+        <v-tooltip activator="parent" location="top">
+          Back 10 frames <kbd>Shift</kbd><kbd>A</kbd>
+        </v-tooltip>
       </v-btn>
       <v-btn
         size="small"
         color="primary-darken-1"
-        icon="mdi-chevron-right"
+        @click="player?.seekBackward()"
+        icon
+      >
+        <v-icon size="small">mdi-chevron-left</v-icon>
+        <v-tooltip activator="parent" location="top">
+          Back 1 frame <kbd>A</kbd>
+        </v-tooltip>
+      </v-btn>
+      <v-btn height="40" color="primary" @click="extractFrame" rounded>
+        Extract
+        <v-tooltip activator="parent" location="top">
+          <kbd>Shift</kbd><kbd>E</kbd>
+        </v-tooltip>
+      </v-btn>
+      <v-btn
+        size="small"
+        color="primary-darken-1"
         @click="player?.seekForward()"
-      />
+        icon
+      >
+        <v-icon size="small">mdi-chevron-right</v-icon>
+        <v-tooltip activator="parent" location="top">
+          Forward 1 frame <kbd>D</kbd>
+        </v-tooltip>
+      </v-btn>
       <v-btn
         size="small"
         color="primary-darken-2"
-        icon="mdi-chevron-double-right"
         @click="player?.seekForward(10)"
-      />
+        icon
+      >
+        <v-icon size="small">mdi-chevron-double-right</v-icon>
+        <v-tooltip activator="parent" location="top">
+          Forward 10 frames <kbd>Shift</kbd><kbd>D</kbd>
+        </v-tooltip>
+      </v-btn>
     </div>
 
     <v-slide-group
