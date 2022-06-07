@@ -183,6 +183,15 @@ const handleClick = (ev: MouseEvent) => {
   }
 };
 
+const resetZoom = () => {
+  panzoom.value?.reset({ animate: false });
+  if (labelMarkerEls.value) {
+    for (const labelMarkerEl of labelMarkerEls.value) {
+      labelMarkerEl.resetPosition();
+    }
+  }
+};
+
 onMounted(() => {
   panzoom.value = Panzoom(imgEl.value!.$el, {
     maxScale: 32,
@@ -230,7 +239,8 @@ const handleImgLoad = () => {
 
 defineExpose({
   aspectRatio,
-  aspectRatioString
+  aspectRatioString,
+  resetZoom
 });
 </script>
 

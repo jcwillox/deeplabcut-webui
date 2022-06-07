@@ -201,6 +201,9 @@ useHotkeys("d", () => {
 useHotkeys("g", () => {
   dialog.value = !dialog.value;
 });
+useHotkeys("r", () => {
+  labelEditorEl.value?.resetZoom();
+});
 </script>
 
 <template>
@@ -258,6 +261,19 @@ useHotkeys("g", () => {
               </v-btn>
             </template>
           </FramesDialog>
+          <v-divider />
+          <v-btn
+            class="rounded-0"
+            variant="plain"
+            size="small"
+            @click="labelEditorEl?.resetZoom()"
+            icon
+          >
+            <v-icon size="small">mdi-restore</v-icon>
+            <v-tooltip activator="parent" location="end">
+              Reset zoom <kbd>R</kbd>
+            </v-tooltip>
+          </v-btn>
           <v-divider />
           <v-btn
             class="rounded-0 rounded-be flex-grow-1"
