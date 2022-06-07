@@ -44,17 +44,15 @@ watchEffect(() => {
     style="max-width: 640px"
   >
     <v-autocomplete
-      v-bind="{
-        label: 'Project',
-        color: 'primary',
-        loading: isFetching,
-        hideDetails: !error,
-        errorMessages: error || '',
-        clearable: true
-      }"
+      label="Project"
       v-model="project"
       :items="projects"
+      :loading="isFetching"
+      :hide-details="!error"
+      :error-messages="error || ''"
+      color="primary"
       item-title="name"
+      clearable
     ></v-autocomplete>
   </v-container>
   <v-container

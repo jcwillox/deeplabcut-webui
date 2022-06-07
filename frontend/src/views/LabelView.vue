@@ -235,9 +235,11 @@ const getLabelledCount = (bodyparts: LabelsBodyparts) => {
                 icon
               >
                 <v-icon size="small">mdi-expand-all</v-icon>
-                <v-tooltip v-bind="{ activator: 'parent' }" location="end">
-                  Show all frames
-                </v-tooltip>
+                <v-tooltip
+                  activator="parent"
+                  location="end"
+                  text="Show all frames"
+                />
               </v-btn>
             </template>
           </FramesDialog>

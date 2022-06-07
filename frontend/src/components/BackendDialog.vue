@@ -33,10 +33,7 @@ const openDocs = () => {
 
 <template>
   <div>
-    <v-dialog
-      v-model="dialog"
-      v-bind="{ persistent: errors.error !== undefined }"
-    >
+    <v-dialog v-model="dialog" :persistent="errors.error !== undefined">
       <template #activator="props">
         <slot name="activator" v-bind="props" />
       </template>
@@ -45,11 +42,7 @@ const openDocs = () => {
           <v-toolbar-title>Backend Configuration</v-toolbar-title>
           <v-btn @click="openDocs" icon>
             <v-icon class="text-high-emphasis">mdi-help-circle</v-icon>
-            <v-tooltip
-              v-bind="{ activator: 'parent' }"
-              location="bottom"
-              text="Help"
-            />
+            <v-tooltip activator="parent" location="bottom" text="Help" />
           </v-btn>
           <v-btn
             v-if="!errors.error"

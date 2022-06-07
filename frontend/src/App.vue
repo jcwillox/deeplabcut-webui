@@ -11,7 +11,7 @@ import {
   type BasicColorSchema
 } from "@vueuse/core";
 import { computed, ref, watch } from "vue";
-import { useRoute, useRouter } from "vue-router";
+import { RouterView, useRoute, useRouter } from "vue-router";
 
 const store = useStore();
 const frames = useFrames();
@@ -114,28 +114,20 @@ const openDocs = () => {
 
       <v-btn @click="openDocs" icon>
         <v-icon>mdi-help-circle</v-icon>
-        <v-tooltip
-          v-bind="{ activator: 'parent' }"
-          location="bottom"
-          text="Help"
-        />
+        <v-tooltip activator="parent" location="bottom" text="Help" />
       </v-btn>
       <VersionDialog>
         <template #activator="{ props }">
           <v-btn v-bind="props" icon>
             <v-icon>mdi-information</v-icon>
-            <v-tooltip
-              v-bind="{ activator: 'parent' }"
-              location="bottom"
-              text="About"
-            />
+            <v-tooltip activator="parent" location="bottom" text="About" />
           </v-btn>
         </template>
       </VersionDialog>
       <v-btn class="mr-n3" @click.stop="showSettings = true" icon>
         <v-icon>mdi-cog</v-icon>
         <v-tooltip
-          v-bind="{ activator: 'parent' }"
+          activator="parent"
           location="bottom"
           class="settings"
           text="Settings"
@@ -144,7 +136,7 @@ const openDocs = () => {
     </v-app-bar>
 
     <v-main class="pa-0">
-      <router-view v-slot="{ Component }">
+      <router-view #default="{ Component }">
         <transition>
           <keep-alive
             :exclude="keepAliveExclusion"

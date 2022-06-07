@@ -34,9 +34,10 @@ const themeName = computed({
     </v-toolbar>
     <v-container>
       <v-select
-        v-bind="{ label: 'Theme', hideDetails: true }"
+        label="Theme"
         v-model="themeName"
         :items="['Auto', 'Light', 'Dark']"
+        hideDetails
       />
       <DialogBackend>
         <template #activator="{ props }">
