@@ -80,6 +80,20 @@ const calcFixedFromCorner = (
   }
 };
 
+const calcPointFromCorner = (clientX: number, clientY: number) => {
+  if (imgEl.value && parentEl.value && panzoom.value) {
+    const parentRect = parentEl.value.getBoundingClientRect();
+    const rect: DOMRect = imgEl.value.$el.getBoundingClientRect();
+
+    let tX = clientX - parentRect.left;
+    let tY = clientY - parentRect.top;
+    tX -= rect.left - parentRect.left;
+    tY -= rect.top - parentRect.top;
+
+    return { x: tX, y: tY };
+  }
+};
+
 const frames = useFrames();
 const panzoom = ref<PanzoomObject | null>(null);
 
@@ -139,6 +153,32 @@ const handlePanzoomChange = (
           }
         }
       });
+    }
+  }
+};
+
+const handleClick = (ev: MouseEvent) => {
+  if (props.selected) {
+    const iterBodyparts = bodyparts(props.image, props.labels);
+    for (const { individual, bodypart, coords } of iterBodyparts) {
+      if (`${individual}-${bodypart}` == props.selected) {
+        if (!(coords.x && coords.y)) {
+          const relativeCoords = calcPointFromCorner(ev.clientX, ev.clientY);
+          const trueCoords = calcFixedFromCorner(
+            relativeCoords!.x,
+            relativeCoords!.y
+          );
+          if (trueCoords) {
+            emit("update:labels", {
+              [props.image!]: {
+                [individual]: {
+                  [bodypart]: trueCoords
+                }
+              }
+            });
+          }
+        }
+      }
     }
   }
 };
