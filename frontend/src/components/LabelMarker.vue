@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import Panzoom, { type PanzoomObject } from "@panzoom/panzoom";
-import type { MiscOptions } from "@panzoom/panzoom/dist/src/types";
+import type {
+  MiscOptions,
+  PanzoomEventDetail
+} from "@panzoom/panzoom/dist/src/types";
 import { onBeforeUnmount, onMounted, ref, watch, type Ref } from "vue";
 
 const props = defineProps<{
@@ -8,6 +11,10 @@ const props = defineProps<{
   selected?: boolean;
   parent: PanzoomObject | null;
   color: string;
+}>();
+
+const emit = defineEmits<{
+  (e: "panzoomchange", detail: PanzoomEventDetail): void;
 }>();
 
 const panzoom = ref<PanzoomObject | null>(null);
@@ -26,6 +33,7 @@ const resetPosition = () => {
   }
 };
 
+// update position if coords change
 watch(() => props.coords, resetPosition);
 
 const setTransform: MiscOptions["setTransform"] = (elem, { x, y, scale }) => {
@@ -46,6 +54,10 @@ onMounted(() => {
     startY: props.coords.y,
     setTransform
   });
+
+  labelEl.value!.addEventListener("panzoomchange", e => {
+    emit("panzoomchange", (e as CustomEvent<PanzoomEventDetail>).detail);
+  });
 });
 
 onBeforeUnmount(() => {
@@ -53,7 +65,7 @@ onBeforeUnmount(() => {
 });
 
 defineExpose({
-  panzoom: panzoom,
+  panzoom,
   resetPosition
 });
 </script>

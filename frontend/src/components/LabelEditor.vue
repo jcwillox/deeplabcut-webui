@@ -17,6 +17,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   (e: "panzoomchange", detail: PanzoomEventDetail): void;
+  (e: "update:labels", labels: LabelsModel): void;
 }>();
 
 // the pan x/y calculations are relative to the origin which is the center of
@@ -56,6 +57,29 @@ const calcRelativeToOrigin = (
   }
 };
 
+const calcFixedFromCorner = (
+  x: number,
+  y: number,
+  offsetX = 0,
+  offsetY = 0
+) => {
+  if (
+    parentEl.value &&
+    imgEl.value?.image?.naturalWidth &&
+    imgEl.value?.image?.naturalHeight
+  ) {
+    const scale = panzoom.value?.getScale() || 1;
+    const rect = parentEl.value.getBoundingClientRect();
+    const naturalWidth = imgEl.value.image.naturalWidth;
+    const naturalHeight = imgEl.value.image.naturalHeight;
+
+    const tX = ((x / scale - offsetX) / rect.width) * naturalWidth;
+    const tY = ((y / scale - offsetY) / rect.height) * naturalHeight;
+
+    return { x: tX, y: tY };
+  }
+};
+
 const frames = useFrames();
 const panzoom = ref<PanzoomObject | null>(null);
 
@@ -63,22 +87,29 @@ const imgEl = ref<InstanceType<typeof VImg> | null>(null);
 const parentEl: Ref<HTMLDivElement | null> = ref(null);
 const labelMarkerEls = ref<InstanceType<typeof LabelMarker>[] | null>(null);
 
+function* bodyparts(image?: string, labels?: LabelsModel | null) {
+  if (labels && image) {
+    const individuals = labels[image];
+    for (const individual in individuals) {
+      const bodyparts = individuals[individual];
+      let index = 0;
+      for (const bodypart in bodyparts) {
+        const coords = bodyparts[bodypart];
+        yield { individual, bodypart, coords, index };
+        index++;
+      }
+    }
+  }
+}
+
 const labelItems = ref<[string, string, LabelsCoords, string][]>([]);
 const updateLabelItems = () => {
   const items: [string, string, LabelsCoords, string][] = [];
-  if (props.image && props.labels) {
-    const individuals = props.labels[props.image];
-    for (const individual in individuals) {
-      const bodyparts = individuals[individual];
-      let i = 0;
-      for (const bodypart in bodyparts) {
-        const coords = bodyparts[bodypart];
-        const newCoords = calcRelativeToOrigin(coords.x, coords.y, -6, -6);
-        if (newCoords) {
-          items.push([individual, bodypart, newCoords, props.colors[i]]);
-        }
-        i++;
-      }
+  const iterBodyparts = bodyparts(props.image, props.labels);
+  for (const { individual, bodypart, coords, index } of iterBodyparts) {
+    const newCoords = calcRelativeToOrigin(coords.x, coords.y, -6, -6);
+    if (newCoords) {
+      items.push([individual, bodypart, newCoords, props.colors[index]]);
     }
   }
   labelItems.value = items;
@@ -92,14 +123,35 @@ useResizeObserver(parentEl, () => {
   updateLabelItems();
 });
 
+const handlePanzoomChange = (
+  individual: string,
+  bodypart: string,
+  detail: PanzoomEventDetail
+) => {
+  // only trigger when initiated by a user
+  if (detail.originalEvent?.isTrusted) {
+    const coords = calcFixedFromCorner(detail.x, detail.y, -6, -6);
+    if (coords) {
+      emit("update:labels", {
+        [props.image!]: {
+          [individual]: {
+            [bodypart]: coords
+          }
+        }
+      });
+    }
+  }
+};
+
 onMounted(() => {
   panzoom.value = Panzoom(imgEl.value!.$el, {
     maxScale: 32,
     contain: "outside"
   });
 
-  imgEl.value!.$el.addEventListener("panzoomchange", (e: CustomEvent) =>
-    emit("panzoomchange", e.detail)
+  imgEl.value!.$el.addEventListener(
+    "panzoomchange",
+    (e: CustomEvent<PanzoomEventDetail>) => emit("panzoomchange", e.detail)
   );
 
   // link all label markers to the images zooming
@@ -124,6 +176,7 @@ onMounted(() => {
   });
 });
 
+// handle changing aspect ratio
 const aspectRatio = ref<number | undefined>(undefined);
 const aspectRatioString = ref<string | undefined>(undefined);
 
@@ -148,8 +201,9 @@ defineExpose({
       :src="createCachedUrl(frames.framesUrl, image)"
       :aspect-ratio="aspectRatio"
       @load="handleImgLoad"
+      @click="handleClick"
     >
-      <template v-slot:placeholder>
+      <template #placeholder>
         <v-row class="fill-height ma-0" align="center" justify="center">
           <v-progress-circular
             indeterminate
@@ -165,6 +219,9 @@ defineExpose({
         :color="color"
         :parent="panzoom"
         :selected="`${individual}-${bodypart}` === props.selected"
+        @panzoomchange="
+          detail => handlePanzoomChange(individual, bodypart, detail)
+        "
       />
     </v-img>
   </div>

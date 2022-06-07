@@ -20,6 +20,7 @@
     "@mdi/font": "^6.7.96",
     "@panzoom/panzoom": "^4.5.0",
     "@vueuse/core": "^8.6.0",
+    "deepmerge-ts": "^4.0.3",
     "panzoom": "^9.4.2",
     "pinia": "^2.0.14",
     "pinia-plugin-persistedstate": "^1.6.1",
@@ -54,7 +55,7 @@
     "vue-tsc": "^0.36.0",
     "workbox-window": "^6.5.3"
   },
-  "packageManager": "pnpm@7.1.7",
+  "packageManager": "pnpm@7.1.9",
   "engines": {
     "node": "16.x"
   }

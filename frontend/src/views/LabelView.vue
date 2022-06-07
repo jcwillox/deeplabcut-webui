@@ -11,6 +11,8 @@ import { useFrames, useStore } from "@/stores";
 import { createCachedUrl, useFetch } from "@/utils";
 import { evaluate_cmap } from "@/utils/colormap";
 import type { PanzoomEventDetail } from "@panzoom/panzoom/dist/src/types";
+import { useDebounceFn } from "@vueuse/core";
+import { deepmerge } from "deepmerge-ts";
 import { computed, ref, watch } from "vue";
 
 const store = useStore();
@@ -113,6 +115,59 @@ watch(individuals, (value, oldValue) => {
   }
 });
 
+let pending: LabelsModel | null = null;
+const isSyncing = ref(false);
+
+const syncBackend = useDebounceFn(
+  async () => {
+    // ensure we are only sending 1 request at a time
+    if (!isSyncing.value) {
+      if (pending === null) {
+        console.error("pending changes was null while syncing backend");
+        return;
+      }
+
+      isSyncing.value = true;
+      let payload: LabelsModel | null = pending;
+      pending = null;
+
+      try {
+        console.debug("SyncBackend: Starting", payload);
+        const { statusCode } = await useFetch(labelsUrl).put(payload);
+
+        if (statusCode.value == 200) {
+          payload = null;
+          console.debug("SyncBackend: Finished");
+        } else {
+          console.debug("SyncBackend: Failed", statusCode.value, pending);
+        }
+      } finally {
+        // ensure we always reset syncing status
+        isSyncing.value = false;
+
+        // merge back any changes we were trying to send
+        if (payload) {
+          pending = pending ? deepmerge(payload, pending) : payload;
+        }
+
+        // reschedule update if there are pending changes
+        if (pending) {
+          syncBackend()?.then();
+          console.debug("SyncBackend: Rescheduled", pending);
+        }
+      }
+    }
+  },
+  500,
+  { maxWait: 2000 }
+);
+
+const updateLabels = (newLabels: LabelsModel) => {
+  pending = deepmerge(pending, newLabels);
+  labels.value = deepmerge(labels.value, newLabels);
+  syncBackend();
+};
+
 const createSubtitle = (coords: LabelsCoords) => {
   let output = "";
   if (coords.x) {
@@ -168,6 +223,7 @@ const getLabelledCount = (bodyparts: LabelsBodyparts) => {
           :colors="colors"
           class="flex-grow-1 h-100"
           @panzoomchange="panZoomChange"
+          @update:labels="updateLabels"
         >
         </LabelEditor>
         <div class="d-flex flex-column">
