@@ -1,6 +1,7 @@
 import { isDefined } from "@vueuse/core";
 
 export * from "./fetch";
+export * from "./use-hotkeys";
 
 export function toTimecode(seconds: number) {
   const hh = String(~~(seconds / 3600)).padStart(2, "0");

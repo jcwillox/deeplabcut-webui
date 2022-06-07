@@ -5,7 +5,8 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { useStore, useFrames } from "@/stores";
+import { useFrames, useStore } from "@/stores";
+import { useHotkeys } from "@/utils";
 import { createCachedUrl, useFetch } from "@/utils/fetch";
 import { computed, ref, watch } from "vue";
 import { VSlideGroup, VSlideGroupItem } from "vuetify/components";
@@ -64,10 +65,30 @@ const clickFrame = (frameName: string) => {
   const frameNumber = /\d+/.exec(frameName);
   player.value?.seekTo(Number(frameNumber));
 };
+
+// define hotkeys
+useHotkeys("a", () => {
+  player.value?.seekBackward(1);
+});
+useHotkeys("shift+a", () => {
+  player.value?.seekBackward(10);
+});
+useHotkeys("d", () => {
+  player.value?.seekForward(1);
+});
+useHotkeys("shift+d", () => {
+  player.value?.seekForward(10);
+});
+useHotkeys("shift+e", () => {
+  extractFrame();
+});
+useHotkeys("space", () => {
+  toggleVideo();
+});
 </script>
 
 <template>
-  <v-container fluid class="pa-0 fill-height">
+  <v-container class="pa-0 fill-height" fluid>
     <div class="d-flex pa-2">
       <v-text-field
         label="Frame"
@@ -94,9 +115,6 @@ const clickFrame = (frameName: string) => {
       :fps="fps"
       :src="createCachedUrl(videoUrl, 'stream')"
       max-height-offset="184px"
-      @keydown.space="toggleVideo"
-      @keydown.left="player?.seekBackward()"
-      @keydown.right="player?.seekForward()"
     ></VideoJS>
 
     <div class="d-flex align-center justify-center my-2" style="gap: 4px">

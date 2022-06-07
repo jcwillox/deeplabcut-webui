@@ -17,6 +17,7 @@ specifiers:
   del-cli: ^4.0.1
   eslint: ^8.17.0
   eslint-plugin-vue: ^8.7.1
+  hotkeys-js: ^3.9.4
   https-localhost: ^4.7.1
   jsdom: ^19.0.0
   pinia: ^2.0.14
@@ -41,6 +42,7 @@ dependencies:
   '@panzoom/panzoom': 4.5.0
   '@vueuse/core': 8.6.0_vue@3.2.37
   deepmerge-ts: 4.0.3
+  hotkeys-js: 3.9.4
   pinia: 2.0.14_3wx4hvlpf33h4r5e7sgliqloou
   pinia-plugin-persistedstate: 1.6.1_pinia@2.0.14
   roboto-fontface: 0.10.0
@@ -3313,6 +3315,10 @@ packages:
     dependencies:
       lru-cache: 6.0.0
     dev: true
+
+  /hotkeys-js/3.9.4:
+    resolution: {integrity: sha512-2zuLt85Ta+gIyvs4N88pCYskNrxf1TFv3LR9t5mdAZIX8BcgQQ48F2opUptvHa6m8zsy5v/a0i9mWzTrlNWU0Q==}
+    dev: false
 
   /hpack.js/2.1.6:
     resolution: {integrity: sha1-h3dMCUnlE/QuhFdbPEVoH63ioLI=}
