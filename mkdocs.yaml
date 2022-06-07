@@ -17,7 +17,7 @@ nav:
       - "guide/extracting.md"
       - "guide/labelling.md"
   - Setup:
-      - "setup/index.md"
+      - "setup/configuration.md"
   - Development:
       - "development/index.md"
 
