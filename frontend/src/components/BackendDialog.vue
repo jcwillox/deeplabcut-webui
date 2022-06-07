@@ -54,6 +54,7 @@ const openDocs = () => {
           <AlertCard
             v-if="errors.error || !errors.updatedAt"
             title="Disconnected!"
+            :details="errors.error?.stack"
             icon="mdi-wifi-strength-alert-outline"
             color="red"
           >
