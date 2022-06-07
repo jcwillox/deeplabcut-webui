@@ -2,7 +2,7 @@ name: "Frontend"
 
 defaults:
   run:
-    working-directory: ./frontend
+    working-directory: frontend
 
 on:
   push:
@@ -81,53 +81,4 @@ jobs:
         run: pnpm run build
 
       - name: "Run Tests"
-        run: pnpm test
-
-  deploy:
-    name: Deploy
-    runs-on: ubuntu-latest
-    needs: [lint, build]
-    if: github.ref == 'refs/heads/main'
-    concurrency: ci-${{ github.ref }}
-    env:
-      VITE_BASE: "/${{ github.event.repository.name }}/"
-    steps:
-      - name: "Checkout the repository"
-        uses: actions/checkout@v2
-        with:
-          fetch-depth: 0
-
-      - name: "Extract engines"
-        id: engines
-        run: |
-          cp ./package.json ..
-          cp ./pnpm-lock.yaml ..
-          echo ::set-output name=node::$(jq --raw-output .engines.node ./package.json)
-
-      - name: "Setup pnpm"
-        uses: pnpm/action-setup@v2
-
-      - name: "Setup node"
-        uses: actions/setup-node@v2
-        with:
-          node-version: ${{ steps.engines.outputs.node }}
-          cache: ${{ !env.ACT && 'pnpm' || '' }}
-
-      - name: "Install dependencies"
-        run: |
-          pnpm install
-          pip install -r ../backend/requirements-docs.txt
-
-      - name: "Run Build"
-        env:
-          SITE_DESCRIPTION: ${{ github.event.repository.description }}
-        run: |
-          pnpm run build
-          ln -s ./index.html ./dist/404.html
-          cd .. && mkdocs build -d frontend/dist/docs
-
-      - name: "Deploy 🚀"
-        uses: JamesIves/github-pages-deploy-action@v4
-        with:
-          branch: gh-pages
-          folder: frontend/dist
+        run: pnpm run test
