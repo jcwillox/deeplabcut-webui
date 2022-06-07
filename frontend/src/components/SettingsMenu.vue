@@ -27,7 +27,7 @@ const themeName = computed({
 </script>
 
 <template>
-  <v-navigation-drawer v-model="show" :width="300" location="right">
+  <v-navigation-drawer v-model="show" :width="300" location="right" temporary>
     <v-toolbar>
       <v-toolbar-title>Settings</v-toolbar-title>
       <v-btn icon="mdi-close" @click.stop="show = false" />
@@ -42,12 +42,13 @@ const themeName = computed({
         <template #activator="{ props }">
           <v-card
             v-bind="props"
+            color="blue"
             title="Backend"
             subtitle="Configuration"
             variant="contained-text"
           >
             <template #append>
-              <v-avatar>
+              <v-avatar style="color: inherit">
                 <v-icon size="32">mdi-chevron-right</v-icon>
               </v-avatar>
             </template>
