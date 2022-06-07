@@ -2,15 +2,15 @@
 import { useFrames } from "@/stores";
 import { createCachedUrl } from "@/utils";
 import { useVModel } from "@vueuse/core";
-import { ref } from "vue";
 
 const props = defineProps<{
-  modelValue: number;
+  modelValue?: boolean;
+  index: number;
 }>();
 
-const dialog = ref(false);
 const frames = useFrames();
-const imgIndex = useVModel(props);
+const dialog = useVModel(props, "modelValue");
+const imgIndex = useVModel(props, "index");
 </script>
 
 <template>

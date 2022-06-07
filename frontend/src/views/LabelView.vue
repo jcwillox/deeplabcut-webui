@@ -8,7 +8,7 @@ export default {
 import FramesDialog from "@/components/FramesDialog.vue";
 import LabelEditor from "@/components/LabelEditor.vue";
 import { useFrames, useStore } from "@/stores";
-import { createCachedUrl, useFetch } from "@/utils";
+import { createCachedUrl, useFetch, useHotkeys } from "@/utils";
 import { evaluate_cmap } from "@/utils/colormap";
 import type { PanzoomEventDetail } from "@panzoom/panzoom/dist/src/types";
 import { useDebounceFn } from "@vueuse/core";
@@ -17,6 +17,7 @@ import { computed, ref, watch } from "vue";
 
 const store = useStore();
 const frames = useFrames();
+const dialog = ref(false);
 
 const labelEditorEl = ref<InstanceType<typeof LabelEditor> | null>(null);
 
@@ -189,6 +190,17 @@ const getLabelledCount = (bodyparts: LabelsBodyparts) => {
   }
   return count;
 };
+
+// define hotkeys
+useHotkeys("a", () => {
+  updateIndex(-1);
+});
+useHotkeys("d", () => {
+  updateIndex(1);
+});
+useHotkeys("g", () => {
+  dialog.value = !dialog.value;
+});
 </script>
 
 <template>
@@ -207,11 +219,16 @@ const getLabelledCount = (bodyparts: LabelsBodyparts) => {
         <div class="d-flex flex-column">
           <v-btn
             class="rounded-0 rounded-s flex-grow-1"
-            icon="mdi-chevron-left"
             variant="plain"
             size="small"
             @click="updateIndex(-1)"
-          />
+            icon
+          >
+            <v-icon size="small">mdi-chevron-left</v-icon>
+            <v-tooltip activator="parent" location="end">
+              Previous frame <kbd>A</kbd>
+            </v-tooltip>
+          </v-btn>
         </div>
         <LabelEditor
           ref="labelEditorEl"
@@ -225,7 +242,7 @@ const getLabelledCount = (bodyparts: LabelsBodyparts) => {
         >
         </LabelEditor>
         <div class="d-flex flex-column">
-          <FramesDialog v-model="imgIndex">
+          <FramesDialog v-model="dialog" v-model:index="imgIndex">
             <template #activator="{ props }">
               <v-btn
                 v-bind="props"
@@ -235,22 +252,25 @@ const getLabelledCount = (bodyparts: LabelsBodyparts) => {
                 icon
               >
                 <v-icon size="small">mdi-expand-all</v-icon>
-                <v-tooltip
-                  activator="parent"
-                  location="end"
-                  text="Show all frames"
-                />
+                <v-tooltip activator="parent" location="end">
+                  Show all frames <kbd>G</kbd>
+                </v-tooltip>
               </v-btn>
             </template>
           </FramesDialog>
           <v-divider />
           <v-btn
             class="rounded-0 rounded-be flex-grow-1"
-            icon="mdi-chevron-right"
             variant="plain"
             size="small"
             @click="updateIndex(1)"
-          />
+            icon
+          >
+            <v-icon size="small">mdi-chevron-right</v-icon>
+            <v-tooltip activator="parent" location="end">
+              Next frame <kbd>D</kbd>
+            </v-tooltip>
+          </v-btn>
         </div>
       </div>
     </div>
