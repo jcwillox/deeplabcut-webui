@@ -100,9 +100,7 @@ const selected = ref<string[] | undefined>(undefined);
 
 // ensure exactly one individual is open
 watch(opened, (value, oldValue) => {
-  if (opened.value?.length == 2) {
-    opened.value.shift();
-  } else if (value?.length == 0) {
+  if (value?.length === 0) {
     opened.value = oldValue;
   }
 });
@@ -196,7 +194,7 @@ const getLabelledCount = (bodyparts: LabelsBodyparts) => {
 <template>
   <v-container
     class="d-flex flex-wrap flex-sm-nowrap justify-center pa-1"
-    style="max-height: calc(100vh - 80px)"
+    style="max-height: calc(100vh - 72px)"
     fluid
   >
     <div
@@ -260,17 +258,25 @@ const getLabelledCount = (bodyparts: LabelsBodyparts) => {
         :aspect-ratio="labelEditorEl?.aspectRatio"
         class="flex-grow-0"
       >
-        <div id="zoomBox" />
-        <div class="panel top" />
-        <div class="panel left" />
-        <div class="panel right" />
-        <div class="panel bottom" />
+        <template #placeholder>
+          <v-row class="fill-height ma-0" align="center" justify="center">
+            <v-progress-circular
+              indeterminate
+              color="grey lighten-5"
+            ></v-progress-circular>
+          </v-row>
+        </template>
+        <div class="zoom-box"></div>
+        <div class="panel top"></div>
+        <div class="panel left"></div>
+        <div class="panel right"></div>
+        <div class="panel bottom"></div>
       </v-img>
 
       <v-list
-        v-if="labels"
-        v-model:opened="opened"
         v-model:selected="selected"
+        v-model:opened="opened"
+        open-strategy="single"
         class="overflow-y-auto"
       >
         <v-list-group
@@ -278,8 +284,8 @@ const getLabelledCount = (bodyparts: LabelsBodyparts) => {
           :key="individual"
           :value="individual"
         >
-          <template v-slot:activator="{ props }">
-            <v-list-item v-bind="props" active-color="blue" :value="individual">
+          <template #activator="{ props }">
+            <v-list-item v-bind="props" active-color="blue">
               <template #prepend>
                 <v-list-item-avatar start>
                   <v-icon :style="{ color: colorsIndividuals[index] }">
@@ -321,7 +327,7 @@ const getLabelledCount = (bodyparts: LabelsBodyparts) => {
 </template>
 
 <style scoped>
-#zoomBox {
+.zoom-box {
   border: 1px solid #d8dee9;
   position: relative;
   left: calc(v-bind("mapWidth") - 50% / v-bind("mapScale"));
@@ -362,5 +368,8 @@ const getLabelledCount = (bodyparts: LabelsBodyparts) => {
 
 .button-surface .v-btn {
   background-color: rgb(var(--v-theme-on-surface-variant));
+}
+.button-surface .v-btn.v-theme--dark {
+  background-color: rgb(var(--v-theme-surface));
 }
 </style>
