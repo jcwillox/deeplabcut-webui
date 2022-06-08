@@ -9,10 +9,10 @@ import FramesDialog from "@/components/FramesDialog.vue";
 import LabelEditor from "@/components/LabelEditor.vue";
 import { useFrames, useStore } from "@/stores";
 import { createCachedUrl, useFetch, useHotkeys } from "@/utils";
-import { evaluate_cmap } from "@/utils/colormap";
 import type { PanzoomEventDetail } from "@panzoom/panzoom/dist/src/types";
 import { useDebounceFn } from "@vueuse/core";
 import { deepmerge } from "deepmerge-ts";
+import { evaluate_cmap } from "js-colormaps";
 import { computed, ref, watch } from "vue";
 
 const store = useStore();

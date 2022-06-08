@@ -22,6 +22,7 @@
     "@vueuse/core": "^8.6.0",
     "deepmerge-ts": "^4.0.3",
     "hotkeys-js": "^3.9.4",
+    "js-colormaps": "github:jcwillox/js-colormaps#78ee14d",
     "pinia": "^2.0.14",
     "pinia-plugin-persistedstate": "^1.6.1",
     "roboto-fontface": "*",
