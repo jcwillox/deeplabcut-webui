@@ -4,7 +4,7 @@ import SnackbarPWA from "@/components/SnackbarPWA.vue";
 import SystemBar from "@/components/SystemBar.vue";
 import VersionDialog from "@/components/VersionDialog.vue";
 import { useFrames, useStore } from "@/stores";
-import { clearUrlCache } from "@/utils";
+import { clearUrlCache, useHotkeys } from "@/utils";
 import {
   usePreferredColorScheme,
   useStorage,
@@ -37,10 +37,8 @@ const theme = computed(() =>
 const route = useRoute();
 const router = useRouter();
 const tab = ref("");
-
-const items = computed(() =>
-  showProject.value ? ["project"] : ["project", "extract", "label"]
-);
+const tabs = ["project", "extract", "label"];
+const items = computed(() => (showProject.value ? tabs.slice(0, 1) : tabs));
 
 // redirect to project selection screen when no project is selected
 watch(
@@ -88,6 +86,14 @@ const getDocsPage = () => {
 const openDocs = () => {
   window.location.assign(import.meta.env.BASE_URL + "docs" + getDocsPage());
 };
+
+// define hotkeys
+tabs.forEach((value, index) => {
+  useHotkeys(`shift+${index + 1}`, () => {
+    router.push({ name: value });
+  });
+});
+useHotkeys("shift+w", store.resetProject);
 </script>
 
 <template>
@@ -100,12 +106,15 @@ const openDocs = () => {
       <template v-slot:prepend>
         <v-tabs v-model="tab">
           <v-tab
-            v-for="item in items"
+            v-for="(item, index) in items"
             :key="item"
             :value="item"
             :to="'/' + item"
           >
             {{ item }}
+            <v-tooltip activator="parent" location="bottom">
+              <kbd>Shift</kbd><kbd>{{ index + 1 }}</kbd>
+            </v-tooltip>
           </v-tab>
         </v-tabs>
       </template>

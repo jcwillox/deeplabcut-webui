@@ -84,6 +84,7 @@ useHotkeys("shift+e", () => {
 });
 useHotkeys("space", () => {
   toggleVideo();
+  return false;
 });
 </script>
 

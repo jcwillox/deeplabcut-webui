@@ -85,6 +85,9 @@ watchEffect(() => {
         @click="store.resetProject"
       >
         Close Project
+        <v-tooltip activator="parent" location="bottom">
+          <kbd>Shift</kbd><kbd>W</kbd>
+        </v-tooltip>
       </v-btn>
       <v-divider />
     </div>
