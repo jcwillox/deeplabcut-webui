@@ -15,7 +15,7 @@ export default defineConfig({
   define: {
     __BUILD_TIME__: JSON.stringify(new Date().toISOString()),
     __COMMIT__: quoteCommand("git rev-parse HEAD"),
-    __BRANCH__: quoteCommand("git rev-parse --abbrev-ref HEAD"),
+    __BRANCH__: quoteCommand("git branch --show-current"),
     __VERSION__: quoteCommand("git describe --tags --dirty --always")
   },
   server: {
