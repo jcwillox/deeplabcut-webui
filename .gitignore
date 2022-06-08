@@ -260,5 +260,5 @@ cython_debug/
 # exclude files created during testing
 backend/tests/testdata/*/labeled-data/*/**/*.*
 !backend/tests/testdata/*/labeled-data/*/*.demo.png
-!backend/tests/testdata/*/labeled-data/*/CollectedData_TM.csv
-!backend/tests/testdata/*/labeled-data/*/CollectedData_TM.h5
+!backend/tests/testdata/*/labeled-data/*/CollectedData_*.csv
+!backend/tests/testdata/*/labeled-data/*/CollectedData_*.h5

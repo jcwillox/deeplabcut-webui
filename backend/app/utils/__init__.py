@@ -31,10 +31,11 @@ def get_project_path(path, *paths):
 
 
 class ProjectConfig(BaseModel):
-    multi_animal: bool = Field(alias="multianimalproject", default=False)
-    colormap: str = "rainbow"
     bodyparts: List[str]
+    colormap: str = "rainbow"
     individuals: Optional[List[str]]
+    multi_animal: bool = Field(alias="multianimalproject", default=False)
+    scorer: str
 
     @root_validator(pre=True)
     def handle_aliases(cls, values):

@@ -3,14 +3,15 @@ import shutil
 import threading
 import time
 from functools import lru_cache
+from glob import glob
 from queue import SimpleQueue
-from typing import Dict, Literal, Tuple, cast, Optional
+from typing import Dict, Literal, Tuple, cast, Optional, List
 
 import numpy as np
 import pandas as pd
 from fastapi import FastAPI
 
-from ..utils import get_project_path, deepmerge, get_project_config
+from ..utils import get_project_path, deepmerge, get_project_config, ProjectConfig
 from ..utils.conversion import ensure_multi_index
 
 # frame -> individual -> bodypart -> coords
@@ -48,10 +49,23 @@ class LabelManager:
     def get_labels(project, video) -> LabelsModel:
         """Retrieve labelled points of each frame for a given video."""
         name = os.path.splitext(video)[0]
-        path = get_project_path(project, "labeled-data", name, "CollectedData_TM.h5")
-
-        if not os.path.exists(path):
+        paths = glob(
+            get_project_path(project, "labeled-data", name, f"CollectedData_*.h5")
+        )
+        if len(paths) == 0:
             return {}
+        if len(paths) == 1:
+            path = paths[0]
+        else:
+            print("using config to get labels")
+            config = get_project_config(project)
+            if not config:
+                return {}
+            path = get_project_path(
+                project, "labeled-data", name, f"CollectedData_{config.scorer}.h5"
+            )
+            if not os.path.exists(path):
+                return {}
 
         df: pd.DataFrame = cast(pd.DataFrame, pd.read_hdf(path)).replace({np.nan: None})
         output = {}
@@ -99,66 +113,83 @@ class LabelManager:
         return count
 
     @staticmethod
-    def write_labels(project, video, labels: LabelsModel):
+    def _reindex_dataframe(
+        labels: LabelsModel,
+        config: ProjectConfig,
+        name: str,
+        df: Optional[pd.DataFrame] = None,
+    ):
+        images = [("labeled-data", name, image) for image in labels]
+        if df is not None:
+            images = list(set(images) - set(df.index))
+        if not images:
+            return df
+        new_df: Optional[pd.DataFrame] = None
+        a = np.empty((len(images), 2))
+        a[:] = np.nan
+        for individual in config.individuals or ["individual1"]:
+            for bodypart in config.bodyparts:
+                if config.multi_animal:
+                    cols = pd.MultiIndex.from_product(
+                        [[config.scorer], [individual], [bodypart], ["x", "y"]],
+                        names=["scorer", "individuals", "bodyparts", "coords"],
+                    )
+                else:
+                    cols = pd.MultiIndex.from_product(
+                        [[config.scorer], [bodypart], ["x", "y"]],
+                        names=["scorer", "bodyparts", "coords"],
+                    )
+                index = pd.MultiIndex.from_tuples(images)
+                frame = pd.DataFrame(a, columns=cols, index=index)
+                new_df = pd.concat([new_df, frame], axis=1)
+        if df is not None:
+            new_df = pd.concat([df, new_df], axis=0)
+        new_df.sort_index(inplace=True)
+        return new_df
+
+    def write_labels(self, project, video, labels: LabelsModel):
         name = os.path.splitext(video)[0]
         base_path = get_project_path(project, "labeled-data", name)
         backup_path = os.path.join(base_path, "backups")
-        path_hdf = os.path.join(base_path, "CollectedData_TM.h5")
-        path_csv = os.path.join(base_path, "CollectedData_TM.csv")
-        os.makedirs(backup_path, exist_ok=True)
 
         config = get_project_config(project)
         if not config:
-            return
+            raise Exception(f"config file missing for project: '{project}'")
+        scorer = config.scorer
 
-        df: Optional[pd.DataFrame] = None
-        relative_image_paths = [("labeled-data", name, image) for image in labels]
+        path_hdf = os.path.join(base_path, f"CollectedData_{scorer}.h5")
+        path_csv = os.path.join(base_path, f"CollectedData_{scorer}.csv")
+        os.makedirs(backup_path, exist_ok=True)
 
-        if not os.path.exists(path_hdf):
-            # create new data frame
-            a = np.empty((len(labels), 2))
-            a[:] = np.nan
-            for bodypart in config.bodyparts:
-                cols = pd.MultiIndex.from_product(
-                    [["TM"], [bodypart], ["x", "y"]],
-                    names=["scorer", "bodyparts", "coords"],
-                )
-                index = pd.MultiIndex.from_tuples(relative_image_paths)
-                frame = pd.DataFrame(a, columns=cols, index=index)
-                df = pd.concat([df, frame], axis=1)
-        else:
+        df: Optional[pd.DataFrame]
+        if os.path.exists(path_hdf):
             # load dataframe from disk
-            df: pd.DataFrame = cast(pd.DataFrame, pd.read_hdf(path_hdf))
+            df = cast(pd.DataFrame, pd.read_hdf(path_hdf))
             ensure_multi_index(df)
-
             # add new images to dataframe
-            new_images = list(set(relative_image_paths) - set(df.index))
-            if new_images:
-                new_df: Optional[pd.DataFrame] = None
-                a = np.empty((len(new_images), 2))
-                a[:] = np.nan
-                for bodypart in config.bodyparts:
-                    cols = pd.MultiIndex.from_product(
-                        [["TM"], [bodypart], ["x", "y"]],
-                        names=["scorer", "bodyparts", "coords"],
-                    )
-                    index = pd.MultiIndex.from_tuples(new_images)
-                    frame = pd.DataFrame(a, columns=cols, index=index)
-                    new_df = pd.concat([new_df, frame], axis=1)
+            df = self._reindex_dataframe(labels, config, name, df)
+        else:
+            # create new data frame
+            df = self._reindex_dataframe(labels, config, name)
 
-                df = pd.concat([df, new_df], axis=0)
-
-        df.sort_index(inplace=True)
+        if df is None:
+            return
 
         for image, individuals in labels.items():
             image_path = ("labeled-data", name, image)
             for individual, bodyparts in individuals.items():
                 for bodypart, coords in bodyparts.items():
                     for coord, value in coords.items():
-                        df.loc[image_path][("TM", bodypart, coord)] = value
+                        if config.multi_animal:
+                            key = (scorer, individual, bodypart, coord)
+                        else:
+                            key = (scorer, bodypart, coord)
+                        df.loc[image_path][key] = value
 
         # create backups before writing the files
         def create_backup(path, suffix, overwrite=False):
+            if not os.path.exists(path):
+                return
             backup_target = os.path.join(backup_path, os.path.basename(path) + suffix)
             if overwrite or not os.path.exists(backup_target):
                 shutil.copy2(path, backup_target)

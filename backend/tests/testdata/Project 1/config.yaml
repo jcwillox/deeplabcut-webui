@@ -1,3 +1,4 @@
+scorer: TM
 colormap: plasma
 multianimalproject: false
 bodyparts:
