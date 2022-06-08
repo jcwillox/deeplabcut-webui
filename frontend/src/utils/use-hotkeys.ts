@@ -1,12 +1,22 @@
 import hotkeys, { type KeyHandler } from "hotkeys-js";
-import { onActivated, onDeactivated } from "vue";
+import { onActivated, onDeactivated, onMounted, onUnmounted } from "vue";
 
 export const useHotkeys = (keys: string, callback: KeyHandler) => {
-  onActivated(() => {
-    hotkeys(keys, callback);
-  });
+  let unbind: (() => void) | undefined;
 
-  onDeactivated(() => {
-    hotkeys.unbind(keys, callback);
-  });
+  const bind = () => {
+    if (unbind == null) {
+      hotkeys(keys, callback);
+      unbind = () => {
+        hotkeys.unbind(keys, callback);
+        unbind = undefined;
+      };
+    }
+  };
+
+  onMounted(bind);
+  onUnmounted(() => unbind?.());
+
+  onActivated(bind);
+  onDeactivated(() => unbind?.());
 };
