@@ -10,6 +10,7 @@ import { evaluate_cmap } from "js-colormaps";
 import { computed, ref, watch } from "vue";
 
 const props = defineProps<{
+  config: ProjectConfig | null;
   individuals: LabelsIndividuals | null;
   colors: string[];
   selected?: string[];
@@ -27,42 +28,43 @@ watch(opened, (value, oldValue) => {
 
 // set first individual as open when loaded
 watch(
-  () => props.individuals,
+  () => props.config,
   (value, oldValue) => {
     if (value && (!oldValue || Object.keys(oldValue).length == 0)) {
-      const individual = Object.keys(value).shift();
-      opened.value = individual ? [individual] : undefined;
+      opened.value = props.config?.individuals.slice(0, 1);
     }
   }
 );
 
 // extract and cache individual colors
 const colorsIndividuals = computed(() => {
-  const names = props.individuals && Object.keys(props.individuals);
-  if (names) {
-    return names.map((_, i) => {
-      const rgb = evaluate_cmap(i / names.length, "Set1");
+  const individuals = props.config?.individuals;
+  if (individuals) {
+    return individuals.map((_, i) => {
+      const rgb = evaluate_cmap(i / individuals.length, "Set1");
       return `rgb(${rgb.join(",")})`;
     });
   }
   return [];
 });
 
-const createSubtitle = (coords: LabelsCoords) => {
+const createSubtitle = (coords?: LabelsCoords) => {
   let output = "";
-  if (coords.x) {
-    output += "x: " + Math.round(coords.x);
-    if (coords.y) {
-      output += " • ";
+  if (coords) {
+    if (coords.x) {
+      output += "x: " + Math.round(coords.x);
+      if (coords.y) {
+        output += " • ";
+      }
     }
-  }
-  if (coords.y) {
-    output += "y: " + Math.round(coords.y);
+    if (coords.y) {
+      output += "y: " + Math.round(coords.y);
+    }
   }
   return output;
 };
 
-const getLabelledCount = (bodyparts: LabelsBodyparts) => {
+const getLabelledCount = (bodyparts?: LabelsBodyparts) => {
   let count = 0;
   for (const bodypart in bodyparts) {
     if (bodyparts[bodypart].x && bodyparts[bodypart].y) {
@@ -75,14 +77,14 @@ const getLabelledCount = (bodyparts: LabelsBodyparts) => {
 
 <template>
   <v-list
-    v-if="individuals"
+    v-if="config"
     v-model:selected="selected"
     v-model:opened="opened"
     open-strategy="single"
     class="overflow-y-auto"
   >
     <v-list-group
-      v-for="(bodyparts, individual, index) in individuals"
+      v-for="(individual, index) in config.individuals"
       :key="individual"
       :value="individual"
     >
@@ -99,14 +101,14 @@ const getLabelledCount = (bodyparts: LabelsBodyparts) => {
             <span class="text-capitalize">{{ individual }}</span>
           </template>
           <template #subtitle>
-            {{ getLabelledCount(individuals[individual]) }} /
-            {{ Object.keys(individuals[individual]).length }}
+            {{ getLabelledCount(individuals?.[individual]) }} /
+            {{ config.bodyparts.length }}
           </template>
         </v-list-item>
       </template>
 
       <v-list-item
-        v-for="(coords, bodypart, index) in bodyparts"
+        v-for="(bodypart, index) in config.bodyparts"
         :key="`${individual}-${bodypart}`"
         :value="`${individual}-${bodypart}`"
       >
@@ -121,7 +123,7 @@ const getLabelledCount = (bodyparts: LabelsBodyparts) => {
           {{ bodypart }}
         </template>
         <template #subtitle>
-          {{ createSubtitle(coords) }}
+          {{ createSubtitle(individuals?.[individual]?.[bodypart]) }}
         </template>
       </v-list-item>
     </v-list-group>

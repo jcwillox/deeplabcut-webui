@@ -7,7 +7,8 @@ interface ProjectConfig {
   multi_animal: boolean;
   colormap: string;
   bodyparts: string[];
-  individuals?: string[];
+  individuals: string[];
+  scorer: string;
 }
 
 type VideoFrameRequestCallbackId = number;

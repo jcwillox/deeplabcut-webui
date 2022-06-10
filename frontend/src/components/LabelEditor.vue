@@ -11,6 +11,7 @@ import { onBeforeUnmount, onMounted, ref, watch, type Ref } from "vue";
 const props = defineProps<{
   image?: string;
   labels: LabelsModel | null;
+  config: ProjectConfig | null;
   selected?: string;
   colors: string[];
 }>();
@@ -168,24 +169,28 @@ const handlePanzoomChange = (
 };
 
 const handleClick = (ev: MouseEvent) => {
-  if (props.selected) {
-    const iterBodyparts = bodyparts(props.image, props.labels);
-    for (const { individual, bodypart, coords } of iterBodyparts) {
-      if (`${individual}-${bodypart}` == props.selected) {
-        if (!(coords.x && coords.y)) {
-          const relativeCoords = calcPointFromCorner(ev.clientX, ev.clientY);
-          const trueCoords = calcFixedFromCorner(
-            relativeCoords!.x,
-            relativeCoords!.y
-          );
-          if (trueCoords) {
-            emit("update:labels", {
-              [props.image!]: {
-                [individual]: {
-                  [bodypart]: trueCoords
+  if (props.selected && props.config?.individuals) {
+    for (const individual of props.config.individuals) {
+      for (const bodypart of props.config.bodyparts) {
+        if (`${individual}-${bodypart}` == props.selected) {
+          const coords =
+            props.image &&
+            props.labels?.[props.image]?.[individual]?.[bodypart];
+          if (!(coords && coords.x && coords.y)) {
+            const relativeCoords = calcPointFromCorner(ev.clientX, ev.clientY);
+            const trueCoords = calcFixedFromCorner(
+              relativeCoords!.x,
+              relativeCoords!.y
+            );
+            if (trueCoords) {
+              emit("update:labels", {
+                [props.image!]: {
+                  [individual]: {
+                    [bodypart]: trueCoords
+                  }
                 }
-              }
-            });
+              });
+            }
           }
         }
       }

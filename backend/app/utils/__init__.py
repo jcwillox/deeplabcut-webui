@@ -33,7 +33,7 @@ def get_project_path(path, *paths):
 class ProjectConfig(BaseModel):
     bodyparts: List[str]
     colormap: str = "rainbow"
-    individuals: Optional[List[str]]
+    individuals: List[str] = ["individual1"]
     multi_animal: bool = Field(alias="multianimalproject", default=False)
     scorer: str
 

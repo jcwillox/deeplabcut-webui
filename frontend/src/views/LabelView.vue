@@ -26,7 +26,7 @@ const labelEditorEl = ref<InstanceType<typeof LabelEditor> | null>(null);
 const minimapEl = ref<InstanceType<typeof AdvImg> | null>(null);
 
 const labelsUrl = computed(() => "/videos/" + store.video + "/labels");
-const { data: labels } = useFetch(labelsUrl, { refetch: true })
+const { data: labels, execute } = useFetch(labelsUrl, { refetch: true })
   .get()
   .json<LabelsModel>();
 
@@ -45,12 +45,15 @@ const individuals = computed<LabelsIndividuals | null>(() =>
   labels.value ? labels.value[image.value] : null
 );
 
-// reset selected frame when changing video
 watch(
   () => frames.items,
   () => {
     if (frames.items.length == 0) {
+      // reset selected frame when changing video
       imgIndex.value = 0;
+    } else {
+      // refetch labels when a new frame is extracted
+      execute();
     }
   }
 );
@@ -73,10 +76,8 @@ const { data: configProject } = useFetch("/projects/" + store.project)
 
 // extract and cache bodypart colors
 const colors = computed(() => {
-  const individual =
-    individuals.value && Object.keys(individuals.value).shift();
-  if (individual && configProject.value?.colormap) {
-    const bodyparts = Object.keys(individuals.value[individual]);
+  if (configProject.value) {
+    const bodyparts = configProject.value.bodyparts;
     return bodyparts.map((_, i) => {
       const rgb = evaluate_cmap(
         i / bodyparts.length,
@@ -187,6 +188,7 @@ useHotkeys("r", () => {
           ref="labelEditorEl"
           :image="frames.items[imgIndex]"
           :labels="labels"
+          :config="configProject"
           :selected="selected && selected[0]"
           :colors="colors"
           class="flex-grow-1 h-100"
@@ -251,6 +253,7 @@ useHotkeys("r", () => {
 
       <LabelsList
         v-model:selected="selected"
+        :config="configProject"
         :individuals="individuals"
         :colors="colors"
       />
