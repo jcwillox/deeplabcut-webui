@@ -50,6 +50,7 @@ const setTransform: MiscOptions["setTransform"] = (elem, { x, y, scale }) => {
 onMounted(() => {
   panzoom.value = Panzoom(labelEl.value!, {
     contain: "inside",
+    cursor: "auto",
     startX: props.coords.x,
     startY: props.coords.y,
     setTransform

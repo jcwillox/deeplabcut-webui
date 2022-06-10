@@ -210,7 +210,8 @@ const resetZoom = () => {
 onMounted(() => {
   panzoom.value = Panzoom(imgEl.value!.$el, {
     maxScale: 32,
-    contain: "outside"
+    contain: "outside",
+    cursor: "auto"
   });
 
   imgEl.value!.$el.addEventListener(
