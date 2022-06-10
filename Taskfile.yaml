@@ -127,7 +127,7 @@ tasks:
           ../.venv/Scripts/pyinstaller.exe
         {{- else -}}
           ../.venv/bin/pyinstaller
-        {{- end }} pyinstaller.spec
+        {{- end }} pyinstaller.spec --noconfirm
 
   ### SETUP ###
   setup:

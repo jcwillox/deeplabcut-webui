@@ -22,7 +22,9 @@ jobs:
           cache: ${{ !env.ACT && 'pip' || '' }}
 
       - name: "Install dependencies"
-        run: pip install -e backend[build]
+        run: |
+          pip install -r backend/requirements.txt
+          pip install -e backend[build]
 
       - name: "Build bundle"
         run: |
@@ -69,6 +71,7 @@ jobs:
       - name: "Checkout the repository"
         uses: actions/checkout@v2
         with:
+          ref: main
           fetch-depth: 0
 
       - name: "Extract engines"

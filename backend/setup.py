@@ -2,14 +2,14 @@ from setuptools import setup
 
 REQUIRES = [
     "fastapi==0.75.2",
-    "pydantic>=1.9.0,<2",
+    "pydantic>=1.9.1,<2",
     "pandas>=1.4.2,<2",
     "tables>=3.7.0,<4",
     "python-dotenv==0.20.0",
     "uvicorn[standard]==0.17.6",
     "opencv-python>=4.5.5.64,<5",
     "natsort>=8.1.0,<9",
-    "numpy>=1.22.3,<2",
+    "numpy>=1.22.4,<2",
     "decord==0.6.0",
     "PyYAML>=6.0,<7.0",
 ]
