@@ -9,13 +9,20 @@ const quoteCommand = (command: string) => {
   return JSON.stringify(execSync(command).toString());
 };
 
+const quoteCommandOrEnv = (command: string, env: string) => {
+  if (process.env[env]) {
+    return JSON.stringify(process.env[env]);
+  }
+  return quoteCommand(command);
+};
+
 // https://vitejs.dev/config/
 export default defineConfig({
   base: process.env.VITE_BASE || "/",
   define: {
     __BUILD_TIME__: JSON.stringify(new Date().toISOString()),
-    __COMMIT__: quoteCommand("git rev-parse HEAD"),
-    __BRANCH__: quoteCommand("git branch --show-current"),
+    __COMMIT__: quoteCommandOrEnv("git rev-parse HEAD", "GITHUB_SHA"),
+    __BRANCH__: quoteCommand("git rev-parse --abbrev-ref HEAD"),
     __VERSION__: quoteCommand("git describe --tags --dirty --always")
   },
   server: {
