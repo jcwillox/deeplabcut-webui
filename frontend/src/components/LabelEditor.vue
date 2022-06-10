@@ -6,7 +6,7 @@ import { createCachedUrl } from "@/utils/fetch";
 import Panzoom, { type PanzoomObject } from "@panzoom/panzoom";
 import type { PanzoomEventDetail } from "@panzoom/panzoom/dist/src/types";
 import { useResizeObserver } from "@vueuse/core";
-import { onMounted, ref, watch, type Ref } from "vue";
+import { onBeforeUnmount, onMounted, ref, watch, type Ref } from "vue";
 
 const props = defineProps<{
   image?: string;
@@ -119,17 +119,27 @@ function* bodyparts(image?: string, labels?: LabelsModel | null) {
 const labelItems = ref<[string, string, LabelsCoords, string][]>([]);
 const updateLabelItems = () => {
   const items: [string, string, LabelsCoords, string][] = [];
-  const iterBodyparts = bodyparts(props.image, props.labels);
-  for (const { individual, bodypart, coords, index } of iterBodyparts) {
-    const newCoords = calcRelativeToOrigin(coords.x, coords.y, -6, -6);
-    if (newCoords) {
-      items.push([individual, bodypart, newCoords, props.colors[index]]);
+  if (parentEl.value?.clientHeight) {
+    const iterBodyparts = bodyparts(props.image, props.labels);
+    for (const { individual, bodypart, coords, index } of iterBodyparts) {
+      const newCoords = calcRelativeToOrigin(coords.x, coords.y, -6, -6);
+      if (newCoords) {
+        items.push([
+          individual,
+          bodypart,
+          newCoords,
+          props.colors[index] || "white"
+        ]);
+      }
     }
   }
   labelItems.value = items;
 };
 
-watch([() => props.image, () => props.labels], updateLabelItems);
+watch(
+  [() => props.image, () => props.labels, () => props.colors],
+  updateLabelItems
+);
 
 // when the element is resized we need to update the minimap
 // as well as account for the new dimensions when making calculations
@@ -225,6 +235,11 @@ onMounted(() => {
   });
 });
 
+onBeforeUnmount(() => {
+  panzoom.value?.destroy();
+  panzoom.value = null;
+});
+
 defineExpose({
   resetZoom
 });
@@ -235,6 +250,7 @@ defineExpose({
     <AdvImg
       ref="imgEl"
       :src="createCachedUrl(frames.framesUrl, image)"
+      @load="updateLabelItems"
       @click="handleClick"
     >
       <LabelMarker

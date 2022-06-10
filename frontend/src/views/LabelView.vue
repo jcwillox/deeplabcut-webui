@@ -8,6 +8,7 @@ export default {
 import AdvImg from "@/components/AdvImg.vue";
 import FramesDialog from "@/components/FramesDialog.vue";
 import LabelEditor from "@/components/LabelEditor.vue";
+import LabelsList from "@/components/LabelsList.vue";
 import { useFrames, useStore } from "@/stores";
 import { createCachedUrl, useFetch, useHotkeys } from "@/utils";
 import type { PanzoomEventDetail } from "@panzoom/panzoom/dist/src/types";
@@ -19,6 +20,7 @@ import { computed, ref, watch } from "vue";
 const store = useStore();
 const frames = useFrames();
 const dialog = ref(false);
+const selected = ref<string[] | undefined>(undefined);
 
 const labelEditorEl = ref<InstanceType<typeof LabelEditor> | null>(null);
 const minimapEl = ref<InstanceType<typeof AdvImg> | null>(null);
@@ -39,8 +41,8 @@ const updateIndex = (n: number) => {
 };
 
 const image = computed(() => frames.items[imgIndex.value]);
-const individuals = computed<LabelsIndividuals>(() =>
-  labels.value ? labels.value[image.value] : {}
+const individuals = computed<LabelsIndividuals | null>(() =>
+  labels.value ? labels.value[image.value] : null
 );
 
 // reset selected frame when changing video
@@ -84,36 +86,6 @@ const colors = computed(() => {
     });
   }
   return [];
-});
-
-// extract and cache individual colors
-const colorsIndividuals = computed(() => {
-  const names = individuals.value && Object.keys(individuals.value);
-  if (names) {
-    return names.map((_, i) => {
-      const rgb = evaluate_cmap(i / names.length, "Set1");
-      return `rgb(${rgb.join(",")})`;
-    });
-  }
-  return [];
-});
-
-const opened = ref<string[] | undefined>(undefined);
-const selected = ref<string[] | undefined>(undefined);
-
-// ensure exactly one individual is open
-watch(opened, (value, oldValue) => {
-  if (value?.length === 0) {
-    opened.value = oldValue;
-  }
-});
-
-// set first individual as open when loaded
-watch(individuals, (value, oldValue) => {
-  if (value && (!oldValue || Object.keys(oldValue).length == 0)) {
-    const individual = Object.keys(value).shift();
-    opened.value = individual ? [individual] : undefined;
-  }
 });
 
 let pending: LabelsModel | null = null;
@@ -167,30 +139,6 @@ const updateLabels = (newLabels: LabelsModel) => {
   pending = deepmerge(pending, newLabels);
   labels.value = deepmerge(labels.value, newLabels);
   syncBackend();
-};
-
-const createSubtitle = (coords: LabelsCoords) => {
-  let output = "";
-  if (coords.x) {
-    output += "x: " + Math.round(coords.x);
-    if (coords.y) {
-      output += " • ";
-    }
-  }
-  if (coords.y) {
-    output += "y: " + Math.round(coords.y);
-  }
-  return output;
-};
-
-const getLabelledCount = (bodyparts: LabelsBodyparts) => {
-  let count = 0;
-  for (const bodypart in bodyparts) {
-    if (bodyparts[bodypart].x && bodyparts[bodypart].y) {
-      count++;
-    }
-  }
-  return count;
 };
 
 // define hotkeys
@@ -301,55 +249,11 @@ useHotkeys("r", () => {
         <div class="panel bottom"></div>
       </AdvImg>
 
-      <v-list
+      <LabelsList
         v-model:selected="selected"
-        v-model:opened="opened"
-        open-strategy="single"
-        class="overflow-y-auto"
-      >
-        <v-list-group
-          v-for="(bodyparts, individual, index) in individuals"
-          :key="individual"
-          :value="individual"
-        >
-          <template #activator="{ props }">
-            <v-list-item v-bind="props" active-color="blue">
-              <template #prepend>
-                <v-list-item-avatar start>
-                  <v-icon :style="{ color: colorsIndividuals[index] }">
-                    mdi-circle
-                  </v-icon>
-                </v-list-item-avatar>
-              </template>
-              <template #title>
-                <span class="text-capitalize">{{ individual }}</span>
-              </template>
-              <template #subtitle>
-                {{ getLabelledCount(individuals[individual]) }} /
-                {{ Object.keys(individuals[individual]).length }}
-              </template>
-            </v-list-item>
-          </template>
-
-          <v-list-item
-            v-for="(coords, bodypart, index) in bodyparts"
-            :key="`${individual}-${bodypart}`"
-            :value="`${individual}-${bodypart}`"
-          >
-            <template #prepend>
-              <v-list-item-avatar start>
-                <v-icon :style="{ color: colors[index] }">mdi-circle</v-icon>
-              </v-list-item-avatar>
-            </template>
-            <template #title>
-              {{ bodypart }}
-            </template>
-            <template #subtitle>
-              {{ createSubtitle(coords) }}
-            </template>
-          </v-list-item>
-        </v-list-group>
-      </v-list>
+        :individuals="individuals"
+        :colors="colors"
+      />
     </div>
   </v-container>
 </template>
@@ -388,10 +292,6 @@ useHotkeys("r", () => {
 }
 .panel.bottom {
   top: calc(v-bind("mapHeight") + 50% / v-bind("mapScale"));
-}
-
-.v-list-group__items .v-list-item {
-  --indent-padding: 16px;
 }
 
 .button-surface .v-btn {
