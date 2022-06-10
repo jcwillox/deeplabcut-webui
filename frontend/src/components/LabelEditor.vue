@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import AdvImg from "@/components/AdvImg.vue";
 import LabelMarker from "@/components/LabelMarker.vue";
 import { useFrames } from "@/stores";
 import { createCachedUrl } from "@/utils/fetch";
@@ -6,7 +7,6 @@ import Panzoom, { type PanzoomObject } from "@panzoom/panzoom";
 import type { PanzoomEventDetail } from "@panzoom/panzoom/dist/src/types";
 import { useResizeObserver } from "@vueuse/core";
 import { onMounted, ref, watch, type Ref } from "vue";
-import type { VImg } from "vuetify/components";
 
 const props = defineProps<{
   image?: string;
@@ -19,6 +19,13 @@ const emit = defineEmits<{
   (e: "panzoomchange", detail: PanzoomEventDetail): void;
   (e: "update:labels", labels: LabelsModel): void;
 }>();
+
+const frames = useFrames();
+const panzoom = ref<PanzoomObject | null>(null);
+
+const imgEl = ref<InstanceType<typeof AdvImg> | null>(null);
+const parentEl: Ref<HTMLDivElement | null> = ref(null);
+const labelMarkerEls = ref<InstanceType<typeof LabelMarker>[] | null>(null);
 
 // the pan x/y calculations are relative to the origin which is the center of
 // the element. This means the axes flip based on what quadrant the image is
@@ -40,13 +47,13 @@ const calcRelativeToOrigin = (
     x &&
     y &&
     parentEl.value &&
-    imgEl.value?.image?.naturalWidth &&
-    imgEl.value?.image?.naturalHeight
+    imgEl.value?.naturalWidth &&
+    imgEl.value?.naturalHeight
   ) {
     const width = parentEl.value.getBoundingClientRect().width;
     const height = parentEl.value.getBoundingClientRect().height;
-    const naturalWidth = imgEl.value.image.naturalWidth;
-    const naturalHeight = imgEl.value.image.naturalHeight;
+    const naturalWidth = imgEl.value.naturalWidth;
+    const naturalHeight = imgEl.value.naturalHeight;
 
     const scale = panzoom.value?.getScale() || 1;
 
@@ -65,13 +72,13 @@ const calcFixedFromCorner = (
 ) => {
   if (
     parentEl.value &&
-    imgEl.value?.image?.naturalWidth &&
-    imgEl.value?.image?.naturalHeight
+    imgEl.value?.naturalWidth &&
+    imgEl.value?.naturalHeight
   ) {
     const scale = panzoom.value?.getScale() || 1;
     const rect = parentEl.value.getBoundingClientRect();
-    const naturalWidth = imgEl.value.image.naturalWidth;
-    const naturalHeight = imgEl.value.image.naturalHeight;
+    const naturalWidth = imgEl.value.naturalWidth;
+    const naturalHeight = imgEl.value.naturalHeight;
 
     const tX = ((x / scale - offsetX) / rect.width) * naturalWidth;
     const tY = ((y / scale - offsetY) / rect.height) * naturalHeight;
@@ -93,13 +100,6 @@ const calcPointFromCorner = (clientX: number, clientY: number) => {
     return { x: tX, y: tY };
   }
 };
-
-const frames = useFrames();
-const panzoom = ref<PanzoomObject | null>(null);
-
-const imgEl = ref<InstanceType<typeof VImg> | null>(null);
-const parentEl: Ref<HTMLDivElement | null> = ref(null);
-const labelMarkerEls = ref<InstanceType<typeof LabelMarker>[] | null>(null);
 
 function* bodyparts(image?: string, labels?: LabelsModel | null) {
   if (labels && image) {
@@ -225,42 +225,18 @@ onMounted(() => {
   });
 });
 
-// handle changing aspect ratio
-const aspectRatio = ref<number | undefined>(undefined);
-const aspectRatioString = ref<string | undefined>(undefined);
-
-const handleImgLoad = () => {
-  if (imgEl.value && imgEl.value.image) {
-    aspectRatio.value =
-      imgEl.value.image.naturalWidth / imgEl.value.image.naturalHeight;
-    aspectRatioString.value = `${imgEl.value.image.naturalWidth}/${imgEl.value.image.naturalHeight}`;
-  }
-};
-
 defineExpose({
-  aspectRatio,
-  aspectRatioString,
   resetZoom
 });
 </script>
 
 <template>
   <div ref="parentEl">
-    <v-img
+    <AdvImg
       ref="imgEl"
       :src="createCachedUrl(frames.framesUrl, image)"
-      :aspect-ratio="aspectRatio"
-      @load="handleImgLoad"
       @click="handleClick"
     >
-      <template #placeholder>
-        <v-row class="fill-height ma-0" align="center" justify="center">
-          <v-progress-circular
-            indeterminate
-            color="grey lighten-5"
-          ></v-progress-circular>
-        </v-row>
-      </template>
       <LabelMarker
         ref="labelMarkerEls"
         v-for="[individual, bodypart, coords, color] in labelItems"
@@ -273,6 +249,6 @@ defineExpose({
           detail => handlePanzoomChange(individual, bodypart, detail)
         "
       />
-    </v-img>
+    </AdvImg>
   </div>
 </template>

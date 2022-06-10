@@ -5,6 +5,7 @@ export default {
 </script>
 
 <script setup lang="ts">
+import AdvImg from "@/components/AdvImg.vue";
 import FramesDialog from "@/components/FramesDialog.vue";
 import LabelEditor from "@/components/LabelEditor.vue";
 import { useFrames, useStore } from "@/stores";
@@ -20,6 +21,7 @@ const frames = useFrames();
 const dialog = ref(false);
 
 const labelEditorEl = ref<InstanceType<typeof LabelEditor> | null>(null);
+const minimapEl = ref<InstanceType<typeof AdvImg> | null>(null);
 
 const labelsUrl = computed(() => "/videos/" + store.video + "/labels");
 const { data: labels } = useFetch(labelsUrl, { refetch: true })
@@ -215,7 +217,7 @@ useHotkeys("r", () => {
     <div
       class="flex-grow-1"
       :style="{
-        maxWidth: `calc((100vh - 80px) * ${labelEditorEl?.aspectRatioString} + 80px)`
+        maxWidth: `calc((100vh - 80px) * ${minimapEl?.aspectRatio} + 80px)`
       }"
     >
       <div class="d-flex button-surface">
@@ -291,25 +293,13 @@ useHotkeys("r", () => {
       </div>
     </div>
     <div class="d-flex flex-column pl-1 w-25" style="max-width: 280px">
-      <v-img
-        :src="createCachedUrl(frames.framesUrl, frames.items[imgIndex])"
-        :aspect-ratio="labelEditorEl?.aspectRatio"
-        class="flex-grow-0"
-      >
-        <template #placeholder>
-          <v-row class="fill-height ma-0" align="center" justify="center">
-            <v-progress-circular
-              indeterminate
-              color="grey lighten-5"
-            ></v-progress-circular>
-          </v-row>
-        </template>
+      <AdvImg ref="minimapEl" :src="createCachedUrl(frames.framesUrl, image)">
         <div class="zoom-box"></div>
         <div class="panel top"></div>
         <div class="panel left"></div>
         <div class="panel right"></div>
         <div class="panel bottom"></div>
-      </v-img>
+      </AdvImg>
 
       <v-list
         v-model:selected="selected"

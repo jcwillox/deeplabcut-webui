@@ -14,7 +14,7 @@ export const useFrames = defineStore("frames", () => {
 
   const update = async () => {
     isFetching.value = true;
-    const resp = await useFetch(framesUrl).get().json();
+    const resp = await useFetch(framesUrl).get().json<string[]>();
     isFetching.value = false;
     if (Array.isArray(resp.data.value)) {
       items.value = resp.data.value;
