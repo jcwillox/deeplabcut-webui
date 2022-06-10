@@ -73,7 +73,11 @@ class LabelManager:
         multi_animal = "individuals" in df.columns.names
 
         for image in df.index:
-            image_name = image[-1]
+            # support old data format
+            if not isinstance(df.index, pd.MultiIndex):
+                image_name = os.path.basename(image)
+            else:
+                image_name = image[-1]
             output.setdefault(image_name, {})
 
             if multi_animal:
