@@ -1,8 +1,7 @@
 <script setup lang="ts">
-import { useStore } from "@/stores";
+import VideoBrowser from "@/components/VideoBrowser.vue";
 import { useFetch } from "@/utils";
 import { computed, watch } from "vue";
-import FileBrowser from "./FileBrowser.vue";
 
 const props = defineProps<{
   modelValue: boolean;
@@ -12,7 +11,6 @@ const emit = defineEmits<{
   (e: "update:modelValue", value: boolean): void;
 }>();
 
-const store = useStore();
 const dialog = computed({
   get: () => props.modelValue,
   set: value => {
@@ -26,12 +24,6 @@ const { execute, data, isFetching } = useFetch("/videos", { immediate: false })
 
 // fetch videos each time the dialog is shown
 watch(dialog, () => dialog.value && execute());
-
-// set the globally selected video and close the dialog
-const setVideo = (video: string) => {
-  dialog.value = false;
-  store.setVideo(video);
-};
 </script>
 
 <template>
@@ -50,8 +42,12 @@ const setVideo = (video: string) => {
       >
         <v-progress-circular color="primary" indeterminate />
       </v-card-content>
-      <v-card-content v-else class="overflow-y-auto py-0">
-        <FileBrowser :items="data" @selected="setVideo" />
+      <v-card-content v-else class="overflow-y-auto pa-0">
+        <VideoBrowser
+          :items="data"
+          height="calc(100vh - 104px)"
+          @selected="dialog = false"
+        />
       </v-card-content>
     </v-card>
   </v-dialog>
@@ -59,13 +55,13 @@ const setVideo = (video: string) => {
 
 <style scoped>
 .v-card.parent {
-  width: 800px;
+  min-width: 800px;
   height: calc(100vh - 48px);
 }
-
 @media screen and (max-width: 800px) {
   .v-card.parent {
-    width: calc(100vw - 24px);
+    min-width: initial;
+    max-width: calc(100vw - 24px);
   }
 }
 </style>

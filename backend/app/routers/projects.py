@@ -39,6 +39,7 @@ def list_projects(settings: Settings = Depends(get_settings)):
             "created": info.st_ctime,
             "multi_animal": config.multi_animal,
             "colormap": config.colormap,
+            "scorer": config.scorer,
         }
 
 

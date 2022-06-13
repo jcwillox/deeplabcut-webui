@@ -1,56 +1,137 @@
 <script setup lang="ts">
-export interface FileItem {
+import { useVModel } from "@vueuse/core";
+import { capitalize, defineEmits } from "vue";
+import { humanizeBytes } from "@/utils";
+
+export interface ItemBase {
   name: string;
-  folder?: boolean;
-  accessed?: number;
-  created?: number;
-  size?: number;
-  extracted?: number;
-  labelled?: number;
+  [key: string]: unknown;
 }
 
-defineProps<{
-  items: FileItem[];
+/* eslint-disable @typescript-eslint/no-explicit-any */
+export interface Column<T extends ItemBase = ItemBase> {
+  name?: string;
+  field?: string;
+  type?: "icon" | "unix" | "bytes";
+  default?: any;
+  getter?: (value: any, item: T, column: Column<T>) => unknown;
+  align?: "left" | "center" | "right";
+  shrink?: boolean;
+}
+
+const props = defineProps<{
+  items?: ItemBase[] | null;
+  selected: string;
+  height?: string;
+  columns: Column[];
 }>();
 
 const emit = defineEmits<{
-  (e: "selected", value: string): void;
+  (e: "update:selected", selected: string): void;
 }>();
 
-const getIcon = (item: FileItem) => {
-  if (item.name.toLowerCase().endsWith(".mp4")) {
-    return "mdi-movie";
-  } else if (item.folder) {
-    return "mdi-folder";
-  }
-  return "mdi-file-outline";
-};
+const selected = useVModel(props, "selected", emit);
+const locale = navigator.language !== "en-US" ? navigator.language : undefined;
+const formatDate = Intl.DateTimeFormat(locale, {
+  day: "2-digit",
+  month: "2-digit",
+  year: "numeric",
+  hour: "numeric",
+  minute: "2-digit"
+});
 
-const updateSelected = (selected?: string[]) => {
-  if (selected && selected.length > 0) {
-    emit("selected", selected[0]);
+const resolveColumn = (column: Column, item: ItemBase) => {
+  let value = column.field ? item[column.field] : undefined;
+  value = column.getter ? column.getter(value, item, column) : value;
+  if (value) {
+    switch (column.type) {
+      case "unix":
+        return formatDate
+          .format(new Date((value as number) * 1000))
+          .toUpperCase();
+      case "bytes":
+        return humanizeBytes(value as number);
+      default:
+        return value;
+    }
   }
+  return column.default;
 };
 </script>
 
 <template>
-  <v-list @update:selected="updateSelected">
-    <template v-for="(item, i) in items" :key="i">
-      <v-list-item
-        :value="item.name"
-        :prepend-icon="getIcon(item)"
-        :title="item.name"
+  <v-table :height="height" fixed-header>
+    <thead>
+      <tr>
+        <th
+          v-for="(column, i) in columns"
+          :key="i"
+          :class="{
+            icon: column.type === 'icon',
+            center: column.align === 'center',
+            right: column.align === 'right',
+            shrink: column.shrink
+          }"
+        >
+          {{ column.name || (column.field && capitalize(column.field)) }}
+        </th>
+      </tr>
+    </thead>
+    <tbody v-if="items">
+      <tr
+        v-for="(item, i) in items"
+        :key="i"
+        :class="{ active: selected === item.name }"
+        @click="selected = item.name"
       >
-        <template v-slot:subtitle>
-          <div v-if="item.size">
-            {{ (item.size / 1073741824).toFixed(2) }} GiB • Extracted:
-            {{ item.extracted }} • Labelled: {{ item.labelled }}
-          </div>
-        </template>
-      </v-list-item>
-      <v-divider v-if="i < items.length - 1" :key="i"></v-divider>
-    </template>
-  </v-list>
+        <td
+          v-for="(column, i) in columns"
+          :key="i"
+          :class="{
+            icon: column.type === 'icon',
+            center: column.align === 'center',
+            right: column.align === 'right',
+            shrink: column.shrink
+          }"
+        >
+          <v-icon v-if="column.type === 'icon'">
+            {{ resolveColumn(column, item) }}
+          </v-icon>
+          <span v-else>
+            {{ resolveColumn(column, item) }}
+          </span>
+        </td>
+      </tr>
+    </tbody>
+  </v-table>
 </template>
 
-<style scoped></style>
+<style scoped>
+tr {
+  cursor: pointer;
+}
+tr.active {
+  background: rgba(var(--v-border-color), var(--v-selected-opacity));
+}
+
+td.icon,
+th.icon {
+  width: 0.1%;
+  padding-right: 4px !important;
+  white-space: nowrap;
+  text-align: center;
+}
+td.center,
+th.center {
+  text-align: center;
+}
+td.right,
+th.right {
+  text-align: right;
+}
+td.shrink,
+th.shrink {
+  width: 0.1%;
+  white-space: nowrap;
+}
+</style>

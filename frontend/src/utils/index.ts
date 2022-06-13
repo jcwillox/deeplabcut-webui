@@ -16,3 +16,20 @@ export function isArrayDefined<T>(
 ): arr is Exclude<T, null | undefined>[] {
   return arr.every(v => isDefined(v));
 }
+
+export function humanizeBytes(bytes: number): string {
+  if (bytes < 1000) {
+    return `${bytes} B`;
+  }
+  const units = ["K", "M", "G", "T"];
+  for (const unit of units) {
+    bytes /= 1024;
+    if (bytes < 1) {
+      return `${bytes.toPrecision(2)} ${unit}iB`;
+    }
+    if (bytes < 100) {
+      return `${bytes.toPrecision(3)} ${unit}iB`;
+    }
+  }
+  return `${bytes} T`;
+}

@@ -5,24 +5,15 @@ export default {
 </script>
 
 <script setup lang="ts">
+import type { Column } from "@/components/FileBrowser.vue";
+import FileBrowser from "@/components/FileBrowser.vue";
+import VideoBrowser from "@/components/VideoBrowser.vue";
 import { useStore } from "@/stores";
 import { useFetch } from "@/utils/fetch";
-import { computed, watchEffect } from "vue";
-import FileBrowser from "../components/FileBrowser.vue";
+import { watchEffect } from "vue";
 
 const store = useStore();
-const project = computed({
-  get: () => store.project || undefined,
-  set: value => {
-    store.project = value || "";
-  }
-});
-
-const {
-  isFetching,
-  error,
-  data: projects
-} = useFetch("/projects").get().json();
+const { data: projects } = useFetch("/projects").get().json();
 
 const {
   isFetching: isFetchingVideos,
@@ -35,25 +26,51 @@ watchEffect(() => {
     execute();
   }
 });
+
+const columns: Column[] = [
+  {
+    type: "icon",
+    default: "mdi-folder"
+  },
+  {
+    field: "name"
+  },
+  {
+    name: "Multi-animal",
+    field: "multi_animal",
+    type: "icon",
+    getter: (value: boolean) => {
+      return value ? "mdi-check" : "mdi-close";
+    }
+  },
+  {
+    field: "scorer"
+  },
+  {
+    field: "accessed",
+    type: "unix"
+  },
+  {
+    field: "created",
+    type: "unix"
+  }
+];
 </script>
 
 <template>
   <v-container
     v-if="!store.project"
-    class="d-flex flex-column"
-    style="max-width: 640px"
+    class="pa-0"
+    style="max-width: 1000px"
+    fluid
   >
-    <v-autocomplete
-      label="Project"
-      v-model="project"
+    <FileBrowser
+      v-model:selected="store.project"
       :items="projects"
-      :loading="isFetching"
-      :hide-details="!error"
-      :error-messages="error || ''"
-      color="primary"
-      item-title="name"
-      clearable
-    ></v-autocomplete>
+      :columns="columns"
+      class="pa-0 ma-2"
+      height="calc(100vh - 48px - 16px)"
+    />
   </v-container>
   <v-container
     v-else
@@ -69,11 +86,11 @@ watchEffect(() => {
       >
         <v-progress-circular indeterminate color="primary" />
       </div>
-      <FileBrowser
+      <VideoBrowser
         v-else
-        class="pa-0 mt-2"
         :items="videos"
-        @selected="store.setVideo"
+        class="pa-0 mt-2"
+        height="calc(100vh - 131px)"
       />
     </div>
     <v-divider vertical />
