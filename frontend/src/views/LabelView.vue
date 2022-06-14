@@ -142,6 +142,16 @@ const updateLabels = (newLabels: LabelsModel) => {
   syncBackend();
 };
 
+const resetLabel = (individual: string, bodypart: string) => {
+  updateLabels({
+    [image.value]: {
+      [individual]: {
+        [bodypart]: { x: null, y: null }
+      }
+    }
+  });
+};
+
 // define hotkeys
 useHotkeys("a", () => {
   updateIndex(-1);
@@ -256,6 +266,7 @@ useHotkeys("r", () => {
         :config="configProject"
         :individuals="individuals"
         :colors="colors"
+        @reset:label="resetLabel"
       />
     </div>
   </v-container>

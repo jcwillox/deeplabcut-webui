@@ -16,6 +16,10 @@ const props = defineProps<{
   selected?: string[];
 }>();
 
+const emit = defineEmits<{
+  (e: "reset:label", individual: string, bodypart: string): void;
+}>();
+
 const opened = ref<string[] | undefined>(undefined);
 const selected = useVModel(props, "selected");
 
@@ -47,6 +51,10 @@ const colorsIndividuals = computed(() => {
   }
   return [];
 });
+
+const hasCoords = (coords?: LabelsCoords) => {
+  return coords && (coords.x || coords.y);
+};
 
 const createSubtitle = (coords?: LabelsCoords) => {
   let output = "";
@@ -124,6 +132,22 @@ const getLabelledCount = (bodyparts?: LabelsBodyparts) => {
         </template>
         <template #subtitle>
           {{ createSubtitle(individuals?.[individual]?.[bodypart]) }}
+        </template>
+        <template
+          v-if="hasCoords(individuals?.[individual]?.[bodypart])"
+          #append
+        >
+          <v-list-item-avatar end>
+            <v-btn
+              size="small"
+              variant="plain"
+              @click.stop="emit('reset:label', individual, bodypart)"
+              icon
+            >
+              <v-icon size="small">mdi-restore</v-icon>
+              <v-tooltip activator="parent" location="bottom" text="Reset" />
+            </v-btn>
+          </v-list-item-avatar>
         </template>
       </v-list-item>
     </v-list-group>
