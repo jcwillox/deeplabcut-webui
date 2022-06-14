@@ -7,6 +7,7 @@ import Panzoom, { type PanzoomObject } from "@panzoom/panzoom";
 import type { PanzoomEventDetail } from "@panzoom/panzoom/dist/src/types";
 import { useResizeObserver } from "@vueuse/core";
 import { onBeforeUnmount, onMounted, ref, watch, type Ref } from "vue";
+import { evaluate_cmap } from "js-colormaps";
 
 const props = defineProps<{
   image?: string;
@@ -117,20 +118,24 @@ function* bodyparts(image?: string, labels?: LabelsModel | null) {
   }
 }
 
-const labelItems = ref<[string, string, LabelsCoords, string][]>([]);
+const labelItems = ref<[string, string, LabelsCoords, string[]][]>([]);
 const updateLabelItems = () => {
-  const items: [string, string, LabelsCoords, string][] = [];
+  const items: [string, string, LabelsCoords, string[]][] = [];
   if (parentEl.value?.clientHeight) {
     const iterBodyparts = bodyparts(props.image, props.labels);
     for (const { individual, bodypart, coords, index } of iterBodyparts) {
       const newCoords = calcRelativeToOrigin(coords.x, coords.y, -6, -6);
+      const colors = [props.colors[index] || "white"];
+      if (props.config?.multi_animal) {
+        const rgb = evaluate_cmap(
+          props.config.individuals.indexOf(individual) /
+            props.config.individuals.length,
+          "Set1"
+        );
+        colors.push(`rgb(${rgb.join(",")})`);
+      }
       if (newCoords) {
-        items.push([
-          individual,
-          bodypart,
-          newCoords,
-          props.colors[index] || "white"
-        ]);
+        items.push([individual, bodypart, newCoords, colors]);
       }
     }
   }
@@ -138,7 +143,12 @@ const updateLabelItems = () => {
 };
 
 watch(
-  [() => props.image, () => props.labels, () => props.colors],
+  [
+    () => props.image,
+    () => props.labels,
+    () => props.colors,
+    () => props.config
+  ],
   updateLabelItems
 );
 
@@ -261,10 +271,10 @@ defineExpose({
     >
       <LabelMarker
         ref="labelMarkerEls"
-        v-for="[individual, bodypart, coords, color] in labelItems"
+        v-for="[individual, bodypart, coords, colors] in labelItems"
         :key="`${individual}-${bodypart}`"
         :coords="coords"
-        :color="color"
+        :colors="colors"
         :parent="panzoom"
         :selected="`${individual}-${bodypart}` === props.selected"
         @panzoomchange="

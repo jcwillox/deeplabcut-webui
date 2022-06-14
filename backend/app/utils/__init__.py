@@ -3,7 +3,7 @@ from typing import List, Optional
 
 import yaml
 from fastapi import HTTPException, status
-from pydantic import BaseModel, ValidationError, Field, root_validator
+from pydantic import BaseModel, ValidationError, root_validator
 
 from .deepmerge import deepmerge
 from ..config import get_settings
@@ -34,13 +34,15 @@ class ProjectConfig(BaseModel):
     bodyparts: List[str]
     colormap: str = "rainbow"
     individuals: List[str] = ["individual1"]
-    multi_animal: bool = Field(alias="multianimalproject", default=False)
+    multi_animal: bool = False
     scorer: str
 
     @root_validator(pre=True)
     def handle_aliases(cls, values):
         if bodyparts := values.get("multianimalbodyparts"):
             values["bodyparts"] = bodyparts
+        if multi_animal := values.get("multianimalproject"):
+            values["multi_animal"] = multi_animal
         return values
 
 

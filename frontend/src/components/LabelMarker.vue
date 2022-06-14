@@ -4,18 +4,41 @@ import type {
   MiscOptions,
   PanzoomEventDetail
 } from "@panzoom/panzoom/dist/src/types";
-import { onBeforeUnmount, onMounted, ref, watch, type Ref } from "vue";
+import {
+  computed,
+  onBeforeUnmount,
+  onMounted,
+  ref,
+  watch,
+  type Ref
+} from "vue";
 
 const props = defineProps<{
   coords: LabelsCoords;
   selected?: boolean;
   parent: PanzoomObject | null;
-  color: string;
+  colors: string[];
 }>();
 
 const emit = defineEmits<{
   (e: "panzoomchange", detail: PanzoomEventDetail): void;
 }>();
+
+const color = computed(() => props.colors[0]);
+const boxShadow = computed(() => {
+  const colors = [];
+  if (props.colors.length > 1) {
+    colors.push(props.colors[1]);
+  }
+  if (props.selected) {
+    colors.push("white");
+  }
+  return colors
+    .map((color, index) => {
+      return `0 0 0 ${(index + 1) * 2}px ${color}`;
+    })
+    .join(", ");
+});
 
 const panzoom = ref<PanzoomObject | null>(null);
 const labelEl: Ref<HTMLDivElement | null> = ref(null);
@@ -81,11 +104,9 @@ div {
   left: 0;
   position: absolute;
   border-radius: 50%;
-  border: 2px solid v-bind("props.color");
+  border: 2px solid v-bind("color");
+  box-shadow: v-bind("boxShadow");
   width: 12px;
   height: 12px;
-}
-div.selected {
-  box-shadow: 0 0 0 2px white;
 }
 </style>

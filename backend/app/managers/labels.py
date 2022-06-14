@@ -57,7 +57,6 @@ class LabelManager:
         if len(paths) == 1:
             path = paths[0]
         else:
-            print("using config to get labels")
             config = get_project_config(project)
             if not config:
                 return {}
