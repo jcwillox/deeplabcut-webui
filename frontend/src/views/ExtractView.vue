@@ -90,91 +90,97 @@ useHotkeys("space", () => {
 
 <template>
   <v-container class="pa-0 fill-height" fluid>
-    <div class="d-flex pa-2">
+    <VideoJS
+      ref="player"
+      :fps="fps"
+      :src="createCachedUrl(videoUrl, 'stream')"
+      max-height-offset="136px"
+    ></VideoJS>
+
+    <div class="d-flex px-2 py-1 align-center justify-center">
       <v-text-field
         label="Frame"
+        v-model="frame"
+        color="primary"
         variant="outlined"
         density="compact"
-        v-model="frame"
+        style="max-width: 164px"
+        type="number"
         hide-details
         persistent-placeholder
       ></v-text-field>
+      <div
+        class="d-flex align-center justify-center my-2 mx-2 mx-sm-6"
+        style="gap: 4px"
+      >
+        <v-btn
+          size="small"
+          color="primary-darken-2"
+          @click="player?.seekBackward(10)"
+          icon
+        >
+          <v-icon size="small">mdi-chevron-double-left</v-icon>
+          <v-tooltip activator="parent" location="top">
+            Back 10 frames <kbd>Shift</kbd><kbd>A</kbd>
+          </v-tooltip>
+        </v-btn>
+        <v-btn
+          size="small"
+          color="primary-darken-1"
+          @click="player?.seekBackward()"
+          icon
+        >
+          <v-icon size="small">mdi-chevron-left</v-icon>
+          <v-tooltip activator="parent" location="top">
+            Back 1 frame <kbd>A</kbd>
+          </v-tooltip>
+        </v-btn>
+        <v-btn height="40" color="primary" @click="extractFrame" rounded>
+          Extract
+          <v-tooltip activator="parent" location="top">
+            <kbd>Shift</kbd><kbd>E</kbd>
+          </v-tooltip>
+        </v-btn>
+        <v-btn
+          size="small"
+          color="primary-darken-1"
+          @click="player?.seekForward()"
+          icon
+        >
+          <v-icon size="small">mdi-chevron-right</v-icon>
+          <v-tooltip activator="parent" location="top">
+            Forward 1 frame <kbd>D</kbd>
+          </v-tooltip>
+        </v-btn>
+        <v-btn
+          size="small"
+          color="primary-darken-2"
+          @click="player?.seekForward(10)"
+          icon
+        >
+          <v-icon size="small">mdi-chevron-double-right</v-icon>
+          <v-tooltip activator="parent" location="top">
+            Forward 10 frames <kbd>Shift</kbd><kbd>D</kbd>
+          </v-tooltip>
+        </v-btn>
+      </div>
       <v-text-field
-        class="pl-2"
         label="Timecode"
+        v-model="timecode"
+        color="primary"
         variant="outlined"
         density="compact"
-        v-model="timecode"
+        style="max-width: 164px"
         readonly
         hide-details
         persistent-placeholder
       ></v-text-field>
     </div>
 
-    <VideoJS
-      ref="player"
-      :fps="fps"
-      :src="createCachedUrl(videoUrl, 'stream')"
-      max-height-offset="184px"
-    ></VideoJS>
-
-    <div class="d-flex align-center justify-center my-2" style="gap: 4px">
-      <v-btn
-        size="small"
-        color="primary-darken-2"
-        @click="player?.seekBackward(10)"
-        icon
-      >
-        <v-icon size="small">mdi-chevron-double-left</v-icon>
-        <v-tooltip activator="parent" location="top">
-          Back 10 frames <kbd>Shift</kbd><kbd>A</kbd>
-        </v-tooltip>
-      </v-btn>
-      <v-btn
-        size="small"
-        color="primary-darken-1"
-        @click="player?.seekBackward()"
-        icon
-      >
-        <v-icon size="small">mdi-chevron-left</v-icon>
-        <v-tooltip activator="parent" location="top">
-          Back 1 frame <kbd>A</kbd>
-        </v-tooltip>
-      </v-btn>
-      <v-btn height="40" color="primary" @click="extractFrame" rounded>
-        Extract
-        <v-tooltip activator="parent" location="top">
-          <kbd>Shift</kbd><kbd>E</kbd>
-        </v-tooltip>
-      </v-btn>
-      <v-btn
-        size="small"
-        color="primary-darken-1"
-        @click="player?.seekForward()"
-        icon
-      >
-        <v-icon size="small">mdi-chevron-right</v-icon>
-        <v-tooltip activator="parent" location="top">
-          Forward 1 frame <kbd>D</kbd>
-        </v-tooltip>
-      </v-btn>
-      <v-btn
-        size="small"
-        color="primary-darken-2"
-        @click="player?.seekForward(10)"
-        icon
-      >
-        <v-icon size="small">mdi-chevron-double-right</v-icon>
-        <v-tooltip activator="parent" location="top">
-          Forward 10 frames <kbd>Shift</kbd><kbd>D</kbd>
-        </v-tooltip>
-      </v-btn>
-    </div>
-
     <v-slide-group
       v-if="store.video"
       v-model="selectedFrame"
-      class="my-3 mt-4 elevation-1"
+      class="mb-3 mt-1 elevation-1"
       center-active
       show-arrows
     >
