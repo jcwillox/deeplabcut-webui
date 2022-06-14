@@ -5,8 +5,7 @@ export default {
 </script>
 
 <script setup lang="ts">
-import type { Column } from "@/components/FileBrowser.vue";
-import FileBrowser from "@/components/FileBrowser.vue";
+import ProjectBrowser from "@/components/ProjectBrowser.vue";
 import VideoBrowser from "@/components/VideoBrowser.vue";
 import { useStore } from "@/stores";
 import { useFetch } from "@/utils/fetch";
@@ -26,35 +25,6 @@ watchEffect(() => {
     execute();
   }
 });
-
-const columns: Column[] = [
-  {
-    type: "icon",
-    default: "mdi-folder"
-  },
-  {
-    field: "name"
-  },
-  {
-    name: "Multi-animal",
-    field: "multi_animal",
-    type: "icon",
-    getter: (value: boolean) => {
-      return value ? "mdi-check" : "mdi-close";
-    }
-  },
-  {
-    field: "scorer"
-  },
-  {
-    field: "accessed",
-    type: "unix"
-  },
-  {
-    field: "created",
-    type: "unix"
-  }
-];
 </script>
 
 <template>
@@ -64,10 +34,8 @@ const columns: Column[] = [
     style="max-width: 1000px"
     fluid
   >
-    <FileBrowser
-      v-model:selected="store.project"
+    <ProjectBrowser
       :items="projects"
-      :columns="columns"
       class="pa-0 ma-2"
       height="calc(100vh - 48px - 16px)"
     />

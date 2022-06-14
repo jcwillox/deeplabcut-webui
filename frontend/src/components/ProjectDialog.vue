@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import VideoBrowser from "@/components/VideoBrowser.vue";
+import ProjectBrowser from "@/components/ProjectBrowser.vue";
 import { useFetch } from "@/utils";
 import { useVModel } from "@vueuse/core";
 import { watch } from "vue";
@@ -14,11 +14,13 @@ const emit = defineEmits<{
 
 const dialog = useVModel(props, "modelValue", emit);
 
-const { execute, data, isFetching } = useFetch("/videos", { immediate: false })
+const { execute, data, isFetching } = useFetch("/projects", {
+  immediate: false
+})
   .get()
   .json();
 
-// fetch videos each time the dialog is shown
+// fetch projects each time the dialog is shown
 watch(dialog, () => dialog.value && execute());
 </script>
 
@@ -29,7 +31,7 @@ watch(dialog, () => dialog.value && execute());
     </template>
     <v-card class="parent">
       <v-toolbar color="primary" class="toolbar-fixed">
-        <v-toolbar-title>Select Video</v-toolbar-title>
+        <v-toolbar-title>Select Project</v-toolbar-title>
         <v-btn icon="mdi-close" @click="dialog = false" />
       </v-toolbar>
       <v-card-content
@@ -39,7 +41,7 @@ watch(dialog, () => dialog.value && execute());
         <v-progress-circular color="primary" indeterminate />
       </v-card-content>
       <v-card-content v-else class="overflow-y-auto pa-0">
-        <VideoBrowser
+        <ProjectBrowser
           :items="data"
           height="calc(100vh - 104px)"
           @selected="dialog = false"
