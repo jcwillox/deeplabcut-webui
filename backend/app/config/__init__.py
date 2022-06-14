@@ -1,8 +1,11 @@
 import argparse
+import os
 from functools import lru_cache
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, Tuple
 
+import yaml
 from pydantic import BaseSettings, Field
+from pydantic.env_settings import SettingsSourceCallable
 from pydantic.fields import ModelField
 
 
@@ -45,14 +48,14 @@ class Settings(BaseSettings):
         @classmethod
         def customise_sources(
             cls,
-            init_settings,
-            env_settings,
-            file_secret_settings,
-        ):
-            def cmdline_arguments(_) -> Dict[str, Any]:
+            init_settings: SettingsSourceCallable,
+            env_settings: SettingsSourceCallable,
+            file_secret_settings: SettingsSourceCallable,
+        ) -> Tuple[SettingsSourceCallable, ...]:
+            def cmdline_arguments(settings: BaseSettings) -> Dict[str, Any]:
                 parser = argparse.ArgumentParser(prog="dlc-webui")
 
-                for field in Settings.__fields__.values():
+                for field in settings.__fields__.values():
                     field: ModelField
                     parser.add_argument(
                         "--" + field.name.replace("_", "-"),
@@ -65,9 +68,29 @@ class Settings(BaseSettings):
                 args, _ = parser.parse_known_args()
                 return {k: v for k, v in vars(args).items() if v is not None}
 
+            def yaml_config(_) -> Dict[str, Any]:
+                def find_config():
+                    path = os.path.expanduser("~/.config/dlc-webui/config.yaml")
+                    if os.path.exists(path):
+                        return path
+                    path = os.getcwd()
+                    while path.count(os.path.sep) > 1:
+                        filepath = os.path.join(path, ".dlc-webui.yaml")
+                        if os.path.exists(filepath):
+                            return filepath
+                        path = os.path.dirname(path)
+                    return None
+
+                config_path = find_config()
+                if config_path:
+                    with open(config_path) as file:
+                        return yaml.safe_load(file)
+                return {}
+
             return (
                 init_settings,
                 cmdline_arguments,
+                yaml_config,
                 env_settings,
                 file_secret_settings,
             )

@@ -256,6 +256,7 @@ cython_debug/
 ### Misc
 .task/
 .idea/
+.dlc-webui.yaml
 
 # exclude files created during testing
 backend/tests/testdata/*/labeled-data/*/**/*.*

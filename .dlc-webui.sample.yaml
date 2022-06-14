@@ -1,0 +1,31 @@
+# To enable a config variable remove '# ' from the beginning of
+# the line with a variable.
+
+# The file system path to the directory containing
+# your DeepLabCut projects.
+# projects: ".../projects"
+
+# The Python formatting string that dictates how the
+# filename is derived from the frame number.
+# frame_format: "img{:04}.png"
+
+# An access token used to protect the backend from unauthorised access,
+# it should only be shared with authorised parties and should be
+# used alongside HTTPS encryption.
+# token: "<token>"
+
+# Restrict access to current machine (default)
+# host: "127.0.0.1"
+
+# Allow access from devices on the local network
+# host: "0.0.0.0"
+
+# The port the webserver is bound to, this may need
+# to be changed to avoid conflicts with other software
+# that is may already be using that port.
+# port: 8000
+
+# If these are configured the webserver will use
+# and require an HTTPS connection.
+# ssl_certfile: "./cert.pem"
+# ssl_keyfile: "./key.pem"
