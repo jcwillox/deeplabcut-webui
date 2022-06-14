@@ -31,6 +31,9 @@ export const createUrl = (...parts: string[]): string => {
   if (store.project != "") {
     url.searchParams.append("project", store.project);
   }
+  if (store.token != "") {
+    url.searchParams.append("token", store.token);
+  }
   return url.toString();
 };
 
@@ -47,7 +50,7 @@ export const useFetch = createFetch({
     onFetchError(ctx) {
       const errors = useErrors();
       if (ctx.response && ctx.response.status >= 400) {
-        if (ctx.response.status >= 500) {
+        if (ctx.response.status >= 500 || ctx.response.status == 401) {
           errors.set({
             status: ctx.response.status,
             message: ctx.error.message,
@@ -61,6 +64,7 @@ export const useFetch = createFetch({
           stack: ctx.error.stack
         });
       }
+      ctx.data = null;
       return ctx;
     }
   },

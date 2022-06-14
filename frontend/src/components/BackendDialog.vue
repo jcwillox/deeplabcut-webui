@@ -59,7 +59,8 @@ const openDocs = () => {
             color="red"
           >
             <template #subtitle>
-              {{ errors.error?.status }} {{ errors.error?.message }}
+              {{ errors.error?.message }}
+              {{ errors.error?.status && `[${errors.error?.status}]` }}
             </template>
           </AlertCard>
           <AlertCard
