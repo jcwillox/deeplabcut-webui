@@ -5,6 +5,7 @@ export default {
 </script>
 
 <script setup lang="ts">
+import { useHotkeys } from "@/utils";
 import { syncRef, useVModel } from "@vueuse/core";
 import { evaluate_cmap } from "js-colormaps";
 import { computed, ref, watch } from "vue";
@@ -85,6 +86,50 @@ const getLabelledCount = (bodyparts?: LabelsBodyparts) => {
   }
   return count;
 };
+
+const selectNextBodypart = () => {
+  let foundFirst = false;
+  if (props.config?.individuals) {
+    for (const individual of props.config.individuals) {
+      for (const bodypart of props.config.bodyparts) {
+        const key = `${individual}-${bodypart}`;
+        if (selected.value?.length) {
+          if (selected.value[0] === key) {
+            foundFirst = true;
+            continue;
+          } else if (!foundFirst) {
+            continue;
+          }
+        }
+        if (!hasCoords(props.individuals?.[individual]?.[bodypart])) {
+          opened.value = [individual];
+          selected.value = [`${individual}-${bodypart}`];
+          if (document.activeElement instanceof HTMLElement) {
+            document.activeElement.blur();
+          }
+          return;
+        }
+      }
+    }
+    // clear selection as there is no next individual or bodypart
+    selected.value = undefined;
+    if (document.activeElement instanceof HTMLElement) {
+      document.activeElement.blur();
+    }
+  }
+};
+
+useHotkeys("esc", () => {
+  // deselect current label
+  selected.value = [];
+  if (document.activeElement instanceof HTMLElement) {
+    document.activeElement.blur();
+  }
+});
+
+useHotkeys("n", () => {
+  selectNextBodypart();
+});
 </script>
 
 <template>
