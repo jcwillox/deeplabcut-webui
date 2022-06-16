@@ -209,7 +209,12 @@ useHotkeys("r", () => {
         >
         </LabelEditor>
         <div class="d-flex flex-column">
-          <FramesDialog v-model="dialog" v-model:index="imgIndex">
+          <FramesDialog
+            v-model="dialog"
+            v-model:index="imgIndex"
+            :labels="labels"
+            :config="configProject"
+          >
             <template #activator="{ props }">
               <v-btn
                 v-bind="props"
