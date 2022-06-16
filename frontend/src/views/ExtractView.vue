@@ -184,7 +184,14 @@ useHotkeys("space", () => {
       center-active
       show-arrows
     >
+      <span
+        v-if="frames.items.length === 0"
+        class="ma-4 my-8 flex-grow-1 text-center text-body-2"
+      >
+        No frames have been extracted.
+      </span>
       <v-slide-group-item
+        v-else
         v-for="image in frames.items"
         :key="image"
         v-slot="{ toggle }"
