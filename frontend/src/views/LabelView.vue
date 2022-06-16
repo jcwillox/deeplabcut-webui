@@ -90,21 +90,21 @@ const colors = computed(() => {
   return [];
 });
 
-let pending: LabelsModel | null = null;
+const pending = ref<LabelsModel | null>(null);
 const isSyncing = ref(false);
 
 const syncBackend = useDebounceFn(
   async () => {
     // ensure we are only sending 1 request at a time
     if (!isSyncing.value) {
-      if (pending === null) {
+      if (pending.value === null) {
         console.error("pending changes was null while syncing backend");
         return;
       }
 
       isSyncing.value = true;
-      let payload: LabelsModel | null = pending;
-      pending = null;
+      let payload: LabelsModel | null = pending.value;
+      pending.value = null;
 
       try {
         console.debug("SyncBackend: Starting", payload);
@@ -114,7 +114,7 @@ const syncBackend = useDebounceFn(
           payload = null;
           console.debug("SyncBackend: Finished");
         } else {
-          console.debug("SyncBackend: Failed", statusCode.value, pending);
+          console.debug("SyncBackend: Failed", statusCode.value, pending.value);
         }
       } finally {
         // ensure we always reset syncing status
@@ -122,13 +122,15 @@ const syncBackend = useDebounceFn(
 
         // merge back any changes we were trying to send
         if (payload) {
-          pending = pending ? deepmerge(payload, pending) : payload;
+          pending.value = pending.value
+            ? deepmerge(payload, pending.value)
+            : payload;
         }
 
         // reschedule update if there are pending changes
-        if (pending) {
+        if (pending.value) {
           syncBackend()?.then();
-          console.debug("SyncBackend: Rescheduled", pending);
+          console.debug("SyncBackend: Rescheduled", pending.value);
         }
       }
     }
@@ -138,7 +140,7 @@ const syncBackend = useDebounceFn(
 );
 
 const updateLabels = (newLabels: LabelsModel) => {
-  pending = deepmerge(pending, newLabels);
+  pending.value = deepmerge(pending.value, newLabels);
   labels.value = deepmerge(labels.value, newLabels);
   syncBackend();
 };
@@ -177,85 +179,92 @@ useHotkeys("r", () => {
     <div
       class="flex-grow-1"
       :style="{
-        maxWidth: `calc((100vh - 80px) * ${minimapEl?.aspectRatio} + 80px)`
+        maxWidth: `calc((100vh - 80px - 15px) * ${minimapEl?.aspectRatio} + 80px)`
       }"
     >
-      <div class="d-flex button-surface">
-        <div class="d-flex flex-column">
-          <v-btn
-            class="rounded-0 rounded-s flex-grow-1"
-            variant="plain"
-            size="small"
-            @click="updateIndex(-1)"
-            icon
-          >
-            <v-icon size="small">mdi-chevron-left</v-icon>
-            <v-tooltip activator="parent" location="end">
-              Previous frame <kbd>A</kbd>
-            </v-tooltip>
-          </v-btn>
-        </div>
-        <LabelEditor
-          ref="labelEditorEl"
-          v-model:opened="opened"
-          v-model:selected="selected"
-          :image="frames.items[imgIndex]"
-          :labels="labels"
-          :config="configProject"
-          :colors="colors"
-          class="flex-grow-1 h-100"
-          @panzoomchange="panZoomChange"
-          @update:labels="updateLabels"
-        >
-        </LabelEditor>
-        <div class="d-flex flex-column">
-          <FramesDialog
-            v-model="dialog"
-            v-model:index="imgIndex"
+      <div>
+        <div class="d-flex button-surface">
+          <div class="d-flex flex-column">
+            <v-btn
+              class="rounded-0 rounded-s flex-grow-1"
+              variant="plain"
+              size="small"
+              @click="updateIndex(-1)"
+              icon
+            >
+              <v-icon size="small">mdi-chevron-left</v-icon>
+              <v-tooltip activator="parent" location="end">
+                Previous frame <kbd>A</kbd>
+              </v-tooltip>
+            </v-btn>
+          </div>
+          <LabelEditor
+            ref="labelEditorEl"
+            v-model:opened="opened"
+            v-model:selected="selected"
+            :image="frames.items[imgIndex]"
             :labels="labels"
             :config="configProject"
+            :colors="colors"
+            class="flex-grow-1 h-100"
+            @panzoomchange="panZoomChange"
+            @update:labels="updateLabels"
           >
-            <template #activator="{ props }">
-              <v-btn
-                v-bind="props"
-                class="rounded-0 rounded-te"
-                variant="plain"
-                size="small"
-                icon
-              >
-                <v-icon size="small">mdi-expand-all</v-icon>
-                <v-tooltip activator="parent" location="end">
-                  Show all frames <kbd>G</kbd>
-                </v-tooltip>
-              </v-btn>
-            </template>
-          </FramesDialog>
-          <v-divider />
-          <v-btn
-            class="rounded-0"
-            variant="plain"
-            size="small"
-            @click="labelEditorEl?.resetZoom()"
-            icon
-          >
-            <v-icon size="small">mdi-restore</v-icon>
-            <v-tooltip activator="parent" location="end">
-              Reset zoom <kbd>R</kbd>
-            </v-tooltip>
-          </v-btn>
-          <v-divider />
-          <v-btn
-            class="rounded-0 rounded-be flex-grow-1"
-            variant="plain"
-            size="small"
-            @click="updateIndex(1)"
-            icon
-          >
-            <v-icon size="small">mdi-chevron-right</v-icon>
-            <v-tooltip activator="parent" location="end">
-              Next frame <kbd>D</kbd>
-            </v-tooltip>
-          </v-btn>
+          </LabelEditor>
+          <div class="d-flex flex-column">
+            <FramesDialog
+              v-model="dialog"
+              v-model:index="imgIndex"
+              :labels="labels"
+              :config="configProject"
+            >
+              <template #activator="{ props }">
+                <v-btn
+                  v-bind="props"
+                  class="rounded-0 rounded-te"
+                  variant="plain"
+                  size="small"
+                  icon
+                >
+                  <v-icon size="small">mdi-expand-all</v-icon>
+                  <v-tooltip activator="parent" location="end">
+                    Show all frames <kbd>G</kbd>
+                  </v-tooltip>
+                </v-btn>
+              </template>
+            </FramesDialog>
+            <v-divider />
+            <v-btn
+              class="rounded-0"
+              variant="plain"
+              size="small"
+              @click="labelEditorEl?.resetZoom()"
+              icon
+            >
+              <v-icon size="small">mdi-restore</v-icon>
+              <v-tooltip activator="parent" location="end">
+                Reset zoom <kbd>R</kbd>
+              </v-tooltip>
+            </v-btn>
+            <v-divider />
+            <v-btn
+              class="rounded-0 rounded-be flex-grow-1"
+              variant="plain"
+              size="small"
+              @click="updateIndex(1)"
+              icon
+            >
+              <v-icon size="small">mdi-chevron-right</v-icon>
+              <v-tooltip activator="parent" location="end">
+                Next frame <kbd>D</kbd>
+              </v-tooltip>
+            </v-btn>
+          </div>
+        </div>
+        <div class="d-flex justify-space-between text-body-2">
+          <span>{{ image }}</span>
+          <span>{{ pending ? "saving..." : "" }}</span>
+          <span>{{ imgIndex + 1 }} / {{ frames.items.length }}</span>
         </div>
       </div>
     </div>
