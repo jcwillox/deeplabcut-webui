@@ -6,21 +6,45 @@ import { createCachedUrl } from "@/utils/fetch";
 import Panzoom, { type PanzoomObject } from "@panzoom/panzoom";
 import type { PanzoomEventDetail } from "@panzoom/panzoom/dist/src/types";
 import { useResizeObserver } from "@vueuse/core";
-import { onBeforeUnmount, onMounted, ref, watch, type Ref } from "vue";
 import { evaluate_cmap } from "js-colormaps";
+import {
+  computed,
+  onBeforeUnmount,
+  onMounted,
+  ref,
+  watch,
+  type Ref
+} from "vue";
 
 const props = defineProps<{
   image?: string;
   labels: LabelsModel | null;
   config: ProjectConfig | null;
-  selected?: string;
   colors: string[];
+  opened?: string[];
+  selected?: string[];
 }>();
 
 const emit = defineEmits<{
   (e: "panzoomchange", detail: PanzoomEventDetail): void;
   (e: "update:labels", labels: LabelsModel): void;
+  (e: "update:opened", opened: string[]): void;
+  (e: "update:selected", selected: string[]): void;
 }>();
+
+const opened = computed({
+  get: () => props.opened?.[0],
+  set: value => {
+    emit("update:opened", value ? [value] : []);
+  }
+});
+
+const selected = computed({
+  get: () => props.selected?.[0],
+  set: value => {
+    emit("update:selected", value ? [value] : []);
+  }
+});
 
 const frames = useFrames();
 const panzoom = ref<PanzoomObject | null>(null);
@@ -179,10 +203,10 @@ const handlePanzoomChange = (
 };
 
 const handleClick = (ev: MouseEvent) => {
-  if (props.selected && props.config?.individuals) {
-    for (const individual of props.config.individuals) {
-      for (const bodypart of props.config.bodyparts) {
-        if (`${individual}-${bodypart}` == props.selected) {
+  if (selected.value && props.config?.individuals) {
+    for (const [i, individual] of props.config.individuals.entries()) {
+      for (const [j, bodypart] of props.config.bodyparts.entries()) {
+        if (`${individual}-${bodypart}` == selected.value) {
           const coords =
             props.image &&
             props.labels?.[props.image]?.[individual]?.[bodypart];
@@ -200,6 +224,22 @@ const handleClick = (ev: MouseEvent) => {
                   }
                 }
               });
+
+              if (props.config.bodyparts.length > j + 1) {
+                // select next bodypart
+                selected.value = `${individual}-${
+                  props.config.bodyparts[j + 1]
+                }`;
+              } else if (props.config.individuals.length > i + 1) {
+                // select next individual
+                opened.value = props.config.individuals[i + 1];
+                selected.value = `${props.config.individuals[i + 1]}-${
+                  props.config.bodyparts[0]
+                }`;
+              } else {
+                // clear selection as there is no next individual or bodypart
+                selected.value = undefined;
+              }
             }
           }
         }
@@ -276,7 +316,7 @@ defineExpose({
         :coords="coords"
         :colors="colors"
         :parent="panzoom"
-        :selected="`${individual}-${bodypart}` === props.selected"
+        :selected="`${individual}-${bodypart}` === selected"
         @panzoomchange="
           detail => handlePanzoomChange(individual, bodypart, detail)
         "

@@ -20,6 +20,7 @@ import { computed, ref, watch } from "vue";
 const store = useStore();
 const frames = useFrames();
 const dialog = ref(false);
+const opened = ref<string[] | undefined>(undefined);
 const selected = ref<string[] | undefined>(undefined);
 
 const labelEditorEl = ref<InstanceType<typeof LabelEditor> | null>(null);
@@ -196,10 +197,11 @@ useHotkeys("r", () => {
         </div>
         <LabelEditor
           ref="labelEditorEl"
+          v-model:opened="opened"
+          v-model:selected="selected"
           :image="frames.items[imgIndex]"
           :labels="labels"
           :config="configProject"
-          :selected="selected && selected[0]"
           :colors="colors"
           class="flex-grow-1 h-100"
           @panzoomchange="panZoomChange"
@@ -262,6 +264,7 @@ useHotkeys("r", () => {
       </AdvImg>
 
       <LabelsList
+        v-model:opened="opened"
         v-model:selected="selected"
         :config="configProject"
         :individuals="individuals"

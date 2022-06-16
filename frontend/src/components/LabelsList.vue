@@ -5,7 +5,7 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { useVModel } from "@vueuse/core";
+import { syncRef, useVModel } from "@vueuse/core";
 import { evaluate_cmap } from "js-colormaps";
 import { computed, ref, watch } from "vue";
 
@@ -13,15 +13,19 @@ const props = defineProps<{
   config: ProjectConfig | null;
   individuals: LabelsIndividuals | null;
   colors: string[];
+  opened?: string[];
   selected?: string[];
 }>();
 
 const emit = defineEmits<{
   (e: "reset:label", individual: string, bodypart: string): void;
+  (e: "update:opened", opened: string[]): void;
+  (e: "update:selected", selected: string[]): void;
 }>();
 
+const selected = useVModel(props, "selected", emit);
 const opened = ref<string[] | undefined>(undefined);
-const selected = useVModel(props, "selected");
+syncRef(opened, useVModel(props, "opened", emit));
 
 // ensure exactly one individual is open
 watch(opened, (value, oldValue) => {
