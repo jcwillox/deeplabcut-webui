@@ -12,17 +12,23 @@ import { useFetch } from "@/utils/fetch";
 import { watchEffect } from "vue";
 
 const store = useStore();
-const { data: projects } = useFetch("/projects").get().json();
+const {
+  isFetching: isFetchingProjects,
+  execute: fetchProjects,
+  data: projects
+} = useFetch("/projects", { immediate: false }).get().json();
 
 const {
   isFetching: isFetchingVideos,
-  execute,
+  execute: fetchVideos,
   data: videos
 } = useFetch("/videos", { immediate: false }).get().json();
 
 watchEffect(() => {
   if (store.project) {
-    execute();
+    fetchVideos();
+  } else {
+    fetchProjects();
   }
 });
 </script>
@@ -36,6 +42,7 @@ watchEffect(() => {
   >
     <ProjectBrowser
       :items="projects"
+      :loading="isFetchingProjects"
       class="pa-0 ma-2"
       height="calc(100vh - 48px - 16px)"
     />
@@ -48,15 +55,9 @@ watchEffect(() => {
   >
     <div class="ma-2 d-flex flex-column" style="flex-grow: 5">
       <h2 class="text-center">{{ store.project }}</h2>
-      <div
-        v-if="isFetchingVideos"
-        class="d-flex justify-center align-center flex-grow-1"
-      >
-        <v-progress-circular indeterminate color="primary" />
-      </div>
       <VideoBrowser
-        v-else
         :items="videos"
+        :loading="isFetchingVideos"
         class="pa-0 mt-2"
         height="calc(100vh - 131px)"
       />

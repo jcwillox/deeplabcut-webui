@@ -21,6 +21,7 @@ export interface Column<T extends ItemBase = ItemBase> {
 
 const props = defineProps<{
   items?: ItemBase[] | null;
+  loading?: boolean;
   selected: string;
   height?: string;
   columns: Column[];
@@ -60,7 +61,7 @@ const resolveColumn = (column: Column, item: ItemBase) => {
 </script>
 
 <template>
-  <v-table :height="height" fixed-header>
+  <v-table :height="height" class="position-relative" fixed-header>
     <thead>
       <tr>
         <th
@@ -77,7 +78,13 @@ const resolveColumn = (column: Column, item: ItemBase) => {
         </th>
       </tr>
     </thead>
-    <tbody v-if="items">
+    <v-progress-linear
+      v-if="loading"
+      class="position-absolute"
+      color="primary"
+      indeterminate
+    />
+    <tbody v-if="!loading || items">
       <tr
         v-for="(item, i) in items"
         :key="i"

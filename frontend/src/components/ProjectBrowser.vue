@@ -6,6 +6,7 @@ import { computed } from "vue";
 
 defineProps<{
   items?: ItemBase[] | null;
+  loading?: boolean;
   height?: string;
 }>();
 
@@ -59,6 +60,7 @@ const columns: Column[] = [
   <FileBrowser
     v-model:selected="project"
     :items="items"
+    :loading="loading"
     :columns="columns"
     :height="height"
   />

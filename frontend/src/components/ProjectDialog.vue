@@ -34,15 +34,10 @@ watch(dialog, () => dialog.value && execute());
         <v-toolbar-title>Select Project</v-toolbar-title>
         <v-btn icon="mdi-close" @click="dialog = false" />
       </v-toolbar>
-      <v-card-content
-        v-if="isFetching"
-        class="d-flex align-center justify-center"
-      >
-        <v-progress-circular color="primary" indeterminate />
-      </v-card-content>
-      <v-card-content v-else class="overflow-y-auto pa-0">
+      <v-card-content class="overflow-y-auto pa-0">
         <ProjectBrowser
           :items="data"
+          :loading="isFetching"
           height="calc(100vh - 104px)"
           @selected="dialog = false"
         />
