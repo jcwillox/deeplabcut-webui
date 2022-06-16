@@ -18,7 +18,9 @@ const project = computed({
   get: () => store.project,
   set: value => {
     store.resetProject();
-    store.project = value;
+    setTimeout(() => {
+      store.project = value;
+    }, 100);
     emit("selected", value);
   }
 });

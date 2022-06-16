@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { useVModel } from "@vueuse/core";
-import { capitalize, defineEmits } from "vue";
 import { humanizeBytes } from "@/utils";
+import { useVModel } from "@vueuse/core";
+import { capitalize } from "vue";
 
 export interface ItemBase {
   name: string;
