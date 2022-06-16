@@ -33,7 +33,7 @@ useHotkeys("shift+p", () => {
           prepend-icon="mdi-folder"
         >
           {{ store.project }}
-          <v-tooltip activator="parent" location="bottom">
+          <v-tooltip activator="parent" location="bottom start">
             Quick switch project <kbd>Shift</kbd><kbd>P</kbd>
           </v-tooltip>
         </v-btn>

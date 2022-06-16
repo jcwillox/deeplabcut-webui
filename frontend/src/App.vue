@@ -137,7 +137,7 @@ useHotkeys("shift+w", store.resetProject);
         <v-icon>mdi-cog</v-icon>
         <v-tooltip
           activator="parent"
-          location="bottom"
+          location="bottom end"
           class="settings"
           text="Settings"
         />
@@ -166,9 +166,6 @@ html {
 }
 .v-table--fixed-header th {
   z-index: 1;
-}
-div.v-tooltip.settings > div {
-  transform: translate(-12px);
 }
 .v-overlay header.v-toolbar.v-theme--dark.bg-primary {
   background: rgb(var(--v-theme-on-surface-variant)) !important;
