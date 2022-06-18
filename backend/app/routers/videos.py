@@ -78,6 +78,10 @@ def stream_video(
     request: Request, params: VideoCommonQuery = Depends(VideoCommonQuery)
 ):
     path = get_project_path(params.project, "videos", params.video)
+    try:
+        path = os.path.realpath(path, strict=True)
+    except OSError as err:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=err)
     return VideoResponse(request, file_path=path, content_type="video/mp4")
 
 
