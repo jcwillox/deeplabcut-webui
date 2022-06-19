@@ -13,7 +13,7 @@ const show = ref(false);
 </script>
 
 <template>
-  <v-card variant="contained-text" density="comfortable" :color="color">
+  <v-card variant="tonal" density="comfortable" :color="color">
     <template #title>
       <slot name="title">
         {{ title }}

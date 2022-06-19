@@ -46,7 +46,7 @@ const themeName = computed({
             color="blue"
             title="Backend"
             subtitle="Configuration"
-            variant="contained-text"
+            variant="tonal"
           >
             <template #append>
               <v-avatar style="color: inherit">

@@ -94,9 +94,8 @@ const openDocs = () => {
         <v-card-actions class="justify-end">
           <v-btn color="red" @click="reset">Reset</v-btn>
           <v-spacer />
-          <v-btn :disabled="isFetching" @click="execute()">
-            <v-progress-circular v-if="isFetching" size="22" indeterminate />
-            <span v-else>Test Connection</span>
+          <v-btn :loading="isFetching" @click="execute()">
+            Test Connection
           </v-btn>
           <v-btn color="blue" @click="reload">Reload</v-btn>
         </v-card-actions>

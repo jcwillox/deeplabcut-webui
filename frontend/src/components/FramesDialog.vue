@@ -56,7 +56,7 @@ const partialLabelled = (image: string) => {
         <v-row class="text-center" justify="center" align="center">
           <v-col v-for="(frame, i) in frames.items" :key="frame" cols="auto">
             <v-card
-              variant="contained-text"
+              variant="tonal"
               :key="i"
               :width="250"
               :color="
