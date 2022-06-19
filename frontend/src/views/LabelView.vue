@@ -14,7 +14,6 @@ import { createCachedUrl, useFetch, useHotkeys } from "@/utils";
 import type { PanzoomEventDetail } from "@panzoom/panzoom/dist/src/types";
 import { useDebounceFn } from "@vueuse/core";
 import { deepmerge } from "deepmerge-ts";
-import { evaluate_cmap } from "js-colormaps";
 import { computed, ref, watch } from "vue";
 
 const store = useStore();
@@ -70,25 +69,6 @@ const panZoomChange = (detail: PanzoomEventDetail) => {
   mapWidth.value = ((width / 2 - detail.x) / width) * 100 + "%";
   mapHeight.value = ((height / 2 - detail.y) / height) * 100 + "%";
 };
-
-const { data: configProject } = useFetch("/projects/" + store.project)
-  .get()
-  .json<ProjectConfig>();
-
-// extract and cache bodypart colors
-const colors = computed(() => {
-  if (configProject.value) {
-    const bodyparts = configProject.value.bodyparts;
-    return bodyparts.map((_, i) => {
-      const rgb = evaluate_cmap(
-        i / bodyparts.length,
-        configProject.value!.colormap
-      );
-      return `rgb(${rgb.join(",")})`;
-    });
-  }
-  return [];
-});
 
 const pending = ref<LabelsModel | null>(null);
 const isSyncing = ref(false);
@@ -204,8 +184,6 @@ useHotkeys("r", () => {
             v-model:selected="selected"
             :image="frames.items[imgIndex]"
             :labels="labels"
-            :config="configProject"
-            :colors="colors"
             class="flex-grow-1 h-100"
             @panzoomchange="panZoomChange"
             @update:labels="updateLabels"
@@ -216,7 +194,6 @@ useHotkeys("r", () => {
               v-model="dialog"
               v-model:index="imgIndex"
               :labels="labels"
-              :config="configProject"
             >
               <template #activator="{ props }">
                 <v-btn
@@ -280,9 +257,7 @@ useHotkeys("r", () => {
       <LabelsList
         v-model:opened="opened"
         v-model:selected="selected"
-        :config="configProject"
         :individuals="individuals"
-        :colors="colors"
         @reset:label="resetLabel"
       />
     </div>

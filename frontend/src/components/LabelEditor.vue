@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import AdvImg from "@/components/AdvImg.vue";
 import LabelMarker from "@/components/LabelMarker.vue";
-import { useFrames } from "@/stores";
+import { useConfig, useFrames } from "@/stores";
 import { createCachedUrl } from "@/utils/fetch";
 import Panzoom, { type PanzoomObject } from "@panzoom/panzoom";
 import type { PanzoomEventDetail } from "@panzoom/panzoom/dist/src/types";
 import { useResizeObserver } from "@vueuse/core";
-import { evaluate_cmap } from "js-colormaps";
+import { storeToRefs } from "pinia";
 import {
   computed,
   onBeforeUnmount,
@@ -19,8 +19,6 @@ import {
 const props = defineProps<{
   image?: string;
   labels: LabelsModel | null;
-  config: ProjectConfig | null;
-  colors: string[];
   opened?: string[];
   selected?: string[];
 }>();
@@ -48,6 +46,7 @@ const selected = computed({
 
 const frames = useFrames();
 const panzoom = ref<PanzoomObject | null>(null);
+const { config, colors, colorsIndividuals } = storeToRefs(useConfig());
 
 const imgEl = ref<InstanceType<typeof AdvImg> | null>(null);
 const parentEl: Ref<HTMLDivElement | null> = ref(null);
@@ -149,17 +148,14 @@ const updateLabelItems = () => {
     const iterBodyparts = bodyparts(props.image, props.labels);
     for (const { individual, bodypart, coords, index } of iterBodyparts) {
       const newCoords = calcRelativeToOrigin(coords.x, coords.y, -6, -6);
-      const colors = [props.colors[index] || "white"];
-      if (props.config?.multi_animal) {
-        const rgb = evaluate_cmap(
-          props.config.individuals.indexOf(individual) /
-            props.config.individuals.length,
-          "Set1"
+      const itemColors = [colors.value[index] || "white"];
+      if (config.value?.multi_animal) {
+        itemColors.push(
+          colorsIndividuals.value[config.value.individuals.indexOf(individual)]
         );
-        colors.push(`rgb(${rgb.join(",")})`);
       }
       if (newCoords) {
-        items.push([individual, bodypart, newCoords, colors]);
+        items.push([individual, bodypart, newCoords, itemColors]);
       }
     }
   }
@@ -167,12 +163,7 @@ const updateLabelItems = () => {
 };
 
 watch(
-  [
-    () => props.image,
-    () => props.labels,
-    () => props.colors,
-    () => props.config
-  ],
+  [() => props.image, () => props.labels, config, colors, colorsIndividuals],
   updateLabelItems
 );
 
@@ -203,9 +194,9 @@ const handlePanzoomChange = (
 };
 
 const handleClick = (ev: MouseEvent) => {
-  if (selected.value && props.config?.individuals) {
-    for (const [i, individual] of props.config.individuals.entries()) {
-      for (const [j, bodypart] of props.config.bodyparts.entries()) {
+  if (selected.value && config.value?.individuals) {
+    for (const [i, individual] of config.value.individuals.entries()) {
+      for (const [j, bodypart] of config.value.bodyparts.entries()) {
         if (`${individual}-${bodypart}` == selected.value) {
           const coords =
             props.image &&
@@ -225,16 +216,16 @@ const handleClick = (ev: MouseEvent) => {
                 }
               });
 
-              if (props.config.bodyparts.length > j + 1) {
+              if (config.value.bodyparts.length > j + 1) {
                 // select next bodypart
                 selected.value = `${individual}-${
-                  props.config.bodyparts[j + 1]
+                  config.value.bodyparts[j + 1]
                 }`;
-              } else if (props.config.individuals.length > i + 1) {
+              } else if (config.value.individuals.length > i + 1) {
                 // select next individual
-                opened.value = props.config.individuals[i + 1];
-                selected.value = `${props.config.individuals[i + 1]}-${
-                  props.config.bodyparts[0]
+                opened.value = config.value.individuals[i + 1];
+                selected.value = `${config.value.individuals[i + 1]}-${
+                  config.value.bodyparts[0]
                 }`;
               } else {
                 // clear selection as there is no next individual or bodypart

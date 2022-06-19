@@ -17,6 +17,15 @@ export function isArrayDefined<T>(
   return arr.every(v => isDefined(v));
 }
 
+/**
+ * Returns `true` if the object is `null`, `undefined`, or has no keys or items,
+ * otherwise, returns `false`.
+ */
+export function isEmpty(obj?: object | null) {
+  for (const i in obj) return false;
+  return true;
+}
+
 export function humanizeBytes(bytes: number): string {
   if (bytes < 1000) {
     return `${bytes} B`;

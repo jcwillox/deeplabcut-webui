@@ -1,16 +1,18 @@
 <script setup lang="ts">
-import { useFrames } from "@/stores";
+import { useConfig, useFrames } from "@/stores";
 import { createCachedUrl } from "@/utils";
 import { useVModel } from "@vueuse/core";
+import { storeToRefs } from "pinia";
 
 const props = defineProps<{
   index: number;
   modelValue?: boolean;
-  config: ProjectConfig | null;
   labels: LabelsModel | null;
 }>();
 
 const frames = useFrames();
+const { config } = storeToRefs(useConfig());
+
 const dialog = useVModel(props, "modelValue");
 const imgIndex = useVModel(props, "index");
 
@@ -36,8 +38,8 @@ const countLabelled = (image: string) => {
 const partialLabelled = (image: string) => {
   return (
     countLabelled(image) <
-    (props.config?.individuals.length || 0) *
-      (props.config?.bodyparts.length || 0)
+    (config.value?.individuals.length || 0) *
+      (config.value?.bodyparts.length || 0)
   );
 };
 </script>

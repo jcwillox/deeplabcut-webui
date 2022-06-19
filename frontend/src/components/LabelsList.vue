@@ -5,15 +5,14 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { useHotkeys } from "@/utils";
+import { useConfig } from "@/stores";
+import { isEmpty, useHotkeys } from "@/utils";
 import { syncRef, useVModel } from "@vueuse/core";
-import { evaluate_cmap } from "js-colormaps";
-import { computed, ref, watch } from "vue";
+import { storeToRefs } from "pinia";
+import { ref, watch } from "vue";
 
 const props = defineProps<{
-  config: ProjectConfig | null;
   individuals: LabelsIndividuals | null;
-  colors: string[];
   opened?: string[];
   selected?: string[];
 }>();
@@ -23,6 +22,8 @@ const emit = defineEmits<{
   (e: "update:opened", opened: string[]): void;
   (e: "update:selected", selected: string[]): void;
 }>();
+
+const { config, colors, colorsIndividuals } = storeToRefs(useConfig());
 
 const selected = useVModel(props, "selected", emit);
 const opened = ref<string[] | undefined>(undefined);
@@ -37,25 +38,14 @@ watch(opened, (value, oldValue) => {
 
 // set first individual as open when loaded
 watch(
-  () => props.config,
+  config,
   (value, oldValue) => {
-    if (value && (!oldValue || Object.keys(oldValue).length == 0)) {
-      opened.value = props.config?.individuals.slice(0, 1);
+    if (value && isEmpty(oldValue)) {
+      opened.value = config.value?.individuals.slice(0, 1);
     }
-  }
+  },
+  { immediate: true }
 );
-
-// extract and cache individual colors
-const colorsIndividuals = computed(() => {
-  const individuals = props.config?.individuals;
-  if (individuals) {
-    return individuals.map((_, i) => {
-      const rgb = evaluate_cmap(i / individuals.length, "Set1");
-      return `rgb(${rgb.join(",")})`;
-    });
-  }
-  return [];
-});
 
 const hasCoords = (coords?: LabelsCoords) => {
   return coords && (coords.x || coords.y);
@@ -89,9 +79,9 @@ const getLabelledCount = (bodyparts?: LabelsBodyparts) => {
 
 const selectNextBodypart = () => {
   let foundFirst = false;
-  if (props.config?.individuals) {
-    for (const individual of props.config.individuals) {
-      for (const bodypart of props.config.bodyparts) {
+  if (config.value?.individuals) {
+    for (const individual of config.value.individuals) {
+      for (const bodypart of config.value.bodyparts) {
         const key = `${individual}-${bodypart}`;
         if (selected.value?.length) {
           if (selected.value[0] === key) {
