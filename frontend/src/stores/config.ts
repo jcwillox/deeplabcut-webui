@@ -40,5 +40,11 @@ export const useConfig = defineStore("config", () => {
     });
   });
 
-  return { config, colors, colorsIndividuals };
+  const labelsCount = computed(
+    () =>
+      (config.value?.individuals.length || 0) *
+      (config.value?.bodyparts.length || 0)
+  );
+
+  return { config, colors, colorsIndividuals, labelsCount };
 });

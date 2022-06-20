@@ -5,24 +5,25 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { useConfig } from "@/stores";
+import { useConfig, useLabels } from "@/stores";
 import { isEmpty, useHotkeys } from "@/utils";
 import { syncRef, useVModel } from "@vueuse/core";
 import { storeToRefs } from "pinia";
 import { ref, watch } from "vue";
 
 const props = defineProps<{
-  individuals: LabelsIndividuals | null;
   opened?: string[];
   selected?: string[];
 }>();
 
 const emit = defineEmits<{
-  (e: "reset:label", individual: string, bodypart: string): void;
   (e: "update:opened", opened: string[]): void;
   (e: "update:selected", selected: string[]): void;
 }>();
 
+const labelsStore = useLabels();
+const { individuals } = storeToRefs(labelsStore);
+const { bodyparts, hasCoords, updateLabel } = labelsStore;
 const { config, colors, colorsIndividuals } = storeToRefs(useConfig());
 
 const selected = useVModel(props, "selected", emit);
@@ -47,10 +48,6 @@ watch(
   { immediate: true }
 );
 
-const hasCoords = (coords?: LabelsCoords) => {
-  return coords && (coords.x || coords.y);
-};
-
 const createSubtitle = (coords?: LabelsCoords) => {
   let output = "";
   if (coords) {
@@ -70,7 +67,7 @@ const createSubtitle = (coords?: LabelsCoords) => {
 const getLabelledCount = (bodyparts?: LabelsBodyparts) => {
   let count = 0;
   for (const bodypart in bodyparts) {
-    if (bodyparts[bodypart].x && bodyparts[bodypart].y) {
+    if (hasCoords(bodyparts[bodypart])) {
       count++;
     }
   }
@@ -79,33 +76,28 @@ const getLabelledCount = (bodyparts?: LabelsBodyparts) => {
 
 const selectNextBodypart = () => {
   let foundFirst = false;
-  if (config.value?.individuals) {
-    for (const individual of config.value.individuals) {
-      for (const bodypart of config.value.bodyparts) {
-        const key = `${individual}-${bodypart}`;
-        if (selected.value?.length) {
-          if (selected.value[0] === key) {
-            foundFirst = true;
-            continue;
-          } else if (!foundFirst) {
-            continue;
-          }
-        }
-        if (!hasCoords(props.individuals?.[individual]?.[bodypart])) {
-          opened.value = [individual];
-          selected.value = [`${individual}-${bodypart}`];
-          if (document.activeElement instanceof HTMLElement) {
-            document.activeElement.blur();
-          }
-          return;
-        }
+  for (const { individual, bodypart, coords } of bodyparts()) {
+    if (selected.value?.length) {
+      if (selected.value[0] === `${individual}-${bodypart}`) {
+        foundFirst = true;
+        continue;
+      } else if (!foundFirst) {
+        continue;
       }
     }
-    // clear selection as there is no next individual or bodypart
-    selected.value = undefined;
-    if (document.activeElement instanceof HTMLElement) {
-      document.activeElement.blur();
+    if (!hasCoords(coords)) {
+      opened.value = [individual];
+      selected.value = [`${individual}-${bodypart}`];
+      if (document.activeElement instanceof HTMLElement) {
+        document.activeElement.blur();
+      }
+      return;
     }
+  }
+  // clear selection as there is no next individual or bodypart
+  selected.value = undefined;
+  if (document.activeElement instanceof HTMLElement) {
+    document.activeElement.blur();
   }
 };
 
@@ -180,7 +172,7 @@ useHotkeys("n", () => {
             <v-btn
               size="small"
               variant="plain"
-              @click.stop="emit('reset:label', individual, bodypart)"
+              @click.stop="updateLabel(individual, bodypart)"
               icon
             >
               <v-icon size="small">mdi-restore</v-icon>

@@ -1,47 +1,23 @@
 <script setup lang="ts">
-import { useConfig, useFrames } from "@/stores";
+import { useConfig, useFrames, useLabels } from "@/stores";
 import { createCachedUrl } from "@/utils";
 import { useVModel } from "@vueuse/core";
 import { storeToRefs } from "pinia";
 
 const props = defineProps<{
-  index: number;
   modelValue?: boolean;
-  labels: LabelsModel | null;
 }>();
 
 const frames = useFrames();
-const { config } = storeToRefs(useConfig());
+const labelsStore = useLabels();
+const { labelsCount } = storeToRefs(useConfig());
+const { getLabelledCount } = labelsStore;
+const { index } = storeToRefs(labelsStore);
 
 const dialog = useVModel(props, "modelValue");
-const imgIndex = useVModel(props, "index");
 
-const countLabelled = (image: string) => {
-  const individuals = props.labels?.[image];
-  if (individuals) {
-    let count = 0;
-    for (const individual in individuals) {
-      const bodyparts = individuals[individual];
-      for (const bodypart in bodyparts) {
-        const coords = bodyparts[bodypart];
-        if (coords.x || coords.y) {
-          count++;
-        }
-      }
-    }
-    return count;
-  } else {
-    return 0;
-  }
-};
-
-const partialLabelled = (image: string) => {
-  return (
-    countLabelled(image) <
-    (config.value?.individuals.length || 0) *
-      (config.value?.bodyparts.length || 0)
-  );
-};
+const partialLabelled = (image: string) =>
+  getLabelledCount(image) < labelsCount.value;
 </script>
 
 <template>
@@ -62,14 +38,14 @@ const partialLabelled = (image: string) => {
               :key="i"
               :width="250"
               :color="
-                i === imgIndex
+                i === index
                   ? 'green'
                   : partialLabelled(frame)
                   ? 'amber'
                   : undefined
               "
               @click="
-                imgIndex = i;
+                index = i;
                 dialog = false;
               "
             >
@@ -97,11 +73,7 @@ const partialLabelled = (image: string) => {
               >
                 <span class="ellipsis">{{ frame }}</span>
                 <span class="text-no-wrap ml-2">
-                  {{ countLabelled(frame) }} /
-                  {{
-                    (config?.individuals.length || 0) *
-                    (config?.bodyparts.length || 0)
-                  }}
+                  {{ getLabelledCount(frame) }} / {{ labelsCount }}
                 </span>
               </v-card-title>
             </v-card>

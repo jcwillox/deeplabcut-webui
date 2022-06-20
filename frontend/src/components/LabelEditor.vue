@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import AdvImg from "@/components/AdvImg.vue";
 import LabelMarker from "@/components/LabelMarker.vue";
-import { useConfig, useFrames } from "@/stores";
+import { useConfig, useFrames, useLabels } from "@/stores";
 import { createCachedUrl } from "@/utils/fetch";
 import Panzoom, { type PanzoomObject } from "@panzoom/panzoom";
 import type { PanzoomEventDetail } from "@panzoom/panzoom/dist/src/types";
@@ -17,15 +17,12 @@ import {
 } from "vue";
 
 const props = defineProps<{
-  image?: string;
-  labels: LabelsModel | null;
   opened?: string[];
   selected?: string[];
 }>();
 
 const emit = defineEmits<{
   (e: "panzoomchange", detail: PanzoomEventDetail): void;
-  (e: "update:labels", labels: LabelsModel): void;
   (e: "update:opened", opened: string[]): void;
   (e: "update:selected", selected: string[]): void;
 }>();
@@ -45,8 +42,12 @@ const selected = computed({
 });
 
 const frames = useFrames();
-const panzoom = ref<PanzoomObject | null>(null);
+const labelsStore = useLabels();
 const { config, colors, colorsIndividuals } = storeToRefs(useConfig());
+const { bodyparts, hasCoords, updateLabel } = labelsStore;
+const { image, individuals } = storeToRefs(labelsStore);
+
+const panzoom = ref<PanzoomObject | null>(null);
 
 const imgEl = ref<InstanceType<typeof AdvImg> | null>(null);
 const parentEl: Ref<HTMLDivElement | null> = ref(null);
@@ -126,46 +127,25 @@ const calcPointFromCorner = (clientX: number, clientY: number) => {
   }
 };
 
-function* bodyparts(image?: string, labels?: LabelsModel | null) {
-  if (labels && image) {
-    const individuals = labels[image];
-    for (const individual in individuals) {
-      const bodyparts = individuals[individual];
-      let index = 0;
-      for (const bodypart in bodyparts) {
-        const coords = bodyparts[bodypart];
-        yield { individual, bodypart, coords, index };
-        index++;
-      }
-    }
-  }
-}
-
 const labelItems = ref<[string, string, LabelsCoords, string[]][]>([]);
 const updateLabelItems = () => {
   const items: [string, string, LabelsCoords, string[]][] = [];
   if (parentEl.value?.clientHeight) {
-    const iterBodyparts = bodyparts(props.image, props.labels);
-    for (const { individual, bodypart, coords, index } of iterBodyparts) {
-      const newCoords = calcRelativeToOrigin(coords.x, coords.y, -6, -6);
-      const itemColors = [colors.value[index] || "white"];
-      if (config.value?.multi_animal) {
-        itemColors.push(
-          colorsIndividuals.value[config.value.individuals.indexOf(individual)]
-        );
-      }
+    for (const { i, j, individual, bodypart, coords } of bodyparts()) {
+      const newCoords = calcRelativeToOrigin(coords?.x, coords?.y, -6, -6);
       if (newCoords) {
-        items.push([individual, bodypart, newCoords, itemColors]);
+        const colors_ = [colors.value[j] || "white"];
+        if (config.value?.multi_animal) {
+          colors_.push(colorsIndividuals.value[i]);
+        }
+        items.push([individual, bodypart, newCoords, colors_]);
       }
     }
   }
   labelItems.value = items;
 };
 
-watch(
-  [() => props.image, () => props.labels, config, colors, colorsIndividuals],
-  updateLabelItems
-);
+watch([individuals, config], updateLabelItems);
 
 // when the element is resized we need to update the minimap
 // as well as account for the new dimensions when making calculations
@@ -182,56 +162,37 @@ const handlePanzoomChange = (
   if (detail.originalEvent?.isTrusted) {
     const coords = calcFixedFromCorner(detail.x, detail.y, -6, -6);
     if (coords) {
-      emit("update:labels", {
-        [props.image!]: {
-          [individual]: {
-            [bodypart]: coords
-          }
-        }
-      });
+      updateLabel(individual, bodypart, coords);
     }
   }
 };
 
 const handleClick = (ev: MouseEvent) => {
-  if (selected.value && config.value?.individuals) {
-    for (const [i, individual] of config.value.individuals.entries()) {
-      for (const [j, bodypart] of config.value.bodyparts.entries()) {
-        if (`${individual}-${bodypart}` == selected.value) {
-          const coords =
-            props.image &&
-            props.labels?.[props.image]?.[individual]?.[bodypart];
-          if (!(coords && coords.x && coords.y)) {
-            const relativeCoords = calcPointFromCorner(ev.clientX, ev.clientY);
-            const trueCoords = calcFixedFromCorner(
-              relativeCoords!.x,
-              relativeCoords!.y
-            );
-            if (trueCoords) {
-              emit("update:labels", {
-                [props.image!]: {
-                  [individual]: {
-                    [bodypart]: trueCoords
-                  }
-                }
-              });
+  if (!selected.value || !config.value) {
+    return;
+  }
+  for (const { i, j, individual, bodypart, coords } of bodyparts()) {
+    if (`${individual}-${bodypart}` == selected.value) {
+      if (!hasCoords(coords)) {
+        const relativeCoords = calcPointFromCorner(ev.clientX, ev.clientY);
+        const trueCoords = calcFixedFromCorner(
+          relativeCoords!.x,
+          relativeCoords!.y
+        );
+        if (trueCoords) {
+          updateLabel(individual, bodypart, trueCoords);
 
-              if (config.value.bodyparts.length > j + 1) {
-                // select next bodypart
-                selected.value = `${individual}-${
-                  config.value.bodyparts[j + 1]
-                }`;
-              } else if (config.value.individuals.length > i + 1) {
-                // select next individual
-                opened.value = config.value.individuals[i + 1];
-                selected.value = `${config.value.individuals[i + 1]}-${
-                  config.value.bodyparts[0]
-                }`;
-              } else {
-                // clear selection as there is no next individual or bodypart
-                selected.value = undefined;
-              }
-            }
+          const { individuals, bodyparts } = config.value;
+          if (bodyparts.length > j + 1) {
+            // select next bodypart
+            selected.value = `${individual}-${bodyparts[j + 1]}`;
+          } else if (individuals.length > i + 1) {
+            // select next individual
+            opened.value = individuals[i + 1];
+            selected.value = `${individuals[i + 1]}-${bodyparts[0]}`;
+          } else {
+            // clear selection as there is no next individual or bodypart
+            selected.value = undefined;
           }
         }
       }

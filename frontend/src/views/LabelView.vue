@@ -9,54 +9,20 @@ import AdvImg from "@/components/AdvImg.vue";
 import FramesDialog from "@/components/FramesDialog.vue";
 import LabelEditor from "@/components/LabelEditor.vue";
 import LabelsList from "@/components/LabelsList.vue";
-import { useFrames, useStore } from "@/stores";
-import { createCachedUrl, useFetch, useHotkeys } from "@/utils";
+import { useFrames, useLabels } from "@/stores";
+import { createCachedUrl, useHotkeys } from "@/utils";
 import type { PanzoomEventDetail } from "@panzoom/panzoom/dist/src/types";
-import { useDebounceFn } from "@vueuse/core";
-import { deepmerge } from "deepmerge-ts";
-import { computed, ref, watch } from "vue";
+import { storeToRefs } from "pinia";
+import { ref } from "vue";
 
-const store = useStore();
 const frames = useFrames();
 const dialog = ref(false);
 const opened = ref<string[] | undefined>(undefined);
 const selected = ref<string[] | undefined>(undefined);
+const { index, image, pending } = storeToRefs(useLabels());
 
 const labelEditorEl = ref<InstanceType<typeof LabelEditor> | null>(null);
 const minimapEl = ref<InstanceType<typeof AdvImg> | null>(null);
-
-const labelsUrl = computed(() => "/videos/" + store.video + "/labels");
-const { data: labels, execute } = useFetch(labelsUrl, { refetch: true })
-  .get()
-  .json<LabelsModel>();
-
-const imgIndex = ref(0);
-const updateIndex = (n: number) => {
-  if (frames.items.length == 0) {
-    imgIndex.value = 0;
-  } else {
-    const length = frames.items.length;
-    imgIndex.value = (((imgIndex.value + n) % length) + length) % length;
-  }
-};
-
-const image = computed(() => frames.items[imgIndex.value]);
-const individuals = computed<LabelsIndividuals | null>(() =>
-  labels.value ? labels.value[image.value] : null
-);
-
-watch(
-  () => frames.items,
-  () => {
-    if (frames.items.length == 0) {
-      // reset selected frame when changing video
-      imgIndex.value = 0;
-    } else {
-      // refetch labels when a new frame is extracted
-      execute();
-    }
-  }
-);
 
 const mapWidth = ref("0%");
 const mapHeight = ref("0%");
@@ -70,77 +36,12 @@ const panZoomChange = (detail: PanzoomEventDetail) => {
   mapHeight.value = ((height / 2 - detail.y) / height) * 100 + "%";
 };
 
-const pending = ref<LabelsModel | null>(null);
-const isSyncing = ref(false);
-
-const syncBackend = useDebounceFn(
-  async () => {
-    // ensure we are only sending 1 request at a time
-    if (!isSyncing.value) {
-      if (pending.value === null) {
-        console.error("pending changes was null while syncing backend");
-        return;
-      }
-
-      isSyncing.value = true;
-      let payload: LabelsModel | null = pending.value;
-      pending.value = null;
-
-      try {
-        console.debug("SyncBackend: Starting", payload);
-        const { statusCode } = await useFetch(labelsUrl).put(payload);
-
-        if (statusCode.value == 200) {
-          payload = null;
-          console.debug("SyncBackend: Finished");
-        } else {
-          console.debug("SyncBackend: Failed", statusCode.value, pending.value);
-        }
-      } finally {
-        // ensure we always reset syncing status
-        isSyncing.value = false;
-
-        // merge back any changes we were trying to send
-        if (payload) {
-          pending.value = pending.value
-            ? deepmerge(payload, pending.value)
-            : payload;
-        }
-
-        // reschedule update if there are pending changes
-        if (pending.value) {
-          syncBackend()?.then();
-          console.debug("SyncBackend: Rescheduled", pending.value);
-        }
-      }
-    }
-  },
-  500,
-  { maxWait: 2000 }
-);
-
-const updateLabels = (newLabels: LabelsModel) => {
-  pending.value = deepmerge(pending.value, newLabels);
-  labels.value = deepmerge(labels.value, newLabels);
-  syncBackend();
-};
-
-const resetLabel = (individual: string, bodypart: string) => {
-  updateLabels({
-    [image.value]: {
-      [individual]: {
-        [bodypart]: { x: null, y: null }
-      }
-    }
-  });
-};
-
 // define hotkeys
 useHotkeys("a", () => {
-  updateIndex(-1);
+  index.value--;
 });
 useHotkeys("d", () => {
-  updateIndex(1);
+  index.value++;
 });
 useHotkeys("g", () => {
   dialog.value = !dialog.value;
@@ -169,7 +70,7 @@ useHotkeys("r", () => {
               class="rounded-0 rounded-s flex-grow-1"
               variant="plain"
               size="small"
-              @click="updateIndex(-1)"
+              @click="index--"
               icon
             >
               <v-icon size="small">mdi-chevron-left</v-icon>
@@ -182,19 +83,11 @@ useHotkeys("r", () => {
             ref="labelEditorEl"
             v-model:opened="opened"
             v-model:selected="selected"
-            :image="frames.items[imgIndex]"
-            :labels="labels"
             class="flex-grow-1 h-100"
             @panzoomchange="panZoomChange"
-            @update:labels="updateLabels"
-          >
-          </LabelEditor>
+          />
           <div class="d-flex flex-column">
-            <FramesDialog
-              v-model="dialog"
-              v-model:index="imgIndex"
-              :labels="labels"
-            >
+            <FramesDialog v-model="dialog">
               <template #activator="{ props }">
                 <v-btn
                   v-bind="props"
@@ -228,7 +121,7 @@ useHotkeys("r", () => {
               class="rounded-0 rounded-be flex-grow-1"
               variant="plain"
               size="small"
-              @click="updateIndex(1)"
+              @click="index++"
               icon
             >
               <v-icon size="small">mdi-chevron-right</v-icon>
@@ -241,7 +134,10 @@ useHotkeys("r", () => {
         <div class="d-flex justify-space-between text-body-2">
           <span>{{ image }}</span>
           <span>{{ pending ? "saving..." : "" }}</span>
-          <span>{{ imgIndex + 1 }} / {{ frames.items.length }}</span>
+          <span>
+            {{ Math.min(index + 1, frames.items.length) }} /
+            {{ frames.items.length }}
+          </span>
         </div>
       </div>
     </div>
@@ -254,12 +150,7 @@ useHotkeys("r", () => {
         <div class="panel bottom"></div>
       </AdvImg>
 
-      <LabelsList
-        v-model:opened="opened"
-        v-model:selected="selected"
-        :individuals="individuals"
-        @reset:label="resetLabel"
-      />
+      <LabelsList v-model:opened="opened" v-model:selected="selected" />
     </div>
   </v-container>
 </template>
