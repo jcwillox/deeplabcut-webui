@@ -60,7 +60,9 @@ useHotkeys("r", () => {
     <div
       class="flex-grow-1"
       :style="{
-        maxWidth: `calc((100vh - 80px - 15px) * ${minimapEl?.aspectRatio} + 80px)`
+        maxWidth: `calc((100vh - 80px - 15px) * ${
+          minimapEl?.aspectRatio || '16/9'
+        } + 80px)`
       }"
     >
       <div>
@@ -81,11 +83,23 @@ useHotkeys("r", () => {
           </div>
           <LabelEditor
             ref="labelEditorEl"
+            v-if="image"
             v-model:opened="opened"
             v-model:selected="selected"
             class="flex-grow-1 h-100"
             @panzoomchange="panZoomChange"
           />
+          <div
+            v-else
+            class="d-flex justify-center align-center flex-grow-1 text-center"
+            style="
+              height: 4500px;
+              max-width: 8000px;
+              max-height: calc(100vh - 80px - 15px);
+            "
+          >
+            <span>No frames have been extracted.</span>
+          </div>
           <div class="d-flex flex-column">
             <FramesDialog v-model="dialog">
               <template #activator="{ props }">
@@ -142,7 +156,11 @@ useHotkeys("r", () => {
       </div>
     </div>
     <div class="d-flex flex-column pl-1 w-25" style="max-width: 280px">
-      <AdvImg ref="minimapEl" :src="createCachedUrl(frames.framesUrl, image)">
+      <AdvImg
+        ref="minimapEl"
+        v-if="image"
+        :src="createCachedUrl(frames.framesUrl, image)"
+      >
         <div class="zoom-box"></div>
         <div class="panel top"></div>
         <div class="panel left"></div>
