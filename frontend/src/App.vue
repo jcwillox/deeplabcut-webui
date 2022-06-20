@@ -2,7 +2,7 @@
 import SettingsMenu from "@/components/SettingsMenu.vue";
 import SnackbarPWA from "@/components/SnackbarPWA.vue";
 import SystemBar from "@/components/SystemBar.vue";
-import VersionDialog from "@/components/VersionDialog.vue";
+import VersionDialog from "@/dialogs/VersionDialog.vue";
 import { useFrames, useStore } from "@/stores";
 import { clearUrlCache, useHotkeys } from "@/utils";
 import {

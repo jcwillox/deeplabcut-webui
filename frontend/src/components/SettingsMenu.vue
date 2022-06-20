@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import DialogBackend from "@/components/BackendDialog.vue";
+import DialogBackend from "@/dialogs/BackendDialog.vue";
 import type { BasicColorSchema } from "@vueuse/core";
 import { capitalize, computed } from "vue";
 

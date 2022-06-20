@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import ProjectDialog from "@/components/ProjectDialog.vue";
-import VideoDialog from "@/components/VideoDialog.vue";
+import ProjectDialog from "@/dialogs/ProjectDialog.vue";
+import VideoDialog from "@/dialogs/VideoDialog.vue";
 import { useStore } from "@/stores";
 import { useHotkeys } from "@/utils";
 import { ref } from "vue";

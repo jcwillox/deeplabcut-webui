@@ -6,9 +6,9 @@ export default {
 
 <script setup lang="ts">
 import AdvImg from "@/components/AdvImg.vue";
-import FramesDialog from "@/components/FramesDialog.vue";
 import LabelEditor from "@/components/LabelEditor.vue";
 import LabelsList from "@/components/LabelsList.vue";
+import FramesDialog from "@/dialogs/FramesDialog.vue";
 import { useFrames, useLabels } from "@/stores";
 import { createCachedUrl, useHotkeys } from "@/utils";
 import type { PanzoomEventDetail } from "@panzoom/panzoom/dist/src/types";
