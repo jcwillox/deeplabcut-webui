@@ -5,19 +5,16 @@ export default {
 </script>
 
 <script setup lang="ts">
+import VideoJS from "@/components/VideoJS.vue";
 import { useFrames, useStore } from "@/stores";
-import { useHotkeys } from "@/utils";
-import { createCachedUrl, useFetch } from "@/utils/fetch";
+import { createCachedUrl, useFetch, useHotkeys } from "@/utils";
 import { computed, ref, watch } from "vue";
 import { VSlideGroup, VSlideGroupItem } from "vuetify/components";
-import VideoJS from "../components/VideoJS.vue";
 
 const store = useStore();
 const frames = useFrames();
 const player = ref<InstanceType<typeof VideoJS> | null>(null);
-
 const videoUrl = computed(() => "/videos/" + store.video);
-const framesUrl = computed(() => videoUrl.value + "/frames");
 
 const timecode = computed(() => player.value?.timecode || 0);
 const frame = computed({
@@ -199,10 +196,10 @@ useHotkeys("space", () => {
         <v-card class="ma-4" width="100" @click="toggle">
           <div class="d-flex fill-height align-center justify-center">
             <v-img
-              :src="createCachedUrl(framesUrl, image)"
+              :src="createCachedUrl(frames.framesUrl, image)"
               @click="clickFrame(image)"
             >
-              <template v-slot:placeholder>
+              <template #placeholder>
                 <v-row class="fill-height ma-0" align="center" justify="center">
                   <v-progress-circular
                     indeterminate

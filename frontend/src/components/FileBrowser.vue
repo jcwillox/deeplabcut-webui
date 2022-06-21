@@ -81,7 +81,7 @@ const resolveColumn = (column: Column, item: ItemBase) => {
     <v-progress-linear
       v-if="loading"
       class="position-absolute"
-      color="primary"
+      color="blue"
       indeterminate
     />
     <tbody v-if="!loading || items">

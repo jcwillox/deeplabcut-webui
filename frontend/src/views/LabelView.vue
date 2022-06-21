@@ -156,6 +156,7 @@ useHotkeys("r", () => {
         ref="minimapEl"
         v-if="image"
         :src="createCachedUrl(frames.framesUrl, image)"
+        class="flex-shrink-0"
       >
         <div class="zoom-box"></div>
         <div class="panel top"></div>

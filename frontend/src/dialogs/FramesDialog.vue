@@ -8,15 +8,19 @@ const props = defineProps<{
   modelValue?: boolean;
 }>();
 
+const emit = defineEmits<{
+  (e: "update:modelValue", value: boolean): void;
+}>();
+
 const frames = useFrames();
 const labelsStore = useLabels();
 const { labelsCount } = storeToRefs(useConfig());
 const { getLabelledCount } = labelsStore;
 const { index } = storeToRefs(labelsStore);
 
-const dialog = useVModel(props, "modelValue");
+const dialog = useVModel(props, "modelValue", emit);
 
-const partialLabelled = (image: string) =>
+const partiallyLabelled = (image: string) =>
   getLabelledCount(image) < labelsCount.value;
 </script>
 
@@ -40,7 +44,7 @@ const partialLabelled = (image: string) =>
               :color="
                 i === index
                   ? 'green'
-                  : partialLabelled(frame)
+                  : partiallyLabelled(frame)
                   ? 'amber'
                   : undefined
               "
@@ -66,11 +70,7 @@ const partialLabelled = (image: string) =>
                   </v-row>
                 </template>
               </v-img>
-
-              <v-card-title
-                class="d-flex justify-space-between text-body-1"
-                style="text-overflow: ellipsis"
-              >
+              <v-card-title class="d-flex justify-space-between text-body-1">
                 <span class="ellipsis">{{ frame }}</span>
                 <span class="text-no-wrap ml-2">
                   {{ getLabelledCount(frame) }} / {{ labelsCount }}

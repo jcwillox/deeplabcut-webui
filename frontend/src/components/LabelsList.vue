@@ -41,7 +41,7 @@ watch(
   config,
   (value, oldValue) => {
     if (value && isEmpty(oldValue)) {
-      opened.value = config.value?.individuals.slice(0, 1);
+      opened.value = config.value?.individuals.slice(0, 1) || [];
     }
   },
   { immediate: true }
