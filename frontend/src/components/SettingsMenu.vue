@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import DialogBackend from "@/dialogs/BackendDialog.vue";
+import { useStore } from "@/stores";
 import type { BasicColorSchema } from "@vueuse/core";
 import { capitalize, computed } from "vue";
 
@@ -13,6 +14,7 @@ const emit = defineEmits<{
   (e: "update:theme", value: BasicColorSchema): void;
 }>();
 
+const store = useStore();
 const show = computed({
   get: () => props.modelValue,
   set: value => emit("update:modelValue", value)
@@ -39,6 +41,25 @@ const themeName = computed({
         :items="['Auto', 'Light', 'Dark']"
         hideDetails
       />
+      <v-card
+        color="grey"
+        variant="tonal"
+        density="compact"
+        class="tile-setting"
+        title="Auto Select Bodypart"
+        subtitle="Select the next bodypart after placing one"
+        @click="store.autoSelect = !store.autoSelect"
+      >
+        <template #append>
+          <v-switch
+            v-model="store.autoSelect"
+            density="compact"
+            color="blue"
+            hide-details
+            inset
+          />
+        </template>
+      </v-card>
       <DialogBackend>
         <template #activator="{ props }">
           <v-card
@@ -63,5 +84,18 @@ const themeName = computed({
 <style scoped>
 .v-container > *:not(:last-child) {
   margin-bottom: 8px;
+}
+.v-card.tile-setting {
+  user-select: none;
+}
+.v-card.tile-setting > :deep(.v-card-header .v-card-title) {
+  font-size: 16px;
+}
+.v-card.tile-setting > :deep(.v-card-header > .v-card-header-text) {
+  color: rgb(var(--v-theme-on-surface));
+}
+.v-card.tile-setting > :deep(.v-card-header > .v-card-avatar) {
+  flex-shrink: 0;
+  align-self: auto;
 }
 </style>

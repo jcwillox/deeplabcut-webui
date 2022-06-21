@@ -1,5 +1,5 @@
-import { defineStore } from "pinia";
 import { useFrames } from "@/stores";
+import { defineStore } from "pinia";
 
 export const useStore = defineStore("global", {
   state: () => ({
@@ -7,7 +7,8 @@ export const useStore = defineStore("global", {
     video: "",
     cVideo: "",
     backend: "http://127.0.0.1:8000",
-    token: ""
+    token: "",
+    autoSelect: true
   }),
   actions: {
     resetProject() {

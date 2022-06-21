@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import AdvImg from "@/components/AdvImg.vue";
 import LabelMarker from "@/components/LabelMarker.vue";
-import { useConfig, useFrames, useLabels } from "@/stores";
+import { useConfig, useFrames, useLabels, useStore } from "@/stores";
 import { createCachedUrl } from "@/utils/fetch";
 import Panzoom, { type PanzoomObject } from "@panzoom/panzoom";
 import type { PanzoomEventDetail } from "@panzoom/panzoom/dist/src/types";
@@ -13,6 +13,7 @@ const emit = defineEmits<{
   (e: "panzoomchange", detail: PanzoomEventDetail): void;
 }>();
 
+const store = useStore();
 const frames = useFrames();
 const labelsStore = useLabels();
 const { config, colors, colorsIndividuals } = storeToRefs(useConfig());
@@ -154,7 +155,7 @@ const handleClick = (ev: MouseEvent) => {
         );
         if (trueCoords) {
           updateLabel(individual, bodypart, trueCoords);
-          selectNextLabel();
+          store.autoSelect && selectNextLabel();
           return;
         }
       }
