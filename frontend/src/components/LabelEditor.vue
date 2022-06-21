@@ -17,8 +17,14 @@ const store = useStore();
 const frames = useFrames();
 const labelsStore = useLabels();
 const { config, colors, colorsIndividuals } = storeToRefs(useConfig());
-const { bodyparts, hasCoords, isSelected, updateLabel, selectNextLabel } =
-  labelsStore;
+const {
+  bodyparts,
+  hasCoords,
+  isSelected,
+  updateLabel,
+  selectLabel,
+  selectNextLabel
+} = labelsStore;
 const { image, individuals, selected } = storeToRefs(labelsStore);
 
 const panzoom = ref<PanzoomObject | null>(null);
@@ -232,6 +238,7 @@ defineExpose({
         :colors="colors"
         :parent="panzoom"
         :selected="isSelected(individual, bodypart)"
+        @click.stop="selectLabel(individual, bodypart)"
         @panzoomchange="
           detail => handlePanzoomChange(individual, bodypart, detail)
         "
