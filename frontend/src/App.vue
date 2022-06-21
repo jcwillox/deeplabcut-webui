@@ -12,6 +12,7 @@ import {
 } from "@vueuse/core";
 import { computed, ref, watch } from "vue";
 import { RouterView, useRoute, useRouter } from "vue-router";
+import { useTheme } from "vuetify";
 
 const store = useStore();
 const frames = useFrames();
@@ -27,11 +28,17 @@ const keepAliveInclusion = computed(() =>
 );
 
 // compute which theme to use
+const theme = useTheme();
 const themeMode = useStorage<BasicColorSchema>("theme", "auto");
 const systemTheme = usePreferredColorScheme();
-const theme = computed(() =>
-  themeMode.value == "auto" ? systemTheme.value : themeMode.value
-);
+
+watch([themeMode, systemTheme], () => {
+  if (themeMode.value == "auto") {
+    theme.global.name.value = systemTheme.value === "dark" ? "dark" : "light";
+  } else {
+    theme.global.name.value = themeMode.value;
+  }
+});
 
 // handle tracking active tab
 const route = useRoute();
@@ -97,7 +104,7 @@ useHotkeys("shift+w", store.resetProject);
 </script>
 
 <template>
-  <v-app :theme="theme">
+  <v-app>
     <SettingsMenu v-model="showSettings" v-model:theme="themeMode" />
     <SnackbarPWA />
     <SystemBar />
