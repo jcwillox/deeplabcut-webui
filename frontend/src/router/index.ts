@@ -1,7 +1,15 @@
+import { useStore } from "@/stores";
 import ExtractView from "@/views/ExtractView.vue";
 import LabelView from "@/views/LabelView.vue";
 import ProjectView from "@/views/ProjectView.vue";
 import { createRouter, createWebHistory } from "vue-router";
+
+const hasProjectVideo = () => {
+  const store = useStore();
+  if (!(store.project && store.cVideo)) {
+    return false;
+  }
+};
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -18,12 +26,14 @@ const router = createRouter({
     {
       path: "/extract",
       name: "extract",
-      component: ExtractView
+      component: ExtractView,
+      beforeEnter: hasProjectVideo
     },
     {
       path: "/label",
       name: "label",
-      component: LabelView
+      component: LabelView,
+      beforeEnter: hasProjectVideo
     }
   ]
 });
