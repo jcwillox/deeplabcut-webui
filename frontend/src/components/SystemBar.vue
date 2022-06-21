@@ -6,14 +6,19 @@ import { useHotkeys } from "@/utils";
 import { ref } from "vue";
 
 const store = useStore();
-const dialogProject = ref(false);
 const dialogVideo = ref(false);
+const dialogProject = ref(false);
 
 useHotkeys("shift+v", () => {
-  dialogVideo.value = !dialogVideo.value;
+  if (store.project) {
+    dialogVideo.value = !dialogVideo.value;
+  }
 });
+
 useHotkeys("shift+p", () => {
-  dialogProject.value = !dialogProject.value;
+  if (store.project) {
+    dialogProject.value = !dialogProject.value;
+  }
 });
 </script>
 
@@ -23,7 +28,7 @@ useHotkeys("shift+p", () => {
     color="primary-darken-1"
     class="flex-grow-0 pl-0"
   >
-    <ProjectDialog v-if="store.project" v-model="dialogProject">
+    <ProjectDialog v-model="dialogProject">
       <template #activator="{ props }">
         <v-btn
           v-bind="props"
@@ -39,10 +44,10 @@ useHotkeys("shift+p", () => {
         </v-btn>
       </template>
     </ProjectDialog>
-    <span v-if="store.cVideo">
-      <span class="mx-1">/</span>
-      <VideoDialog v-model="dialogVideo">
-        <template #activator="{ props }">
+    <VideoDialog v-model="dialogVideo">
+      <template #activator="{ props }">
+        <span v-if="store.cVideo">
+          <span class="mx-1">/</span>
           <v-btn
             v-bind="props"
             size="small"
@@ -55,9 +60,10 @@ useHotkeys("shift+p", () => {
               Quick switch video <kbd>Shift</kbd><kbd>V</kbd>
             </v-tooltip>
           </v-btn>
-        </template>
-      </VideoDialog>
-    </span>
+        </span>
+      </template>
+    </VideoDialog>
+
     <v-spacer />
     <v-btn
       icon="mdi-close"
