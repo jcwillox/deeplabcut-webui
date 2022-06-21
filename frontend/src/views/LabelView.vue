@@ -17,8 +17,6 @@ import { ref } from "vue";
 
 const frames = useFrames();
 const dialog = ref(false);
-const opened = ref<string[] | undefined>(undefined);
-const selected = ref<string[] | undefined>(undefined);
 const { index, image, pending } = storeToRefs(useLabels());
 
 const labelEditorEl = ref<InstanceType<typeof LabelEditor> | null>(null);
@@ -84,8 +82,6 @@ useHotkeys("r", () => {
           <LabelEditor
             ref="labelEditorEl"
             v-if="image"
-            v-model:opened="opened"
-            v-model:selected="selected"
             class="flex-grow-1 h-100"
             @panzoomchange="panZoomChange"
           />
@@ -168,7 +164,7 @@ useHotkeys("r", () => {
         <div class="panel bottom"></div>
       </AdvImg>
 
-      <LabelsList v-model:opened="opened" v-model:selected="selected" />
+      <LabelsList />
     </div>
   </v-container>
 </template>

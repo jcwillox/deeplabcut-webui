@@ -46,5 +46,17 @@ export const useConfig = defineStore("config", () => {
       (config.value?.bodyparts.length || 0)
   );
 
-  return { config, colors, colorsIndividuals, labelsCount };
+  const labelKeyMap = computed(() => {
+    const keyMap = new Map<string, [string, string]>();
+    if (config.value) {
+      for (const individual of config.value.individuals) {
+        for (const bodypart of config.value.bodyparts) {
+          keyMap.set(`${individual}-${bodypart}`, [individual, bodypart]);
+        }
+      }
+    }
+    return keyMap;
+  });
+
+  return { config, colors, colorsIndividuals, labelsCount, labelKeyMap };
 });

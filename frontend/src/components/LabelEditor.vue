@@ -7,45 +7,18 @@ import Panzoom, { type PanzoomObject } from "@panzoom/panzoom";
 import type { PanzoomEventDetail } from "@panzoom/panzoom/dist/src/types";
 import { useResizeObserver } from "@vueuse/core";
 import { storeToRefs } from "pinia";
-import {
-  computed,
-  onBeforeUnmount,
-  onMounted,
-  ref,
-  watch,
-  type Ref
-} from "vue";
-
-const props = defineProps<{
-  opened?: string[];
-  selected?: string[];
-}>();
+import { onBeforeUnmount, onMounted, ref, watch, type Ref } from "vue";
 
 const emit = defineEmits<{
   (e: "panzoomchange", detail: PanzoomEventDetail): void;
-  (e: "update:opened", opened: string[]): void;
-  (e: "update:selected", selected: string[]): void;
 }>();
-
-const opened = computed({
-  get: () => props.opened?.[0],
-  set: value => {
-    emit("update:opened", value ? [value] : []);
-  }
-});
-
-const selected = computed({
-  get: () => props.selected?.[0],
-  set: value => {
-    emit("update:selected", value ? [value] : []);
-  }
-});
 
 const frames = useFrames();
 const labelsStore = useLabels();
 const { config, colors, colorsIndividuals } = storeToRefs(useConfig());
-const { bodyparts, hasCoords, updateLabel } = labelsStore;
-const { image, individuals } = storeToRefs(labelsStore);
+const { bodyparts, hasCoords, isSelected, updateLabel, selectNextLabel } =
+  labelsStore;
+const { image, individuals, selected } = storeToRefs(labelsStore);
 
 const panzoom = ref<PanzoomObject | null>(null);
 
@@ -171,8 +144,8 @@ const handleClick = (ev: MouseEvent) => {
   if (!selected.value || !config.value) {
     return;
   }
-  for (const { i, j, individual, bodypart, coords } of bodyparts()) {
-    if (`${individual}-${bodypart}` == selected.value) {
+  for (const { individual, bodypart, coords } of bodyparts()) {
+    if (isSelected(individual, bodypart)) {
       if (!hasCoords(coords)) {
         const relativeCoords = calcPointFromCorner(ev.clientX, ev.clientY);
         const trueCoords = calcFixedFromCorner(
@@ -181,19 +154,8 @@ const handleClick = (ev: MouseEvent) => {
         );
         if (trueCoords) {
           updateLabel(individual, bodypart, trueCoords);
-
-          const { individuals, bodyparts } = config.value;
-          if (bodyparts.length > j + 1) {
-            // select next bodypart
-            selected.value = `${individual}-${bodyparts[j + 1]}`;
-          } else if (individuals.length > i + 1) {
-            // select next individual
-            opened.value = individuals[i + 1];
-            selected.value = `${individuals[i + 1]}-${bodyparts[0]}`;
-          } else {
-            // clear selection as there is no next individual or bodypart
-            selected.value = undefined;
-          }
+          selectNextLabel();
+          return;
         }
       }
     }
@@ -268,7 +230,7 @@ defineExpose({
         :coords="coords"
         :colors="colors"
         :parent="panzoom"
-        :selected="`${individual}-${bodypart}` === selected"
+        :selected="isSelected(individual, bodypart)"
         @panzoomchange="
           detail => handlePanzoomChange(individual, bodypart, detail)
         "

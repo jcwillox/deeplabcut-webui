@@ -7,33 +7,32 @@ export default {
 <script setup lang="ts">
 import { useConfig, useLabels } from "@/stores";
 import { isEmpty, useHotkeys } from "@/utils";
-import { syncRef, useVModel } from "@vueuse/core";
 import { storeToRefs } from "pinia";
 import { ref, watch } from "vue";
 
-const props = defineProps<{
-  opened?: string[];
-  selected?: string[];
-}>();
-
-const emit = defineEmits<{
-  (e: "update:opened", opened: string[]): void;
-  (e: "update:selected", selected: string[]): void;
-}>();
-
 const labelsStore = useLabels();
-const { individuals } = storeToRefs(labelsStore);
-const { bodyparts, hasCoords, updateLabel } = labelsStore;
-const { config, colors, colorsIndividuals } = storeToRefs(useConfig());
+const { individuals, selected } = storeToRefs(labelsStore);
+const { hasCoords, updateLabel, getLabelledCount, selectNextLabel } =
+  labelsStore;
+const { config, colors, colorsIndividuals, labelKeyMap } = storeToRefs(
+  useConfig()
+);
 
-const selected = useVModel(props, "selected", emit);
 const opened = ref<string[] | undefined>(undefined);
-syncRef(opened, useVModel(props, "opened", emit));
 
 // ensure exactly one individual is open
 watch(opened, (value, oldValue) => {
   if (value?.length === 0) {
     opened.value = oldValue;
+  }
+});
+
+watch(selected, value => {
+  if (value?.length) {
+    const individual = labelKeyMap.value.get(value[0])?.[0];
+    if (individual && !opened.value?.includes(individual)) {
+      opened.value = [individual];
+    }
   }
 });
 
@@ -64,53 +63,14 @@ const createSubtitle = (coords?: LabelsCoords) => {
   return output;
 };
 
-const getLabelledCount = (bodyparts?: LabelsBodyparts) => {
-  let count = 0;
-  for (const bodypart in bodyparts) {
-    if (hasCoords(bodyparts[bodypart])) {
-      count++;
-    }
-  }
-  return count;
-};
-
-const selectNextBodypart = () => {
-  let foundFirst = false;
-  for (const { individual, bodypart, coords } of bodyparts()) {
-    if (selected.value?.length) {
-      if (selected.value[0] === `${individual}-${bodypart}`) {
-        foundFirst = true;
-        continue;
-      } else if (!foundFirst) {
-        continue;
-      }
-    }
-    if (!hasCoords(coords)) {
-      opened.value = [individual];
-      selected.value = [`${individual}-${bodypart}`];
-      if (document.activeElement instanceof HTMLElement) {
-        document.activeElement.blur();
-      }
-      return;
-    }
-  }
-  // clear selection as there is no next individual or bodypart
-  selected.value = undefined;
-  if (document.activeElement instanceof HTMLElement) {
-    document.activeElement.blur();
-  }
-};
-
+useHotkeys("n", () => selectNextLabel());
+useHotkeys("shift+n", () => selectNextLabel(false));
 useHotkeys("esc", () => {
   // deselect current label
   selected.value = [];
   if (document.activeElement instanceof HTMLElement) {
     document.activeElement.blur();
   }
-});
-
-useHotkeys("n", () => {
-  selectNextBodypart();
 });
 </script>
 
@@ -140,7 +100,7 @@ useHotkeys("n", () => {
             <span class="text-capitalize">{{ individual }}</span>
           </template>
           <template #subtitle>
-            {{ getLabelledCount(individuals?.[individual]) }} /
+            {{ getLabelledCount(undefined, individual) }} /
             {{ config.bodyparts.length }}
           </template>
         </v-list-item>

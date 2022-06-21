@@ -115,12 +115,59 @@ export const useLabels = defineStore("labels", () => {
     syncBackend();
   };
 
+  /* SELECTED LABEL */
+  const selected = ref<string[] | undefined>(undefined);
+
+  const selectLabel = (individual?: string, bodypart?: string) => {
+    if (individual && bodypart) {
+      selected.value = [`${individual}-${bodypart}`];
+    } else {
+      selected.value = [];
+    }
+  };
+
+  const isSelected = (individual: string, bodypart: string) => {
+    return selected.value?.length
+      ? `${individual}-${bodypart}` === selected.value[0]
+      : false;
+  };
+
+  const selectNextLabel = (empty = true) => {
+    try {
+      let found = false;
+      for (const { individual, bodypart, coords } of bodyparts()) {
+        // if there is a selected label find the next empty label after it
+        // otherwise just find the first empty label
+        if (selected.value?.length) {
+          if (isSelected(individual, bodypart)) {
+            found = true;
+            continue;
+          } else if (!found) {
+            continue;
+          }
+        }
+        if (!empty || !hasCoords(coords)) {
+          selectLabel(individual, bodypart);
+          return;
+        }
+      }
+      // clear selection as there is no next individual or bodypart
+      selectLabel();
+    } finally {
+      // ensure no label is focused before returning
+      if (document.activeElement instanceof HTMLElement) {
+        document.activeElement.blur();
+      }
+    }
+  };
+
   /* UTILITY FUNCTIONS */
-  function* bodyparts(image_: string = image.value) {
+  function* bodyparts(image_: string = image.value, individual?: string) {
     // we iterate using the individuals and bodyparts from the config
     // as they are not all guaranteed to be in the labels object
     if (config.value) {
-      for (const [i, individual] of config.value.individuals.entries()) {
+      const individuals = individual ? [individual] : config.value.individuals;
+      for (const [i, individual] of individuals.entries()) {
         for (const [j, bodypart] of config.value.bodyparts.entries()) {
           const coords = labels.value?.[image_]?.[individual]?.[bodypart];
           yield { i, j, individual, bodypart, coords };
@@ -134,9 +181,12 @@ export const useLabels = defineStore("labels", () => {
   };
 
   /** Returns the number of bodyparts that have been labelled for a given image */
-  const getLabelledCount = (image_: string = image.value) => {
+  const getLabelledCount = (
+    image_: string = image.value,
+    individual?: string
+  ) => {
     let count = 0;
-    for (const { coords } of bodyparts(image_)) {
+    for (const { coords } of bodyparts(image_, individual)) {
       if (hasCoords(coords)) {
         count++;
       }
@@ -151,6 +201,10 @@ export const useLabels = defineStore("labels", () => {
     individuals,
     pending,
     updateLabel,
+    selected,
+    selectLabel,
+    isSelected,
+    selectNextLabel,
     bodyparts,
     hasCoords,
     getLabelledCount
