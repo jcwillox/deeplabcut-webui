@@ -19,14 +19,6 @@ const frames = useFrames();
 const showProject = computed(() => !store.project || !store.cVideo);
 const showSettings = ref(false);
 
-// ensure all pages except project view are unmounted when switching or closing a project
-const keepAliveExclusion = computed(() =>
-  store.project ? ["ProjectView"] : undefined
-);
-const keepAliveInclusion = computed(() =>
-  store.project ? undefined : ["ProjectView"]
-);
-
 // compute which theme to use
 const theme = useTheme();
 const themeMode = useStorage<BasicColorSchema>("theme", "auto");
@@ -161,10 +153,7 @@ useHotkeys("shift+w", store.resetProject);
     <v-main class="pa-0">
       <router-view #default="{ Component }">
         <transition>
-          <keep-alive
-            :exclude="keepAliveExclusion"
-            :include="keepAliveInclusion"
-          >
+          <keep-alive>
             <component :is="Component" />
           </keep-alive>
         </transition>

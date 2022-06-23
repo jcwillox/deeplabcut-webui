@@ -7,7 +7,14 @@ import Panzoom, { type PanzoomObject } from "@panzoom/panzoom";
 import type { PanzoomEventDetail } from "@panzoom/panzoom/dist/src/types";
 import { useResizeObserver } from "@vueuse/core";
 import { storeToRefs } from "pinia";
-import { onBeforeUnmount, onMounted, ref, watch, type Ref } from "vue";
+import {
+  onActivated,
+  onBeforeUnmount,
+  onMounted,
+  ref,
+  watch,
+  type Ref
+} from "vue";
 
 const emit = defineEmits<{
   (e: "panzoomchange", detail: PanzoomEventDetail): void;
@@ -178,13 +185,24 @@ const resetZoom = () => {
   }
 };
 
-onMounted(() => {
-  panzoom.value = Panzoom(imgEl.value!.$el, {
-    maxScale: 32,
-    contain: "outside",
-    cursor: "auto"
-  });
+const onMountedOrActivated = () => {
+  if (!panzoom.value && imgEl.value?.$el.isConnected) {
+    panzoom.value = Panzoom(imgEl.value!.$el, {
+      maxScale: 32,
+      contain: "outside",
+      cursor: "auto"
+    });
+  }
+};
 
+onMounted(onMountedOrActivated);
+onActivated(onMountedOrActivated);
+onBeforeUnmount(() => {
+  panzoom.value?.destroy();
+  panzoom.value = null;
+});
+
+onMounted(() => {
   imgEl.value!.$el.addEventListener(
     "panzoomchange",
     (e: CustomEvent<PanzoomEventDetail>) => emit("panzoomchange", e.detail)
@@ -210,11 +228,6 @@ onMounted(() => {
       }
     }
   });
-});
-
-onBeforeUnmount(() => {
-  panzoom.value?.destroy();
-  panzoom.value = null;
 });
 
 defineExpose({
