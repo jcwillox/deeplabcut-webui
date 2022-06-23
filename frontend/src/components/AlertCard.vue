@@ -53,13 +53,4 @@ const show = ref(false);
   white-space: pre;
   overflow-x: auto;
 }
-.v-card-text::-webkit-scrollbar-thumb {
-  background-color: rgba(0, 0, 0, 0.2);
-  border: 4px solid transparent;
-  border-radius: 8px;
-  background-clip: padding-box;
-}
-.v-card-text::-webkit-scrollbar {
-  width: 16px;
-}
 </style>

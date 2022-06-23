@@ -38,6 +38,13 @@ watch([themeMode, systemTheme], () => {
   } else {
     theme.global.name.value = themeMode.value;
   }
+  if (theme.global.name.value === "light") {
+    document.documentElement.classList.remove("v-theme--dark");
+    document.documentElement.classList.add("v-theme--light");
+  } else {
+    document.documentElement.classList.remove("v-theme--light");
+    document.documentElement.classList.add("v-theme--dark");
+  }
 });
 
 // handle tracking active tab
@@ -167,10 +174,31 @@ useHotkeys("shift+w", store.resetProject);
 </template>
 
 <style>
-html {
-  overflow-y: auto !important;
-  --v-scrollbar-offset: 0px !important;
+*::-webkit-scrollbar {
+  width: 16px;
 }
+
+*::-webkit-scrollbar-thumb {
+  background-color: rgba(var(--v-theme-on-background), 0.2);
+  border: 4px solid transparent;
+  border-radius: 8px;
+  background-clip: padding-box;
+  pointer-events: none;
+}
+
+html.v-theme--light > body::-webkit-scrollbar {
+  background-color: rgb(238, 238, 238);
+}
+
+@supports (overflow: overlay) {
+  html {
+    overflow-y: overlay !important;
+  }
+  html.v-theme--light > body::-webkit-scrollbar {
+    background-color: unset;
+  }
+}
+
 .v-table--fixed-header th {
   z-index: 1;
 }
