@@ -57,11 +57,25 @@ onActivated(() => {
   <v-container
     v-else
     class="d-flex flex-row pa-0"
-    style="max-width: 1280px; height: calc(100vh - 72px)"
+    style="max-width: 1000px; height: calc(100vh - 72px)"
     fluid
   >
     <div class="ma-2 d-flex flex-column" style="flex-grow: 5">
-      <h2 class="text-center">{{ store.project }}</h2>
+      <div class="d-flex justify-center align-center">
+        <h2 class="text-center">{{ store.project }}</h2>
+        <v-btn
+          class="ml-1"
+          size="small"
+          variant="text"
+          @click="store.resetProject"
+          icon
+        >
+          <v-icon color="red" size="small">mdi-close</v-icon>
+          <v-tooltip activator="parent" location="bottom">
+            Close Project <kbd>Shift</kbd><kbd>W</kbd>
+          </v-tooltip>
+        </v-btn>
+      </div>
       <VideoBrowser
         :items="videos"
         :loading="isFetchingVideos"
@@ -69,22 +83,6 @@ onActivated(() => {
         height="calc(100vh - 131px)"
       />
     </div>
-    <v-divider vertical />
-    <div class="d-flex flex-column" style="flex-grow: 1">
-      <v-btn
-        class="ma-2"
-        color="red"
-        variant="text"
-        @click="store.resetProject"
-      >
-        Close Project
-        <v-tooltip activator="parent" location="bottom">
-          <kbd>Shift</kbd><kbd>W</kbd>
-        </v-tooltip>
-      </v-btn>
-      <v-divider />
-    </div>
-    <v-divider vertical />
   </v-container>
 </template>
 
