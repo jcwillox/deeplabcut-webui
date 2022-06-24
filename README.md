@@ -1,11 +1,17 @@
 # DeepLabCut WebUI
 
 [![License](https://img.shields.io/github/license/jcwillox/deeplabcut-webui?style=for-the-badge)](https://github.com/jcwillox/deeplabcut-webui/blob/main/LICENSE)
+[![Latest Release](https://img.shields.io/github/v/release/jcwillox/deeplabcut-webui?style=for-the-badge)](https://github.com/jcwillox/deeplabcut-webui/releases)
 [![Code style](https://img.shields.io/badge/code%20style-black-000000.svg?style=for-the-badge)](https://github.com/psf/black)
 
 [![Vue.js](https://img.shields.io/badge/vuejs-%2335495e.svg?style=for-the-badge&logo=vuedotjs&logoColor=%234FC08D)](https://vuejs.org)
 [![Vuetify](https://img.shields.io/badge/Vuetify-1867C0?style=for-the-badge&logo=vuetify&logoColor=AEDDFF)](https://vuetifyjs.com)
 [![FastAPI](https://img.shields.io/badge/FastAPI-005571?style=for-the-badge&logo=fastapi)](https://fastapi.tiangolo.com)
+
+## Docs
+
+For more information on how to use this software, check out the online documentation.
+https://jcwillox.github.io/deeplabcut-webui/docs
 
 ## Setup
 
