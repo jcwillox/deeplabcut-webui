@@ -16,7 +16,7 @@ const emit = defineEmits<{
 
 const store = useStore();
 const video = computed({
-  get: () => store.video,
+  get: () => store.cVideo,
   set: value => {
     store.setVideo(value);
     emit("selected", value);

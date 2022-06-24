@@ -9,7 +9,7 @@ import ProjectBrowser from "@/components/ProjectBrowser.vue";
 import VideoBrowser from "@/components/VideoBrowser.vue";
 import { useStore } from "@/stores";
 import { useFetch } from "@/utils/fetch";
-import { watchEffect } from "vue";
+import { onActivated, watchEffect } from "vue";
 
 const store = useStore();
 const {
@@ -26,9 +26,16 @@ const {
 
 watchEffect(() => {
   if (store.project) {
+    videos.value = null;
     fetchVideos();
   } else {
     fetchProjects();
+  }
+});
+
+onActivated(() => {
+  if (store.project && !isFetchingVideos.value) {
+    fetchVideos();
   }
 });
 </script>
