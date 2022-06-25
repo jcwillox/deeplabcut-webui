@@ -27,7 +27,9 @@ const reset = () => {
 };
 
 const openDocs = () => {
-  window.location.assign(import.meta.env.BASE_URL + "docs/");
+  window.location.assign(
+    import.meta.env.BASE_URL + "docs/guide/select-backend"
+  );
 };
 </script>
 

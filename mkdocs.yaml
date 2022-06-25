@@ -11,11 +11,12 @@ copyright: Copyright &copy; MIT
 nav:
   - "index.md"
   - Guide:
-      - "guide/getting-started.md"
+      - "guide/select-backend.md"
       - "guide/select-project.md"
       - "guide/select-video.md"
       - "guide/extracting.md"
       - "guide/labelling.md"
+      - "guide/hotkeys.md"
   - Setup:
       - "setup/configuration.md"
   - Development:
@@ -62,6 +63,7 @@ markdown_extensions:
   - pymdownx.inlinehilite
   - pymdownx.details
   - pymdownx.superfences
+  - pymdownx.keys
   - pymdownx.tabbed:
       alternate_style: true
   - pymdownx.tasklist:
