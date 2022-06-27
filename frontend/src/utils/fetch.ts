@@ -1,6 +1,7 @@
 import { useErrors, useStore } from "@/stores";
-import { isArrayDefined } from "@/utils/index";
+import { isArrayDefined } from "@/utils";
 import { createFetch } from "@vueuse/core";
+import { capitalize } from "vue";
 
 const cache: Map<string, string> = new Map();
 export const clearUrlCache = () => cache.clear();
@@ -37,10 +38,36 @@ export const createUrl = (...parts: string[]): string => {
   return url.toString();
 };
 
+interface ValidationErrorItem {
+  msg: string;
+  type: string;
+  loc: string[];
+}
+
+export class ValidationError extends Error {
+  resp: Response;
+  errors: ValidationErrorItem[];
+  constructor(resp: Response, errors: ValidationErrorItem[]) {
+    const message = errors.map(value => capitalize(value.msg)).join("\n");
+    super(message);
+    this.name = "ValidationError";
+    this.resp = resp;
+    this.errors = errors;
+    Object.setPrototypeOf(this, ValidationError.prototype);
+  }
+}
+
 export const useFetch = createFetch({
   options: {
     async beforeFetch({ url, options }) {
       return { url: createUrl(url), options };
+    },
+    async fetch(input, init) {
+      const resp = await fetch(input, init);
+      if (resp.status === 422) {
+        throw new ValidationError(resp, (await resp.json()).detail || []);
+      }
+      return resp;
     },
     afterFetch(ctx) {
       // clear error state after successful request
@@ -57,7 +84,7 @@ export const useFetch = createFetch({
             stack: ctx.error.stack
           });
         }
-      } else if (ctx.error) {
+      } else if (ctx.error && !(ctx.error instanceof ValidationError)) {
         // no response has been received
         errors.set({
           message: ctx.error.message,
