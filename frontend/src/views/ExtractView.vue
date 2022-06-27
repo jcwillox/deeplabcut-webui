@@ -6,6 +6,7 @@ export default {
 
 <script setup lang="ts">
 import VideoJS from "@/components/VideoJS.vue";
+import FrameInfoDialog from "@/dialogs/FrameInfoDialog.vue";
 import { useFrames, useStore } from "@/stores";
 import { createCachedUrl, useFetch, useHotkeys } from "@/utils";
 import { computed, ref, watch } from "vue";
@@ -68,12 +69,6 @@ const extractFrame = async () => {
     await frames.update();
     selectedFrame.value = frames.items.indexOf(data.value[0]);
   }
-};
-
-// change the player to the frame extracted from the images name
-const clickFrame = (frameName: string) => {
-  const frameNumber = /\d+/.exec(frameName);
-  player.value?.seekTo(Number(frameNumber));
 };
 
 // define hotkeys
@@ -206,24 +201,76 @@ useHotkeys("space", () => {
         :key="image"
         v-slot="{ toggle }"
       >
-        <v-card class="ma-4" width="100" @click="toggle">
-          <div class="d-flex fill-height align-center justify-center">
-            <v-img
-              :src="createCachedUrl(frames.framesUrl, image)"
-              @click="clickFrame(image)"
-            >
-              <template #placeholder>
-                <v-row class="fill-height ma-0" align="center" justify="center">
-                  <v-progress-circular
-                    indeterminate
-                    color="grey lighten-5"
-                  ></v-progress-circular>
-                </v-row>
-              </template>
-            </v-img>
-          </div>
-        </v-card>
+        <FrameInfoDialog
+          :image="image"
+          :on-show-in-video="frameNum => (frame = frameNum)"
+        >
+          <template #activator="{ showInVideo, showInLabels, props: btnProps }">
+            <v-hover #default="{ isHovering, props }">
+              <v-card
+                v-bind="{ ...props, ...btnProps }"
+                class="d-flex ma-4"
+                width="140"
+              >
+                <v-img :src="createCachedUrl(frames.framesUrl, image)">
+                  <template #placeholder>
+                    <v-row
+                      class="fill-height ma-0"
+                      align="center"
+                      justify="center"
+                    >
+                      <v-progress-circular
+                        indeterminate
+                        color="grey lighten-5"
+                      ></v-progress-circular>
+                    </v-row>
+                  </template>
+                  <v-fade-transition style="transition: opacity 0.1s">
+                    <div v-if="isHovering" class="actions">
+                      <v-btn
+                        variant="text"
+                        size="small"
+                        @click.stop="showInVideo"
+                        @click="toggle"
+                        icon="mdi-movie"
+                      />
+                      <v-btn
+                        v-bind="btnProps"
+                        variant="text"
+                        size="small"
+                        @click="toggle"
+                        icon="mdi-information-outline"
+                      />
+                      <v-btn
+                        variant="text"
+                        size="small"
+                        @click.stop="showInLabels"
+                        @click="toggle"
+                        icon="mdi-label"
+                      />
+                    </div>
+                  </v-fade-transition>
+                </v-img>
+              </v-card>
+            </v-hover>
+          </template>
+        </FrameInfoDialog>
       </v-slide-group-item>
     </v-slide-group>
   </v-container>
 </template>
+
+<style scoped>
+.v-slide-group__content > .v-card .actions {
+  height: 100%;
+  display: flex;
+  background-color: #00000090;
+}
+.v-slide-group__content > .v-card .actions > .v-btn {
+  width: auto;
+  height: 100%;
+  flex-grow: 1;
+  color: white;
+  border-radius: 0;
+}
+</style>

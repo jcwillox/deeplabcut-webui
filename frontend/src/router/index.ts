@@ -38,4 +38,14 @@ const router = createRouter({
   ]
 });
 
+router.beforeEach(() => {
+  // forcefully hide tooltip before navigating due to vuetify bug
+  const el = document.querySelector<HTMLElement>(
+    ".v-tooltip.v-overlay--active > .v-overlay__content"
+  );
+  if (el) {
+    el.style.display = "none";
+  }
+});
+
 export default router;

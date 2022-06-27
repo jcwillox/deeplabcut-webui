@@ -8,6 +8,7 @@ export default {
 import AdvImg from "@/components/AdvImg.vue";
 import LabelEditor from "@/components/LabelEditor.vue";
 import LabelsList from "@/components/LabelsList.vue";
+import FrameInfoDialog from "@/dialogs/FrameInfoDialog.vue";
 import FramesDialog from "@/dialogs/FramesDialog.vue";
 import { useFrames, useLabels } from "@/stores";
 import { createCachedUrl, useHotkeys } from "@/utils";
@@ -15,6 +16,7 @@ import type { PanzoomEventDetail } from "@panzoom/panzoom/dist/src/types";
 import { storeToRefs } from "pinia";
 import { ref, watch } from "vue";
 import { useRoute } from "vue-router";
+import type { VBtn } from "vuetify/components";
 
 const route = useRoute();
 const frames = useFrames();
@@ -23,6 +25,7 @@ const { index, image, pending } = storeToRefs(useLabels());
 
 const labelEditorEl = ref<InstanceType<typeof LabelEditor> | null>(null);
 const minimapEl = ref<InstanceType<typeof AdvImg> | null>(null);
+const videoBtnEl = ref<InstanceType<typeof VBtn> | null>(null);
 
 const mapWidth = ref("0%");
 const mapHeight = ref("0%");
@@ -72,6 +75,9 @@ useHotkeys("g", () => {
 });
 useHotkeys("r", () => {
   labelEditorEl.value?.resetZoom();
+});
+useHotkeys("v", () => {
+  videoBtnEl.value?.$el.click();
 });
 </script>
 
@@ -152,6 +158,37 @@ useHotkeys("r", () => {
                 Reset zoom <kbd>R</kbd>
               </v-tooltip>
             </v-btn>
+            <v-divider />
+            <FrameInfoDialog :image="image" hide-label-btn>
+              <template #activator="{ showInVideo, props }">
+                <v-btn
+                  ref="videoBtnEl"
+                  class="rounded-0"
+                  variant="plain"
+                  size="small"
+                  @click.stop="showInVideo"
+                  icon
+                >
+                  <v-icon size="small">mdi-movie</v-icon>
+                  <v-tooltip activator="parent" location="end">
+                    Show in Video <kbd>V</kbd>
+                  </v-tooltip>
+                </v-btn>
+                <v-divider />
+                <v-btn
+                  v-bind="props"
+                  class="rounded-0"
+                  variant="plain"
+                  size="small"
+                  icon
+                >
+                  <v-icon size="small">mdi-information-outline</v-icon>
+                  <v-tooltip activator="parent" location="end">
+                    Image Info
+                  </v-tooltip>
+                </v-btn>
+              </template>
+            </FrameInfoDialog>
             <v-divider />
             <v-btn
               class="rounded-0 rounded-be flex-grow-1"
