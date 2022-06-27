@@ -36,25 +36,20 @@ const partiallyLabelled = (image: string) =>
       </v-toolbar>
       <v-card-content class="overflow-y-auto">
         <v-row class="text-center" justify="center" align="center">
-          <v-col v-for="(frame, i) in frames.items" :key="frame" cols="auto">
+          <v-col v-for="(image, i) in frames.items" :key="image" cols="auto">
             <v-card
               variant="tonal"
               :key="i"
               :width="250"
-              :color="
-                i === index
-                  ? 'green'
-                  : partiallyLabelled(frame)
-                  ? 'amber'
-                  : undefined
-              "
+              :class="{ active: i === index }"
+              :color="partiallyLabelled(image) ? 'amber' : undefined"
               @click="
                 index = i;
                 dialog = false;
               "
             >
               <v-img
-                :src="createCachedUrl(frames.framesUrl, frame)"
+                :src="createCachedUrl(frames.framesUrl, image)"
                 class="rounded-t"
               >
                 <template #placeholder>
@@ -70,10 +65,12 @@ const partiallyLabelled = (image: string) =>
                   </v-row>
                 </template>
               </v-img>
+
               <v-card-title class="d-flex justify-space-between text-body-1">
-                <span class="ellipsis">{{ frame }}</span>
+                <span class="ellipsis">{{ image }}</span>
+
                 <span class="text-no-wrap ml-2">
-                  {{ getLabelledCount(frame) }} / {{ labelsCount }}
+                  {{ getLabelledCount(image) }} / {{ labelsCount }}
                 </span>
               </v-card-title>
             </v-card>
@@ -89,6 +86,15 @@ const partiallyLabelled = (image: string) =>
   text-overflow: ellipsis;
   white-space: nowrap;
   overflow: hidden;
+}
+.v-card.active {
+  outline: 2px
+    rgba(
+      var(--v-theme-success),
+      calc(0.7 * var(--v-theme-success-overlay-multiplier))
+    )
+    solid;
+  outline-offset: 2px;
 }
 
 .v-card.parent {
