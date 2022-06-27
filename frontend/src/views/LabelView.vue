@@ -47,6 +47,19 @@ watch(
   { immediate: true }
 );
 
+// make sure we do not display an image that no longer exists
+watch(
+  () => frames.items,
+  () => {
+    const newIdx = frames.items.indexOf(image.value);
+    if (newIdx >= 0) {
+      index.value = newIdx;
+    } else if (index.value == frames.items.length - 1) {
+      index.value--;
+    }
+  }
+);
+
 // define hotkeys
 useHotkeys("a", () => {
   index.value--;

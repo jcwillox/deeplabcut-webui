@@ -28,6 +28,10 @@ export const useFrames = defineStore("frames", () => {
       .json();
   };
 
+  const remove = (image: string) => {
+    return useFetch(`${framesUrl.value}/${image}`).delete();
+  };
+
   const handleRouteChange = (route: RouteRecordName) => {
     if (route == "extract" || route == "label") {
       if (items.value.length == 0 && !isFetching.value) {
@@ -53,6 +57,7 @@ export const useFrames = defineStore("frames", () => {
     framesUrl,
     handleRouteChange,
     update,
-    extract
+    extract,
+    remove
   };
 });

@@ -108,6 +108,14 @@ def get_frame(frame: str, params: VideoCommonQuery = Depends(VideoCommonQuery)):
     return FileResponse(path)
 
 
+@router.delete("/{video}/frames/{frame}")
+def remove_frame(frame: str, params: VideoCommonQuery = Depends(VideoCommonQuery)):
+    name = os.path.splitext(params.video)[0]
+    path = get_project_path(params.project, "labeled-data", name, frame)
+    if os.path.exists(path):
+        os.remove(path)
+
+
 class ExtractRequestBody(BaseModel):
     frames: List[int]
 
