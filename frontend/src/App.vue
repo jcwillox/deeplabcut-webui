@@ -50,7 +50,7 @@ const items = computed(() => (showProject.value ? tabs.slice(0, 1) : tabs));
 watch(
   [() => store.project, () => store.cVideo],
   ([newProject, newVideo]) => {
-    if (!newProject || !newVideo) {
+    if (route.name != "project" && (!newProject || !newVideo)) {
       router.push({ name: "project" });
     }
   },
@@ -59,6 +59,24 @@ watch(
 
 // track video changes
 watch(() => store.video, clearUrlCache);
+
+// set backend and token from url params
+{
+  const searchParams = new URLSearchParams(location.search);
+  const backend = searchParams.get("backend");
+  const token = searchParams.get("token");
+  if (backend) {
+    store.backend = backend;
+    searchParams.delete("backend");
+  }
+  if (token) {
+    store.token = token;
+    searchParams.delete("token");
+  }
+  if (backend || token) {
+    router.replace({ query: Object.fromEntries(searchParams.entries()) });
+  }
+}
 
 // bind route to active tab
 watch(
