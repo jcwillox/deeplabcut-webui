@@ -9,8 +9,10 @@ import VideoJS from "@/components/VideoJS.vue";
 import { useFrames, useStore } from "@/stores";
 import { createCachedUrl, useFetch, useHotkeys } from "@/utils";
 import { computed, ref, watch } from "vue";
+import { useRoute } from "vue-router";
 import { VSlideGroup, VSlideGroupItem } from "vuetify/components";
 
+const route = useRoute();
 const store = useStore();
 const frames = useFrames();
 const player = ref<InstanceType<typeof VideoJS> | null>(null);
@@ -45,6 +47,17 @@ watch(
       selectedFrame.value = 0;
     }
   }
+);
+
+// bind route hash to frame
+watch(
+  () => route.hash,
+  value => {
+    if (route.name === "extract" && value) {
+      frame.value = Number(value.slice(1));
+    }
+  },
+  { immediate: true }
 );
 
 // extract frame logic

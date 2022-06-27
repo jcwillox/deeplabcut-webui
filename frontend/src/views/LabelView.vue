@@ -13,8 +13,10 @@ import { useFrames, useLabels } from "@/stores";
 import { createCachedUrl, useHotkeys } from "@/utils";
 import type { PanzoomEventDetail } from "@panzoom/panzoom/dist/src/types";
 import { storeToRefs } from "pinia";
-import { ref } from "vue";
+import { ref, watch } from "vue";
+import { useRoute } from "vue-router";
 
+const route = useRoute();
 const frames = useFrames();
 const dialog = ref(false);
 const { index, image, pending } = storeToRefs(useLabels());
@@ -33,6 +35,17 @@ const panZoomChange = (detail: PanzoomEventDetail) => {
   mapWidth.value = ((width / 2 - detail.x) / width) * 100 + "%";
   mapHeight.value = ((height / 2 - detail.y) / height) * 100 + "%";
 };
+
+// bind route hash to frame
+watch(
+  () => route.hash,
+  value => {
+    if (route.name === "label" && value) {
+      index.value = frames.items.indexOf(value.slice(1));
+    }
+  },
+  { immediate: true }
+);
 
 // define hotkeys
 useHotkeys("a", () => {
