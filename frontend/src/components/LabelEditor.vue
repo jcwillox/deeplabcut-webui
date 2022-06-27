@@ -2,7 +2,7 @@
 import AdvImg from "@/components/AdvImg.vue";
 import LabelMarker from "@/components/LabelMarker.vue";
 import { useConfig, useFrames, useLabels, useStore } from "@/stores";
-import { createCachedUrl } from "@/utils/fetch";
+import { createCachedUrl, useExactClick } from "@/utils";
 import Panzoom, { type PanzoomObject } from "@panzoom/panzoom";
 import type { PanzoomEventDetail } from "@panzoom/panzoom/dist/src/types";
 import { useResizeObserver } from "@vueuse/core";
@@ -154,14 +154,14 @@ const handlePanzoomChange = (
   }
 };
 
-const handleClick = (ev: MouseEvent) => {
+const [handleMouseDown, handleMouseUp] = useExactClick((x, y) => {
   if (!selected.value || !config.value) {
     return;
   }
   for (const { individual, bodypart, coords } of bodyparts()) {
     if (isSelected(individual, bodypart)) {
       if (!hasCoords(coords)) {
-        const relativeCoords = calcPointFromCorner(ev.clientX, ev.clientY);
+        const relativeCoords = calcPointFromCorner(x, y);
         const trueCoords = calcFixedFromCorner(
           relativeCoords!.x,
           relativeCoords!.y
@@ -174,7 +174,7 @@ const handleClick = (ev: MouseEvent) => {
       }
     }
   }
-};
+});
 
 const resetZoom = () => {
   panzoom.value?.reset({ animate: false });
@@ -241,7 +241,8 @@ defineExpose({
       ref="imgEl"
       :src="createCachedUrl(frames.framesUrl, image)"
       @load="updateLabelItems"
-      @click="handleClick"
+      @panzoomstart="handleMouseDown($event.detail.originalEvent)"
+      @panzoomend="handleMouseUp($event.detail.originalEvent)"
     >
       <LabelMarker
         ref="labelMarkerEls"

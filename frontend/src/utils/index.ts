@@ -1,6 +1,7 @@
 import { isDefined } from "@vueuse/core";
 
 export * from "./fetch";
+export * from "./use-exact-click";
 export * from "./use-hotkeys";
 
 export function toTimecode(seconds: number) {
