@@ -26,7 +26,7 @@ useHotkeys("shift+p", () => {
   <v-system-bar
     v-if="store.project"
     color="primary-darken-1"
-    class="flex-grow-0 pl-0"
+    class="flex-grow-0 px-0"
   >
     <ProjectDialog v-model="dialogProject">
       <template #activator="{ props }">

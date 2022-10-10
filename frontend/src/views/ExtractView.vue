@@ -124,7 +124,7 @@ useHotkeys("space", () => {
           @click="player?.seekBackward(10)"
           icon
         >
-          <v-icon size="small">mdi-chevron-double-left</v-icon>
+          <v-icon>mdi-chevron-double-left</v-icon>
           <v-tooltip activator="parent" location="top">
             Back 10 frames <kbd>Shift</kbd><kbd>A</kbd>
           </v-tooltip>
@@ -135,7 +135,7 @@ useHotkeys("space", () => {
           @click="player?.seekBackward()"
           icon
         >
-          <v-icon size="small">mdi-chevron-left</v-icon>
+          <v-icon>mdi-chevron-left</v-icon>
           <v-tooltip activator="parent" location="top">
             Back 1 frame <kbd>A</kbd>
           </v-tooltip>
@@ -152,7 +152,7 @@ useHotkeys("space", () => {
           @click="player?.seekForward()"
           icon
         >
-          <v-icon size="small">mdi-chevron-right</v-icon>
+          <v-icon>mdi-chevron-right</v-icon>
           <v-tooltip activator="parent" location="top">
             Forward 1 frame <kbd>D</kbd>
           </v-tooltip>
@@ -163,7 +163,7 @@ useHotkeys("space", () => {
           @click="player?.seekForward(10)"
           icon
         >
-          <v-icon size="small">mdi-chevron-double-right</v-icon>
+          <v-icon>mdi-chevron-double-right</v-icon>
           <v-tooltip activator="parent" location="top">
             Forward 10 frames <kbd>Shift</kbd><kbd>D</kbd>
           </v-tooltip>

@@ -25,36 +25,21 @@ watch(dialog, () => dialog.value && execute());
 </script>
 
 <template>
-  <v-dialog v-model="dialog">
+  <v-dialog v-model="dialog" width="800px" max-width="calc(100% - 16px)">
     <template #activator="props">
       <slot name="activator" v-bind="props" />
     </template>
-    <v-card class="parent">
-      <v-toolbar color="primary" class="toolbar-fixed">
+    <v-card>
+      <v-toolbar color="primary" density="comfortable">
         <v-toolbar-title>Select Project</v-toolbar-title>
         <v-btn icon="mdi-close" @click="dialog = false" />
       </v-toolbar>
-      <v-card-content class="overflow-y-auto pa-0">
-        <ProjectBrowser
-          :items="data"
-          :loading="isFetching"
-          height="calc(100vh - 104px)"
-          @selected="dialog = false"
-        />
-      </v-card-content>
+      <ProjectBrowser
+        :items="data"
+        :loading="isFetching"
+        height="calc(100vh - 104px)"
+        @selected="dialog = false"
+      />
     </v-card>
   </v-dialog>
 </template>
-
-<style scoped>
-.v-card.parent {
-  min-width: 800px;
-  height: calc(100vh - 48px);
-}
-@media screen and (max-width: 800px) {
-  .v-card.parent {
-    min-width: initial;
-    max-width: calc(100vw - 24px);
-  }
-}
-</style>

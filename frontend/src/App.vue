@@ -5,39 +5,13 @@ import SystemBar from "@/components/SystemBar.vue";
 import VersionDialog from "@/dialogs/VersionDialog.vue";
 import { useFrames, useStore } from "@/stores";
 import { clearUrlCache, useHotkeys } from "@/utils";
-import {
-  usePreferredColorScheme,
-  useStorage,
-  type BasicColorSchema
-} from "@vueuse/core";
 import { computed, ref, watch } from "vue";
 import { RouterView, useRoute, useRouter } from "vue-router";
-import { useTheme } from "vuetify";
 
 const store = useStore();
 const frames = useFrames();
 const showProject = computed(() => !store.project || !store.cVideo);
 const showSettings = ref(false);
-
-// compute which theme to use
-const theme = useTheme();
-const themeMode = useStorage<BasicColorSchema>("theme", "auto");
-const systemTheme = usePreferredColorScheme();
-
-watch([themeMode, systemTheme], () => {
-  if (themeMode.value == "auto") {
-    theme.global.name.value = systemTheme.value === "dark" ? "dark" : "light";
-  } else {
-    theme.global.name.value = themeMode.value;
-  }
-  if (theme.global.name.value === "light") {
-    document.documentElement.classList.remove("v-theme--dark");
-    document.documentElement.classList.add("v-theme--light");
-  } else {
-    document.documentElement.classList.remove("v-theme--light");
-    document.documentElement.classList.add("v-theme--dark");
-  }
-});
 
 // handle tracking active tab
 const route = useRoute();
@@ -122,11 +96,11 @@ useHotkeys("shift+w", store.resetProject);
 
 <template>
   <v-app>
-    <SettingsMenu v-model="showSettings" v-model:theme="themeMode" />
+    <SettingsMenu v-model="showSettings" />
     <SnackbarPWA />
     <SystemBar />
 
-    <v-app-bar color="primary" density="compact" class="position-relative" flat>
+    <v-app-bar color="primary" density="compact" flat>
       <template v-slot:prepend>
         <v-tabs v-model="tab">
           <v-tab
@@ -157,7 +131,7 @@ useHotkeys("shift+w", store.resetProject);
           </v-btn>
         </template>
       </VersionDialog>
-      <v-btn class="mr-n3" @click.stop="showSettings = true" icon>
+      <v-btn class="mr-1" @click.stop="showSettings = true" icon>
         <v-icon>mdi-cog</v-icon>
         <v-tooltip
           activator="parent"
@@ -168,7 +142,7 @@ useHotkeys("shift+w", store.resetProject);
       </v-btn>
     </v-app-bar>
 
-    <v-main class="pa-0">
+    <v-main>
       <router-view #default="{ Component }">
         <transition>
           <keep-alive>
@@ -181,6 +155,7 @@ useHotkeys("shift+w", store.resetProject);
 </template>
 
 <style>
+/* modern scrollbars */
 *::-webkit-scrollbar {
   width: 16px;
 }
@@ -206,12 +181,11 @@ html.v-theme--light > body::-webkit-scrollbar {
   }
 }
 
-.v-table--fixed-header th {
-  z-index: 1;
-}
 .v-overlay header.v-toolbar.v-theme--dark.bg-primary {
   background: rgb(var(--v-theme-on-surface-variant)) !important;
 }
+
+/* improved kbd styles */
 .v-tooltip kbd {
   border-radius: 3px;
   background: rgb(var(--v-theme-surface-variant));
@@ -223,14 +197,5 @@ html.v-theme--light > body::-webkit-scrollbar {
 }
 .v-tooltip kbd:not(:first-child) {
   margin-left: 2px;
-}
-.toolbar-fixed {
-  top: 0;
-  position: sticky;
-  flex-shrink: 0;
-  z-index: 1;
-}
-.cursor-pointer {
-  cursor: pointer;
 }
 </style>

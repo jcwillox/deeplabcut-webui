@@ -25,16 +25,21 @@ const partiallyLabelled = (image: string) =>
 </script>
 
 <template>
-  <v-dialog v-model="dialog">
+  <v-dialog
+    v-model="dialog"
+    width="auto"
+    height="calc(100% - 48px)"
+    min-width="800px"
+  >
     <template #activator="props">
       <slot name="activator" v-bind="props" />
     </template>
-    <v-card class="parent" style="height: calc(100vh - 48px)">
-      <v-toolbar color="primary" class="toolbar-fixed">
+    <v-card class="parent h-100">
+      <v-toolbar color="primary" density="comfortable">
         <v-toolbar-title>Frames</v-toolbar-title>
         <v-btn icon="mdi-close" @click="dialog = false" />
       </v-toolbar>
-      <v-card-content class="overflow-y-auto">
+      <div class="overflow-y-auto pa-4">
         <v-row class="text-center" justify="center" align="center">
           <v-col v-for="(image, i) in frames.items" :key="image" cols="auto">
             <v-card
@@ -76,7 +81,7 @@ const partiallyLabelled = (image: string) =>
             </v-card>
           </v-col>
         </v-row>
-      </v-card-content>
+      </div>
     </v-card>
   </v-dialog>
 </template>
@@ -87,6 +92,14 @@ const partiallyLabelled = (image: string) =>
   white-space: nowrap;
   overflow: hidden;
 }
+@media screen and (max-width: 1000px) {
+  .v-card.parent {
+    width: 100%;
+    max-width: calc(100vw - 16px);
+    align-self: center;
+  }
+}
+/* outline active card */
 .v-card.active {
   outline: 2px
     rgba(
@@ -96,15 +109,9 @@ const partiallyLabelled = (image: string) =>
     solid;
   outline-offset: 2px;
 }
-
-.v-card.parent {
-  min-width: 800px;
-  height: calc(100vh - 48px);
-}
-@media screen and (max-width: 800px) {
-  .v-card.parent {
-    min-width: initial;
-    max-width: calc(100vw - 24px);
-  }
+/* fix the tonal card color covering image */
+.v-card.v-card--variant-tonal > :deep(.v-card__underlay) {
+  height: 48px;
+  top: auto;
 }
 </style>

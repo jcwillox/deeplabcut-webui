@@ -35,15 +35,20 @@ const openDocs = () => {
 
 <template>
   <div>
-    <v-dialog v-model="dialog" :persistent="errors.error !== undefined">
+    <v-dialog
+      v-model="dialog"
+      :persistent="errors.error !== undefined"
+      width="500px"
+      max-width="calc(100% - 8px)"
+    >
       <template #activator="props">
         <slot name="activator" v-bind="props" />
       </template>
-      <v-card class="parent">
-        <v-toolbar class="toolbar-fixed">
+      <v-card>
+        <v-toolbar density="comfortable">
           <v-toolbar-title>Backend Configuration</v-toolbar-title>
           <v-btn @click="openDocs" icon>
-            <v-icon class="text-high-emphasis">mdi-help-circle</v-icon>
+            <v-icon>mdi-help-circle</v-icon>
             <v-tooltip activator="parent" location="bottom" text="Help" />
           </v-btn>
           <v-btn
@@ -52,7 +57,7 @@ const openDocs = () => {
             @click="dialog = false"
           />
         </v-toolbar>
-        <v-card-content>
+        <div class="content overflow-y-auto pa-4">
           <AlertCard
             v-if="errors.error || !errors.updatedAt"
             title="Disconnected!"
@@ -91,7 +96,7 @@ const openDocs = () => {
             hide-details
             clearable
           ></v-text-field>
-        </v-card-content>
+        </div>
         <v-divider />
         <v-card-actions class="justify-end">
           <v-btn color="red" @click="reset">Reset</v-btn>
@@ -107,17 +112,7 @@ const openDocs = () => {
 </template>
 
 <style scoped>
-.v-card.parent {
-  width: 500px;
-}
-
-.v-card.parent > .v-card-content > *:not(:last-child) {
+.v-card > .content > *:not(:last-child) {
   margin-bottom: 8px;
-}
-
-@media screen and (max-width: 500px) {
-  .v-card.parent {
-    width: 100vw;
-  }
 }
 </style>

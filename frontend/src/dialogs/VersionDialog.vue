@@ -10,16 +10,16 @@ const version = __VERSION__;
 </script>
 
 <template>
-  <v-dialog v-model="dialog">
+  <v-dialog v-model="dialog" width="570px" max-width="calc(100% - 8px)">
     <template #activator="props">
       <slot name="activator" v-bind="props" />
     </template>
-    <v-card class="parent">
-      <v-toolbar class="toolbar-fixed">
+    <v-card>
+      <v-toolbar density="comfortable">
         <v-toolbar-title>About</v-toolbar-title>
         <v-btn icon="mdi-close" @click="dialog = false" />
       </v-toolbar>
-      <v-card-text class="pb-4">
+      <v-card-text class="overflow-y-auto pb-4">
         <v-table>
           <tbody>
             <tr>
@@ -50,17 +50,7 @@ const version = __VERSION__;
 </template>
 
 <style scoped>
-.v-card.parent {
-  width: 570px;
-}
-
 tbody > tr > td:first-child {
   font-weight: bold;
-}
-
-@media screen and (max-width: 570px) {
-  .v-card.parent {
-    width: 100vw;
-  }
 }
 </style>

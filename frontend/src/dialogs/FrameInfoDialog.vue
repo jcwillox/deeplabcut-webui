@@ -47,30 +47,29 @@ const showInVideo = () => {
 </script>
 
 <template>
-  <v-dialog v-model="dialog">
+  <v-dialog v-model="dialog" width="1000px" max-width="calc(100% - 8px)">
     <template #activator="props">
       <slot name="activator" v-bind="{ ...props, showInVideo, showInLabels }" />
     </template>
-    <v-card v-if="image" class="parent">
-      <v-toolbar color="primary" class="toolbar-fixed">
+    <v-card v-if="image">
+      <v-toolbar color="primary" density="comfortable">
         <v-toolbar-title>{{ image }}</v-toolbar-title>
         <v-btn icon="mdi-close" @click="dialog = false" />
       </v-toolbar>
-      <v-card-content class="overflow-y-auto">
-        <v-img
-          :src="createCachedUrl(frames.framesUrl, image)"
-          class="rounded-t"
-        >
-          <template #placeholder>
-            <v-row class="fill-height ma-0" align="center" justify="center">
-              <v-progress-circular
-                indeterminate
-                color="grey-lighten-5"
-              ></v-progress-circular>
-            </v-row>
-          </template>
-        </v-img>
-      </v-card-content>
+      <v-img
+        :src="createCachedUrl(frames.framesUrl, image)"
+        class="rounded ma-2"
+        max-height="calc(100vh - 189px)"
+      >
+        <template #placeholder>
+          <v-row class="fill-height ma-0" align="center" justify="center">
+            <v-progress-circular
+              indeterminate
+              color="grey-lighten-5"
+            ></v-progress-circular>
+          </v-row>
+        </template>
+      </v-img>
       <v-divider />
       <v-card-actions>
         <v-btn :loading="isDeleting" color="red" @click="deleteFrame">
@@ -87,18 +86,3 @@ const showInVideo = () => {
     </v-card>
   </v-dialog>
 </template>
-
-<style scoped>
-.v-card.parent {
-  min-width: 1000px;
-}
-.v-card.parent .v-img {
-  max-height: calc(100vh - 189px);
-}
-@media screen and (max-width: 1000px) {
-  .v-card.parent {
-    min-width: initial;
-    width: calc(100vw - 8px);
-  }
-}
-</style>

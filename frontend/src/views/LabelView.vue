@@ -105,7 +105,7 @@ useHotkeys("v", () => {
               @click="index--"
               icon
             >
-              <v-icon size="small">mdi-chevron-left</v-icon>
+              <v-icon>mdi-chevron-left</v-icon>
               <v-tooltip activator="parent" location="end">
                 Previous frame <kbd>A</kbd>
               </v-tooltip>
@@ -138,7 +138,7 @@ useHotkeys("v", () => {
                   size="small"
                   icon
                 >
-                  <v-icon size="small">mdi-expand-all</v-icon>
+                  <v-icon>mdi-expand-all</v-icon>
                   <v-tooltip activator="parent" location="end">
                     Show all frames <kbd>G</kbd>
                   </v-tooltip>
@@ -153,7 +153,7 @@ useHotkeys("v", () => {
               @click="labelEditorEl?.resetZoom()"
               icon
             >
-              <v-icon size="small">mdi-restore</v-icon>
+              <v-icon>mdi-restore</v-icon>
               <v-tooltip activator="parent" location="end">
                 Reset zoom <kbd>R</kbd>
               </v-tooltip>
@@ -169,7 +169,7 @@ useHotkeys("v", () => {
                   @click.stop="showInVideo"
                   icon
                 >
-                  <v-icon size="small">mdi-movie</v-icon>
+                  <v-icon>mdi-movie</v-icon>
                   <v-tooltip activator="parent" location="end">
                     Show in Video <kbd>V</kbd>
                   </v-tooltip>
@@ -182,7 +182,7 @@ useHotkeys("v", () => {
                   size="small"
                   icon
                 >
-                  <v-icon size="small">mdi-information-outline</v-icon>
+                  <v-icon>mdi-information-outline</v-icon>
                   <v-tooltip activator="parent" location="end">
                     Image Info
                   </v-tooltip>
@@ -197,7 +197,7 @@ useHotkeys("v", () => {
               @click="index++"
               icon
             >
-              <v-icon size="small">mdi-chevron-right</v-icon>
+              <v-icon>mdi-chevron-right</v-icon>
               <v-tooltip activator="parent" location="end">
                 Next frame <kbd>D</kbd>
               </v-tooltip>

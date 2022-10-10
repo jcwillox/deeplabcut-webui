@@ -70,7 +70,7 @@ onActivated(() => {
           @click="store.resetProject"
           icon
         >
-          <v-icon color="red" size="small">mdi-close</v-icon>
+          <v-icon color="red">mdi-close</v-icon>
           <v-tooltip activator="parent" location="bottom">
             Close Project <kbd>Shift</kbd><kbd>W</kbd>
           </v-tooltip>

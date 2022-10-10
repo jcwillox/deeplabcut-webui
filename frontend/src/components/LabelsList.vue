@@ -81,6 +81,8 @@ useHotkeys("esc", () => {
     v-model:opened="opened"
     open-strategy="single"
     class="overflow-y-auto"
+    density="compact"
+    lines="two"
   >
     <v-list-group
       v-for="(individual, index) in config.individuals"
@@ -90,11 +92,10 @@ useHotkeys("esc", () => {
       <template #activator="{ props }">
         <v-list-item v-bind="props" active-color="blue">
           <template #prepend>
-            <v-list-item-avatar start>
-              <v-icon :style="{ color: colorsIndividuals[index] }">
-                mdi-circle
-              </v-icon>
-            </v-list-item-avatar>
+            <v-icon
+              :style="{ color: colorsIndividuals[index] }"
+              icon="mdi-circle"
+            />
           </template>
           <template #title>
             <span class="text-capitalize">{{ individual }}</span>
@@ -112,11 +113,10 @@ useHotkeys("esc", () => {
         :value="`${individual}-${bodypart}`"
       >
         <template #prepend>
-          <v-list-item-avatar start>
-            <v-icon :style="colors.length > index && { color: colors[index] }">
-              mdi-circle
-            </v-icon>
-          </v-list-item-avatar>
+          <v-icon
+            :style="colors.length > index && { color: colors[index] }"
+            icon="mdi-circle"
+          />
         </template>
         <template #title>
           {{ bodypart }}
@@ -128,17 +128,15 @@ useHotkeys("esc", () => {
           v-if="hasCoords(individuals?.[individual]?.[bodypart])"
           #append
         >
-          <v-list-item-avatar end>
-            <v-btn
-              size="small"
-              variant="plain"
-              @click.stop="updateLabel(individual, bodypart)"
-              icon
-            >
-              <v-icon size="small">mdi-restore</v-icon>
-              <v-tooltip activator="parent" location="bottom" text="Reset" />
-            </v-btn>
-          </v-list-item-avatar>
+          <v-btn
+            size="small"
+            variant="plain"
+            @click.stop="updateLabel(individual, bodypart)"
+            icon
+          >
+            <v-icon class="text-medium-emphasis" icon="mdi-restore" />
+            <v-tooltip activator="parent" location="bottom" text="Reset" />
+          </v-btn>
         </template>
       </v-list-item>
     </v-list-group>
@@ -148,5 +146,16 @@ useHotkeys("esc", () => {
 <style scoped>
 .v-list-group__items .v-list-item {
   --indent-padding: 16px;
+}
+
+:deep(.v-list-item__prepend),
+:deep(.v-list-item__append) {
+  align-self: center;
+}
+
+.v-list-item__prepend > .v-icon {
+  opacity: 1;
+  margin-inline-end: 16px;
+  width: 40px;
 }
 </style>
