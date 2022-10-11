@@ -7,7 +7,9 @@
     "mhutchie.git-graph",
     "redhat.vscode-yaml",
     "vue.volar",
-    "vue.vscode-typescript-vue-plugin"
+    "vue.vscode-typescript-vue-plugin",
+    "Zignd.html-css-class-completion",
+    "antfu.iconify"
   ],
   "unwantedRecommendations": ["octref.vetur"]
 }
