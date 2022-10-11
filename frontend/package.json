@@ -19,7 +19,7 @@
   "dependencies": {
     "@mdi/font": "^7.0.96",
     "@panzoom/panzoom": "^4.5.1",
-    "@vueuse/core": "^8.9.4",
+    "@vueuse/core": "^9.3.0",
     "deepmerge-ts": "^4.2.2",
     "hotkeys-js": "^3.10.0",
     "js-colormaps": "github:jcwillox/js-colormaps#78ee14d",

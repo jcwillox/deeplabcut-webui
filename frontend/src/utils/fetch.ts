@@ -59,8 +59,9 @@ export class ValidationError extends Error {
 
 export const useFetch = createFetch({
   options: {
-    async beforeFetch({ url, options }) {
-      return { url: createUrl(url), options };
+    async beforeFetch(ctx) {
+      ctx.url = createUrl(ctx.url);
+      return ctx;
     },
     async fetch(input, init) {
       const resp = await fetch(input, init);
